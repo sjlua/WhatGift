@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-heading: "Merriweather", Georgia, serif;
+    --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-sans: var(--font-body);
+    --theme-primary: #007AFF;
+    --theme-hover: #0066CC;
+    --theme-tint: rgba(0, 122, 255, 0.12);
+    --theme-tint-dark: rgba(10, 132, 255, 0.22);
+    --theme-border: rgba(0, 122, 255, 0.35);
+  }
+
+  html, body {
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Merriweather Editorial Headings: Medium/Bold brand, thinner for h1/h2 */
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+  }
+
+  h1 {
+    font-weight: 300;
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+
+  h4 {
+    font-weight: 700;
+  }
+
+  html.dark, html[data-theme="dark"], html.dark body, body.dark {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    color-scheme: dark;
+  }
+
+  html:not(.dark), html[data-theme="light"], html:not(.dark) body, body:not(.dark) {
+    background-color: #F2F2F7 !important;
+    color: #1C1C1E !important;
+    color-scheme: light;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+    min-height: 100vh;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Apple-style clean scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C7C7CC;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8E8E93;
+  }
+
+  html.dark ::-webkit-scrollbar-thumb {
+    background: #3A3A3C;
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #48484A;
+  }
+}
+
+/* Apple HIG modal backdrop */
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
