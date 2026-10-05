@@ -74,35 +74,38 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
   return (
     <>
       <header
-        className="sticky top-0 z-40 w-full shadow-apple-md transition-colors duration-300 border-b border-black/10 dark:border-white/10 text-white"
-        style={{
-          background: navbarBackground,
-        }}
+        className="sticky top-0 z-40 w-full pointer-events-none pt-[max(0.5rem,env(safe-area-inset-top))] sm:pt-2.5 pb-0.5"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="w-full pointer-events-auto rounded-2xl sm:rounded-3xl shadow-[0_8px_25px_-5px_rgba(0,0,0,0.22)] dark:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.65)] border border-white/20 dark:border-white/15 transition-all duration-300 px-4 sm:px-6 py-2.5 sm:py-3.5 min-h-[3.75rem] sm:min-h-[4.25rem] flex items-center justify-between text-white backdrop-blur-md"
+            style={{
+              background: navbarBackground,
+            }}
+          >
           {/* Brand & Family Info */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-apple-sm shrink-0">
-              <HugeiconsIcon icon={GiftIcon} size={20} className="nav:hidden" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-apple-sm shrink-0">
+              <HugeiconsIcon icon={GiftIcon} size={18} className="nav:hidden" />
               <HugeiconsIcon icon={GiftIcon} size={22} className="hidden nav:block" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-heading font-bold text-white tracking-tight text-lg sm:text-xl whitespace-nowrap drop-shadow-sm">
+            <div className="flex flex-col justify-center">
+              <div>
+                <span className="font-heading font-bold text-white tracking-tight text-sm sm:text-sm whitespace-nowrap drop-shadow-sm opacity-90">
                   WhatGift
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 text-xs text-white/80">
-                <span className="font-semibold text-white/95 max-w-[120px] min-[360px]:max-w-[150px] min-[390px]:max-w-[180px] min-[440px]:max-w-[240px] sm:max-w-[320px] tablet:max-w-[420px] truncate whitespace-nowrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base text-white font-bold leading-tight mt-0.5">
+                <span className="max-w-[120px] min-[360px]:max-w-[150px] min-[390px]:max-w-[180px] min-[440px]:max-w-[240px] sm:max-w-[320px] tablet:max-w-[420px] truncate whitespace-nowrap">
                   {family?.name}
                 </span>
-                <span className="text-white/50">·</span>
+                <span className="text-white/40 text-xs">·</span>
                 {/* Shorten to just a LINK icon button on narrow mobile views to prevent navbar overlap */}
                 <button
                   type="button"
                   onClick={copyInviteLink}
                   title={`Copy invite link (Code: ${family?.code || ''})`}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2 rounded-lg bg-white/20 hover:bg-white/30 border-0 text-white transition text-[11px] font-medium shadow-apple-sm whitespace-nowrap shrink-0 backdrop-blur-md active:scale-95"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2 rounded-lg bg-white/20 hover:bg-white/30 border-0 text-white transition text-[11px] font-semibold shadow-apple-sm whitespace-nowrap shrink-0 backdrop-blur-md active:scale-95"
                   aria-label="Copy family invite link"
                 >
                   {copiedLink ? (
@@ -195,10 +198,10 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
                 type="button"
                 onClick={onOpenAdmin}
                 title="Manage Family"
-                className="w-9 h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0 backdrop-blur-md"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0 backdrop-blur-md"
                 aria-label="Manage Family"
               >
-                <HugeiconsIcon icon={UserGroupIcon} size={18} />
+                <HugeiconsIcon icon={UserGroupIcon} size={17} />
               </button>
             )}
 
@@ -207,25 +210,26 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
               type="button"
               onClick={onOpenProfile}
               title="Settings & Appearance"
-              className="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center active:scale-95 shadow-apple-sm transition text-white border-0 shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center active:scale-95 shadow-apple-sm transition text-white border-0 shrink-0"
               aria-label="Settings"
             >
-              <HugeiconsIcon icon={Settings02Icon} size={18} />
+              <HugeiconsIcon icon={Settings02Icon} size={17} />
             </button>
 
-            {/* Hamburger Menu Toggle Button - Matched to w-9 h-9 */}
+            {/* Hamburger Menu Toggle Button */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-9 h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 transition active:scale-95 shadow-apple-sm flex items-center justify-center shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 transition active:scale-95 shadow-apple-sm flex items-center justify-center shrink-0"
               aria-label={mobileMenuOpen ? 'Close Navigation Sidebar' : 'Open Navigation Sidebar'}
               aria-expanded={mobileMenuOpen}
             >
-              <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={18} />
+              <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={17} />
             </button>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* ========================================================================= */}
       {/* MOBILE SLIDE-OVER SIDEBAR PORTAL (Attached to document.body to avoid header clipping) */}

@@ -12,9 +12,32 @@ from app.schemas import (
     ItemClaimCreate,
     ItemClaimUpdate,
     ItemClaimResponse,
+    ScrapeLinkRequest,
+    ScrapeLinkResponse,
 )
+from app.scraper import scrape_opengraph_metadata
 
 router = APIRouter(tags=["Wishlist Items & Claims"])
+
+
+@router.post("/items/scrape-link", response_model=ScrapeLinkResponse)
+async def scrape_product_link(
+    payload: ScrapeLinkRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Scrapes Open Graph, Twitter Cards, Schema.org and standard metadata from a product link
+    to prefill item fields (title, price, image, description, site name).
+    """
+    clean_url = payload.url.strip()
+    if not clean_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A valid URL is required",
+        )
+    result = await scrape_opengraph_metadata(clean_url)
+    return ScrapeLinkResponse(**result)
+
 
 
 @router.get("/users/{user_id}/items", response_model=List[ItemResponse])
@@ -99,23 +122,23 @@ def update_wishlist_item(
             detail="You can only edit items on your own wishlist",
         )
 
-    if payload.title is not None:
+    if "title" in payload.model_fields_set and payload.title is not None:
         item.title = payload.title.strip()
-    if payload.description is not None:
+    if "description" in payload.model_fields_set:
         item.description = payload.description.strip() if payload.description else None
-    if payload.url is not None:
+    if "url" in payload.model_fields_set:
         item.url = str(payload.url).strip() if payload.url else None
-    if payload.alt_url is not None:
+    if "alt_url" in payload.model_fields_set:
         item.alt_url = str(payload.alt_url).strip() if payload.alt_url else None
-    if payload.image_url is not None:
+    if "image_url" in payload.model_fields_set:
         item.image_url = str(payload.image_url).strip() if payload.image_url else None
-    if payload.price is not None:
+    if "price" in payload.model_fields_set and payload.price is not None:
         item.price = payload.price
-    if payload.priority is not None:
+    if "priority" in payload.model_fields_set and payload.priority is not None:
         item.priority = payload.priority
-    if payload.is_on_sale is not None:
+    if "is_on_sale" in payload.model_fields_set and payload.is_on_sale is not None:
         item.is_on_sale = payload.is_on_sale
-    if payload.is_archived is not None:
+    if "is_archived" in payload.model_fields_set and payload.is_archived is not None:
         item.is_archived = payload.is_archived
 
     db.commit()
@@ -223,9 +246,9 @@ def update_item_claim(
             detail="Only the person who claimed this item can update the claim",
         )
 
-    if payload.status is not None:
+    if "status" in payload.model_fields_set and payload.status is not None:
         claim.status = payload.status
-    if payload.notes is not None:
+    if "notes" in payload.model_fields_set:
         claim.notes = payload.notes.strip() if payload.notes else None
 
     db.commit()

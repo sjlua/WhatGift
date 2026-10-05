@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import ConfirmDialog from './ConfirmDialog';
+import { api } from '../api/client';
 import { detectSqlInjection } from '../utils/sqli';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AlertCircleIcon,
+  ArrowDown01Icon,
   DiscountTag01Icon,
+  Link01Icon,
+  SparklesIcon,
 } from '@hugeicons/core-free-icons';
 
 const PRIORITIES = [
@@ -26,6 +30,12 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showAddConfirm, setShowAddConfirm] = useState(false);
+
+  // Link understanding / prefill state
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapeSuccess, setScrapeSuccess] = useState(null);
+  const [scrapeNotice, setScrapeNotice] = useState('');
+  const [lastScrapedTitle, setLastScrapedTitle] = useState('');
 
   useEffect(() => {
     if (itemToEdit) {
@@ -48,7 +58,62 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
       setIsOnSale(false);
     }
     setError('');
+    setIsScraping(false);
+    setScrapeSuccess(null);
+    setScrapeNotice('');
+    setLastScrapedTitle('');
   }, [itemToEdit, isOpen]);
+
+  const handleAutoFillFromUrl = async (targetUrl) => {
+    const cleanUrl = (targetUrl || url).trim();
+    if (!cleanUrl) return;
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      setScrapeNotice('Please enter a full URL starting with http:// or https://');
+      return;
+    }
+
+    setIsScraping(true);
+    setScrapeNotice('');
+    setScrapeSuccess(null);
+
+    try {
+      const data = await api.scrapeLink(cleanUrl);
+      let filledFields = [];
+
+      if (data.title && (!title || title === lastScrapedTitle)) {
+        setTitle(data.title);
+        setLastScrapedTitle(data.title);
+        filledFields.push('name');
+      }
+      if (data.price !== null && data.price !== undefined && (!price || parseFloat(price) === 0)) {
+        setPrice(String(data.price));
+        filledFields.push('price');
+      }
+      if (data.image_url) {
+        setImageUrl(data.image_url);
+        filledFields.push('image');
+      }
+
+      setScrapeSuccess({
+        site_name: data.site_name || 'Retailer',
+        count: filledFields.length,
+      });
+    } catch (err) {
+      console.warn('Link scraping error:', err);
+      setScrapeNotice('Could not auto-fill details from this link. You can enter them manually below.');
+    } finally {
+      setIsScraping(false);
+    }
+  };
+
+  const handleUrlPaste = (e) => {
+    const text = e.clipboardData?.getData('text') || '';
+    const clean = text.trim();
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      setUrl(clean);
+      setTimeout(() => handleAutoFillFromUrl(clean), 80);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -110,8 +175,28 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
         onClose={onClose}
         title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
         accentHeader
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="item-modal-form"
+              onClick={handleSubmit}
+              disabled={submitting || isScraping}
+              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
+            >
+              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add Gift'}
+            </button>
+          </div>
+        }
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="item-modal-form" onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="flex items-center gap-2 p-3 text-xs rounded-xl bg-[#FF3B30]/10 text-[#FF3B30]">
               <HugeiconsIcon icon={AlertCircleIcon} size={15} className="shrink-0" />
@@ -129,7 +214,159 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
             </div>
           )}
 
-          {/* Gift Title - Required Badge */}
+          {/* ======================================================== */}
+          {/* 1. TOP FIELD: Product Link (URL) with Smart Auto-Fill     */}
+          {/* ======================================================== */}
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-[var(--theme-tint)]/50 via-[#F8F8FA] to-[#F2F2F7] dark:from-[var(--theme-tint)]/25 dark:via-[#262628] dark:to-[#1E1E20] border-2 border-[var(--theme-primary)]/35 dark:border-[var(--theme-primary)]/50 shadow-apple-card space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[var(--theme-primary)] text-white flex items-center justify-center shadow-apple-sm shrink-0">
+                  <HugeiconsIcon icon={SparklesIcon} size={15} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white">
+                      Store Link (URL)
+                    </label>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--theme-primary)] text-white shadow-apple-sm">
+                      Do First
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] leading-tight mt-0.5">
+                    Paste a link from Amazon, JB Hi-Fi, Target, etc. to auto-fill details
+                  </p>
+                </div>
+              </div>
+              {isScraping && (
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--theme-primary)] font-bold animate-pulse shrink-0">
+                  <div className="w-3 h-3 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
+                  <span className="hidden sm:inline">Detecting...</span>
+                </span>
+              )}
+            </div>
+
+            <div className="relative flex items-center">
+              <input
+                type="url"
+                placeholder="Paste link (Amazon, JB Hi-Fi, Target, Kmart...)"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onPaste={handleUrlPaste}
+                disabled={isScraping}
+                className={`w-full h-12 pl-4 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm ${
+                  isScraping
+                    ? 'ring-2 ring-[var(--theme-primary)] bg-[var(--theme-tint)]/40 animate-pulse'
+                    : 'focus:ring-2 focus:ring-[var(--theme-primary)]'
+                }`}
+              />
+              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {url.trim() && !isScraping && (
+                  <button
+                    type="button"
+                    onClick={() => handleAutoFillFromUrl(url)}
+                    title="Auto-fill product details from webpage metadata"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition active:scale-95 flex items-center gap-1"
+                  >
+                    <HugeiconsIcon icon={SparklesIcon} size={13} />
+                    <span>Auto-fill</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Link Understanding Active Loading Status */}
+            {isScraping && (
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--theme-tint)] text-[var(--theme-primary)] text-xs font-semibold animate-pulse border border-[var(--theme-primary)]/20">
+                <div className="w-4 h-4 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold">Understanding link & fetching product details...</div>
+                  <div className="text-[11px] opacity-80 truncate">
+                    Extracting Open Graph title, pricing, and high-res image
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Scrape Success Feedback Badge */}
+            {scrapeSuccess && (
+              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] text-xs font-semibold border border-[#34C759]/25 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2 truncate">
+                  <HugeiconsIcon icon={SparklesIcon} size={15} className="shrink-0 text-[#34C759]" />
+                  <span className="truncate">
+                    Details auto-filled from <strong>{scrapeSuccess.site_name}</strong>!
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setScrapeSuccess(null)}
+                  className="text-[11px] font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white px-1.5 py-0.5"
+                  aria-label="Dismiss notice"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Scrape Notice Feedback (non-blocking fallback) */}
+            {scrapeNotice && (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FF9500]/10 text-[#A66200] dark:text-[#FFB340] text-xs font-medium">
+                <span className="truncate">{scrapeNotice}</span>
+                <button
+                  type="button"
+                  onClick={() => setScrapeNotice('')}
+                  className="text-[10px] font-bold px-1.5 opacity-70 hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Extracted Image Preview Card */}
+            {imageUrl && (
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] shadow-apple-sm border border-black/5 dark:border-white/5 animate-in fade-in duration-150">
+                <img
+                  src={imageUrl}
+                  alt="Product preview"
+                  className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border border-black/5 dark:border-white/5"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="text-[11px] font-bold text-[#1C1C1E] dark:text-white block truncate">
+                    Product Image Detected
+                  </span>
+                  <span className="text-[10px] text-[#8E8E93] truncate block font-mono">
+                    {imageUrl}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setImageUrl('')}
+                  className="p-1 rounded-lg text-[#8E8E93] hover:text-[#FF3B30] text-xs font-bold transition"
+                  title="Remove image"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ======================================================== */}
+          {/* Divider: Separating Step 1 Auto-Fill from Manual Fields  */}
+          {/* ======================================================== */}
+          <div className="relative py-1.5 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#E5E5EA] dark:border-[#2C2C2E]" />
+            </div>
+            <div className="relative bg-white dark:bg-[#1C1C1E] px-3 text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider font-sans">
+              Gift Details
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* 2. Gift Name (Required) */}
+          {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
               <span>Gift Name</span>
@@ -147,7 +384,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
             />
           </div>
 
-          {/* Price & Priority */}
+          {/* ======================================================== */}
+          {/* 3. Price & Priority (Aligned Grid) */}
+          {/* ======================================================== */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
@@ -172,21 +411,28 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
               <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
                 Priority
               </label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer"
-              >
-                {PRIORITIES.map((p) => (
-                  <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
-                    {p.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="w-full h-12 pl-4 pr-10 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer appearance-none"
+                >
+                  {PRIORITIES.map((p) => (
+                    <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]">
+                  <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Sale Tickbox */}
+          {/* ======================================================== */}
+          {/* 4. Sale Checkbox */}
+          {/* ======================================================== */}
           <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer select-none transition hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] group">
             <input
               type="checkbox"
@@ -216,21 +462,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
             </div>
           </label>
 
-          {/* Primary Store URL */}
-          <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-              <span>Store Link (URL)</span>
-            </label>
-            <input
-              type="url"
-              placeholder="https://..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-            />
-          </div>
-
-          {/* Alternative Store or URL */}
+          {/* ======================================================== */}
+          {/* 5. Alternative Store Link */}
+          {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
               <span>Alternative Store or Link (Optional)</span>
@@ -244,7 +478,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
             />
           </div>
 
-          {/* Image URL */}
+          {/* ======================================================== */}
+          {/* 6. Image URL (Optional) */}
+          {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
               Image URL (Optional)
@@ -258,7 +494,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
             />
           </div>
 
-          {/* Notes */}
+          {/* ======================================================== */}
+          {/* 7. Notes / Sizes / Colors */}
+          {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
               Notes / Sizes / Colors
@@ -271,26 +509,8 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
               className="w-full p-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
             />
           </div>
-
-          {/* Actions */}
-          <div className="sticky bottom-0 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md -mx-5 px-5 py-3.5 -mb-5 mt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-end gap-2.5 z-10">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
-            >
-              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add Gift'}
-            </button>
-          </div>
-      </form>
-    </Modal>
+        </form>
+      </Modal>
 
     {/* Add Gift Confirmation Dialog */}
     <ConfirmDialog

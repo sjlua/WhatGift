@@ -262,9 +262,9 @@ export default function DashboardPage() {
       />
 
       {/* Main Container - Responsive width from mobile to large desktop displays */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-1 relative z-10">
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex-1 relative z-10">
         {/* Top Control Bar: High-Visibility Segmented Tabs + Desktop Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3.5 sm:mb-4.5">
           {/* Segmented Tabs with Clean Apple HIG Styling (Concentric rounding matching cards) */}
           <div className="flex gap-2 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-3xl shadow-inner w-full sm:w-auto border-0">
             <button
@@ -549,7 +549,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Desktop View: Dedicated Sidebar Card */}
-                  <div className="hidden lg:block bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card p-4 sticky top-24">
+                  <div className="hidden lg:block bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card p-4 sticky top-20">
                     <div className="flex items-center justify-between px-2 mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
                       <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
                         Family Members

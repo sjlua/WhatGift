@@ -8,6 +8,7 @@ export default function Modal({
   onClose,
   title,
   children,
+  footer = null,
   maxWidth = 'max-w-md',
   accentHeader = false,
 }) {
@@ -38,7 +39,7 @@ export default function Modal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] overflow-hidden"
     >
       {/* Stable Full-Screen Dim Backdrop - Click to Close */}
       <div
@@ -91,6 +92,13 @@ export default function Modal({
         <div className="p-5 flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {children}
         </div>
+
+        {/* Anchored Footer */}
+        {footer && (
+          <div className="px-5 py-3.5 border-t border-[#E5E5EA] dark:border-[#2C2C2E] bg-white dark:bg-[#1C1C1E] shrink-0">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body

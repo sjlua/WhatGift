@@ -200,3 +200,21 @@ class ItemResponse(BaseModel):
     is_owner: bool
     # IMPORTANT: Stripped (None) whenever is_owner == True
     claim: Optional[ItemClaimResponse] = None
+
+
+# ==========================================
+# Link Scraping & Autofill Schemas
+# ==========================================
+class ScrapeLinkRequest(BaseModel):
+    url: str = Field(..., min_length=4, max_length=2048, description="URL of the product page to scrape")
+
+
+class ScrapeLinkResponse(BaseModel):
+    url: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    price: Optional[float] = None
+    site_name: Optional[str] = None
+    currency: Optional[str] = "AUD"
+

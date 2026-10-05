@@ -150,6 +150,31 @@ def test_full_family_lifecycle_and_privacy(client):
     assert update_sale_resp.status_code == 200
     assert update_sale_resp.json()["is_on_sale"] is True
 
+    # 7c. Timmy updates the item notes / description
+    update_notes_resp = client.put(
+        f"/api/items/{item_id}",
+        headers=timmy_headers,
+        json={"description": "Updated note: Size L in Black"},
+    )
+    assert update_notes_resp.status_code == 200
+    assert update_notes_resp.json()["description"] == "Updated note: Size L in Black"
+
+    # 7d. Timmy clears the description by passing null
+    clear_notes_resp = client.put(
+        f"/api/items/{item_id}",
+        headers=timmy_headers,
+        json={"description": None},
+    )
+    assert clear_notes_resp.status_code == 200
+    assert clear_notes_resp.json()["description"] is None
+
+    # Restore description for remaining tests
+    client.put(
+        f"/api/items/{item_id}",
+        headers=timmy_headers,
+        json={"description": "White version preferred, for Zelda!"},
+    )
+
     # 8. Timmy views his own list -> claim is None
     timmy_items = client.get(f"/api/users/{timmy_id}/items", headers=timmy_headers).json()
     assert len(timmy_items) == 1
@@ -285,3 +310,100 @@ def test_full_family_lifecycle_and_privacy(client):
     # Verify Timmy's list is now empty
     empty_items = client.get(f"/api/users/{timmy_id}/items", headers=timmy_headers).json()
     assert len(empty_items) == 0
+
+
+def test_scrape_product_link_endpoint(client):
+    setup_resp = client.post(
+        "/api/families",
+        json={"name": "Scrape Family", "admin_alias": "ScraperMom"},
+    )
+    token = setup_resp.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Link endpoint with retailer URL
+    res = client.post(
+        "/api/items/scrape-link",
+        headers=headers,
+        json={"url": "https://www.jbhifi.com.au/products/apple-airpods-max-space-grey"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["site_name"] == "JB Hi-Fi"
+    assert "Airpods" in data["title"] or "apple" in data["title"].lower()
+
+
+def test_scraper_unit_parsing():
+    from app.scraper import MetaTagParser, parse_price, extract_product_from_json_ld, clean_title
+
+    html_doc = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta property="og:title" content="Sony WH-1000XM5 Wireless Headphones (Black)" />
+      <meta property="og:image" content="https://www.jbhifi.com.au/sony-xm5.jpg" />
+      <meta property="og:description" content="Noise cancelling headphones with exceptional sound." />
+      <meta property="og:site_name" content="JB Hi-Fi" />
+      <meta property="product:price:amount" content="549.00" />
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "Sony WH-1000XM5",
+        "offers": {
+          "@type": "Offer",
+          "price": "549.00",
+          "priceCurrency": "AUD"
+        }
+      }
+      </script>
+    </head>
+    </html>
+    """
+    parser = MetaTagParser()
+    parser.feed(html_doc)
+    assert len(parser.meta_tags) == 5
+    assert len(parser.json_ld_scripts) == 1
+
+    assert parse_price("$549.00") == 549.00
+    assert parse_price("AUD 129.50") == 129.50
+    assert clean_title("Sony Headphones | JB Hi-Fi", "JB Hi-Fi") == "Sony Headphones"
+
+
+def test_amazon_scraper_html_parsing():
+    from app.scraper import extract_price_from_html, clean_title
+
+    # 1. Amazon Australia desktop with .priceToPay and .a-offscreen
+    amazon_desktop_html = """
+    <html>
+    <head><title>Amazon.com.au: Apple AirPods Pro (2nd Generation) : Electronics</title></head>
+    <body>
+      <div id="corePriceDisplay_desktop_feature_div">
+        <span class="a-price aok-align-center reinventPricePriceToPayMargin priceToPay" data-a-size="xl">
+          <span class="a-offscreen">$399.00</span>
+          <span aria-hidden="true"><span class="a-price-whole">399<span class="a-price-decimal">.</span></span><span class="a-price-fraction">00</span></span>
+        </span>
+      </div>
+    </body>
+    </html>
+    """
+    assert extract_price_from_html(amazon_desktop_html, "amazon.com.au") == 399.00
+    assert clean_title("Amazon.com.au: Apple AirPods Pro (2nd Generation) : Electronics", "Amazon Australia") == "Apple AirPods Pro (2nd Generation)"
+
+    # 2. Amazon whole + fraction without offscreen span
+    amazon_split_html = """
+    <div class="a-section">
+      <span class="a-price-whole">79<span class="a-price-decimal">.</span></span>
+      <span class="a-price-fraction">95</span>
+    </div>
+    """
+    assert extract_price_from_html(amazon_split_html, "amazon.com.au") == 79.95
+
+    # 3. Amazon embedded JSON / data attributes
+    amazon_json_html = """
+    <script>
+      var data = {"priceAmount": 149.50, "displayPrice": "$149.50"};
+    </script>
+    """
+    assert extract_price_from_html(amazon_json_html, "amazon.com.au") == 149.50
+
+

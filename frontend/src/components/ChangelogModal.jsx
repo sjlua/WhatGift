@@ -13,10 +13,48 @@ import {
 export default function ChangelogModal({ isOpen, onClose }) {
   const releases = [
     {
-      version: 'v1.1.0',
-      title: 'Design Refinements & Admin Enhancements',
+      version: 'v2.0.0',
+      title: 'Smart Link Auto-Fill & Modern Floating Island UI',
       tag: 'Latest',
       tagColor: 'bg-[var(--theme-primary)] text-white',
+      highlights: [
+        {
+          icon: SparklesIcon,
+          title: 'Smart Link Auto-Fill (Australian Retailers)',
+          description:
+            'Paste any product link (Amazon.com.au, JB Hi-Fi, Target, Kmart, etc.) to automatically detect the product name, price, and high-res image directly into your wishlist.',
+        },
+        {
+          icon: GiftIcon,
+          title: 'Floating Island Navigation Bar',
+          description:
+            'A modern floating navbar with concentric rounded corners, soft depth shadows, and exact horizontal alignment with the dashboard UI on both desktop and mobile.',
+        },
+        {
+          icon: Tick02Icon,
+          title: 'Family Gift Tracking Status Dots',
+          description:
+            'Easily track your gifting progress: member list badges now display a distinct status dot once you have reserved or purchased a gift for that person.',
+        },
+        {
+          icon: PaintBoardIcon,
+          title: 'Merriweather Headings & iOS Radius Alignment',
+          description:
+            'Upgraded card headings with elegant Merriweather typography, concentric segmented tab corners, and rock-solid grounded modal dialog footers.',
+        },
+        {
+          icon: Shield01Icon,
+          title: 'Unified Family & Appearance Settings',
+          description:
+            'Quick-access shortcuts to jump between Profile Settings and Family Management, with instant admin controls directly in the header.',
+        },
+      ],
+    },
+    {
+      version: 'v1.1.0',
+      title: 'Design Refinements & Admin Enhancements',
+      tag: 'Previous',
+      tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
       highlights: [
         {
           icon: Delete02Icon,
