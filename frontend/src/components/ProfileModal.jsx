@@ -19,10 +19,11 @@ import {
   ComputerIcon,
   Touch01Icon,
   SparklesIcon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons';
 
-export default function ProfileModal({ isOpen, onClose }) {
-  const { user, family, updateUserProfile, logout } = useAuth();
+export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
+  const { user, family, isAdmin, updateUserProfile, logout } = useAuth();
   const { theme, themeId, setThemeId, themes, darkMode, setDarkMode } = useTheme();
   const { hapticsEnabled, toggleHaptics, trigger, triggerSelection, triggerSuccess } = useHaptics();
 
@@ -89,8 +90,8 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 1: User Profile Settings (Name & Avatar used to login) */}
         <form onSubmit={handleSubmit} className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 space-y-4 shadow-apple-sm">
           <div className="flex items-center justify-between pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
-              <HugeiconsIcon icon={UserIcon} size={14} className="text-[var(--theme-primary)]" />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={UserIcon} size={16} className="text-[var(--theme-primary)]" />
               Your Login Details
             </span>
             <span className="text-[11px] text-[#8E8E93]">Used to log in</span>
@@ -152,11 +153,47 @@ export default function ProfileModal({ isOpen, onClose }) {
           </div>
         </form>
 
+        {/* Section: Family Settings Shortcut */}
+        <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 space-y-3 shadow-apple-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={UserGroupIcon} size={17} className="text-[var(--theme-primary)]" />
+              Family Settings
+            </span>
+            <span className="text-[11px] font-semibold text-[#8E8E93] bg-white dark:bg-[#1C1C1E] px-2.5 py-0.5 rounded-full shadow-apple-sm">
+              {isAdmin ? 'Admin' : 'Member'}
+            </span>
+          </div>
+          <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed font-sans">
+            {isAdmin
+              ? `Manage ${family?.name || 'family'} name, invite code, members, and wishlist reset options.`
+              : `${family?.name || 'Family'} settings, invite codes, and members are managed by the family organizer.`}
+          </p>
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={() => {
+                triggerSelection();
+                onOpenAdmin?.();
+              }}
+              className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold font-sans text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] shadow-apple-sm transition active:scale-95 flex items-center justify-center gap-2 border-0"
+            >
+              <HugeiconsIcon icon={UserGroupIcon} size={16} />
+              <span>Open Family Settings</span>
+            </button>
+          ) : (
+            <div className="p-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] text-xs text-[#8E8E93] flex items-center justify-between shadow-apple-sm">
+              <span>Family Code: <strong className="font-mono text-[#1C1C1E] dark:text-white">{family?.code}</strong></span>
+              <span className="text-[11px]">Contact organizer for changes</span>
+            </div>
+          )}
+        </div>
+
         {/* Section 2: Dark Mode & Appearance */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
-              <HugeiconsIcon icon={Moon02Icon} size={15} className="text-[var(--theme-primary)]" />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={Moon02Icon} size={16} className="text-[var(--theme-primary)]" />
               Appearance & Dark Mode
             </span>
           </div>
@@ -193,8 +230,8 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 3: Holiday & Color Scheme Themings */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
-              <HugeiconsIcon icon={PaintBoardIcon} size={15} className="text-[var(--theme-primary)]" />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={PaintBoardIcon} size={16} className="text-[var(--theme-primary)]" />
               Holiday Accent Themes
             </span>
             <span className="text-[11px] font-semibold text-[var(--theme-primary)]">
@@ -247,7 +284,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                 <HugeiconsIcon icon={Touch01Icon} size={18} />
               </div>
               <div>
-                <div className="text-xs font-bold text-[#1C1C1E] dark:text-white">
+                <div className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
                   Haptic Feedback (Vibrations)
                 </div>
                 <div className="text-[11px] text-[#8E8E93]">
@@ -293,8 +330,8 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 5: What's New & Changelog */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
-              <HugeiconsIcon icon={SparklesIcon} size={15} className="text-[var(--theme-primary)]" />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={SparklesIcon} size={16} className="text-[var(--theme-primary)]" />
               What's New & Changelog
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white">
@@ -320,7 +357,7 @@ export default function ProfileModal({ isOpen, onClose }) {
             <div className="w-7 h-7 rounded-lg bg-[var(--theme-tint)] flex items-center justify-center text-[var(--theme-primary)]">
               <HugeiconsIcon icon={SmartPhone01Icon} size={15} />
             </div>
-            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6]">
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
               Save to Homescreen
             </span>
           </div>
@@ -345,11 +382,11 @@ export default function ProfileModal({ isOpen, onClose }) {
         </div>
 
         {/* Section 7: Leave the Family */}
-        <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between">
+        <div className="pt-3 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between shrink-0 pb-1">
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition font-sans"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition font-sans active:scale-95"
           >
             <HugeiconsIcon icon={Logout01Icon} size={15} />
             <span>Leave the {family?.name}</span>
@@ -357,7 +394,7 @@ export default function ProfileModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition font-sans"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition font-sans active:scale-95"
           >
             Done
           </button>

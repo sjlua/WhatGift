@@ -38,7 +38,7 @@ export default function Modal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] overflow-y-auto"
     >
       {/* Stable Full-Screen Dim Backdrop - Click to Close */}
       <div
@@ -50,11 +50,11 @@ export default function Modal({
       {/* Modal Dialog Window */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative z-10 w-full ${maxWidth} rounded-3xl bg-white dark:bg-[#1C1C1E] p-0 shadow-2xl overflow-hidden text-[#1C1C1E] dark:text-white border-0 animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative z-10 w-full ${maxWidth} max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex flex-col rounded-3xl bg-white dark:bg-[#1C1C1E] p-0 shadow-2xl overflow-hidden text-[#1C1C1E] dark:text-white border-0 animate-in fade-in zoom-in-95 duration-150`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between px-5 py-4 border-b transition-colors duration-200 ${
+          className={`flex items-center justify-between px-5 py-4 border-b shrink-0 transition-colors duration-200 ${
             accentHeader
               ? 'text-white border-transparent'
               : 'border-[#E5E5EA] dark:border-[#2C2C2E] bg-[#F9F9FB] dark:bg-[#242426]'
@@ -88,7 +88,7 @@ export default function Modal({
         </div>
 
         {/* Content */}
-        <div className="p-5 max-h-[82vh] overflow-y-auto">
+        <div className="p-5 flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {children}
         </div>
       </div>

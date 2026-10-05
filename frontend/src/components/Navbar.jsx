@@ -120,17 +120,6 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
           {/* DESKTOP ACTIONS (hidden on mobile/tablet < nav: 880px) */}
           {/* ========================================================================= */}
           <div className="hidden nav:flex items-center gap-2.5 lg:gap-3 shrink-0">
-            {/* Dark Mode Quick Toggle */}
-            <button
-              type="button"
-              onClick={handleToggleDark}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-2 rounded-xl text-white/90 hover:text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 shrink-0 backdrop-blur-md"
-              aria-label="Toggle Dark Mode"
-            >
-              <HugeiconsIcon icon={isDark ? Sun01Icon : Moon02Icon} size={18} />
-            </button>
-
             {/* Copy Invite Link Button */}
             <button
               type="button"
@@ -153,7 +142,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
               )}
             </button>
 
-            {/* Admin Panel Launcher */}
+            {/* Admin Panel Launcher - Kept for Admins */}
             {isAdmin && (
               <button
                 type="button"
@@ -197,19 +186,21 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
           </div>
 
           {/* ========================================================================= */}
-          {/* MOBILE ACTIONS: Settings Icon + Hamburger Toggle (< nav: 880px) */}
+          {/* MOBILE ACTIONS: Manage Family (for Admin) + Settings + Hamburger (< nav: 880px) */}
           {/* ========================================================================= */}
           <div className="flex nav:hidden items-center gap-1.5 shrink-0">
-            {/* Quick Dark Mode Toggle - Matched to w-9 h-9 */}
-            <button
-              type="button"
-              onClick={handleToggleDark}
-              title={isDark ? 'Switch to Light' : 'Switch to Dark'}
-              className="w-9 h-9 rounded-xl text-white/90 hover:text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0"
-              aria-label="Toggle Dark Mode"
-            >
-              <HugeiconsIcon icon={isDark ? Sun01Icon : Moon02Icon} size={18} />
-            </button>
+            {/* Admin Quick Action Button on Mobile Navbar */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                title="Manage Family"
+                className="w-9 h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0 backdrop-blur-md"
+                aria-label="Manage Family"
+              >
+                <HugeiconsIcon icon={UserGroupIcon} size={18} />
+              </button>
+            )}
 
             {/* Settings Icon button */}
             <button
@@ -248,7 +239,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
           />
 
           {/* True Full-Height Opaque Sidebar Drawer with Smooth Slide-In Animation */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#1C1C1E] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-sidebar-slide border-l border-black/[0.08] dark:border-white/[0.12]">
+          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#1C1C1E] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-l border-black/[0.08] dark:border-white/[0.12] pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
             <div className="space-y-4">
               {/* Sidebar Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
@@ -333,25 +324,6 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
                   </button>
                 )}
 
-                {/* Appearance / Dark Mode Toggle Row */}
-                <button
-                  type="button"
-                  onClick={handleToggleDark}
-                  className="w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold text-[#1C1C1E] dark:text-white bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition shadow-apple-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <HugeiconsIcon
-                      icon={isDark ? Sun01Icon : Moon02Icon}
-                      size={17}
-                      className="text-[var(--theme-primary)]"
-                    />
-                    <span>Appearance</span>
-                  </div>
-                  <span className="text-[11px] font-semibold text-[#8E8E93] bg-white dark:bg-[#1C1C1E] px-2.5 py-1 rounded-xl shadow-apple-sm">
-                    {isDark ? 'Dark Mode' : 'Light Mode'}
-                  </span>
-                </button>
-
                 {/* Theme & Holiday Accent Settings */}
                 <button
                   type="button"
@@ -374,11 +346,11 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
             </div>
 
             {/* Sidebar Footer: Leave Family */}
-            <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-auto">
+            <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-auto shrink-0 pb-1">
               <button
                 type="button"
                 onClick={() => handleMobileAction(logout)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl text-xs font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition shadow-apple-sm"
+                className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl text-xs font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition shadow-apple-sm active:scale-95"
               >
                 <HugeiconsIcon icon={Logout01Icon} size={16} />
                 <span>Leave the {family?.name || 'Family'}</span>

@@ -35,6 +35,7 @@ class FamilyMemberSummary(BaseModel):
     is_admin: bool
     has_pin: bool = False
     item_count: int = 0
+    viewer_claim_status: Optional[str] = None
 
 
 class FamilyResponse(BaseModel):

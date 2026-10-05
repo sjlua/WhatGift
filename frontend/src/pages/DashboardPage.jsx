@@ -76,16 +76,22 @@ export default function DashboardPage() {
   // Other members in family (excluding the current user)
   const otherMembers = family?.members?.filter((m) => m.id !== user.id) || [];
   const [memberItemCounts, setMemberItemCounts] = useState({});
+  const [memberClaimStatuses, setMemberClaimStatuses] = useState({});
 
   useEffect(() => {
     if (family?.members) {
       const counts = {};
+      const statuses = {};
       family.members.forEach((m) => {
         if (m.item_count !== undefined) {
           counts[m.id] = m.item_count;
         }
+        if (m.viewer_claim_status !== undefined) {
+          statuses[m.id] = m.viewer_claim_status;
+        }
       });
       setMemberItemCounts((prev) => ({ ...counts, ...prev }));
+      setMemberClaimStatuses((prev) => ({ ...statuses, ...prev }));
     }
   }, [family]);
 
@@ -111,6 +117,17 @@ export default function DashboardPage() {
       const data = await api.getUserItems(targetUserId);
       setItems(data);
       setMemberItemCounts((prev) => ({ ...prev, [targetUserId]: data.length }));
+
+      if (targetUserId !== user.id) {
+        const viewerClaimed = data.filter((i) => i.claim?.is_claimed_by_viewer);
+        let status = null;
+        if (viewerClaimed.some((i) => i.claim?.status === 'bought' || i.claim?.status === 'purchased')) {
+          status = 'bought';
+        } else if (viewerClaimed.some((i) => i.claim?.status === 'want_to_buy' || i.claim?.status === 'claimed')) {
+          status = 'want_to_buy';
+        }
+        setMemberClaimStatuses((prev) => ({ ...prev, [targetUserId]: status }));
+      }
     } catch (err) {
       setError(err.message || 'Failed to load wishlist items');
     } finally {
@@ -141,6 +158,18 @@ export default function DashboardPage() {
     }
     triggerSuccess();
     await loadItems();
+  };
+
+  const handleSimulateSqliDrop = (query) => {
+    setAlertMessage(
+      `💉 [UI SQL Injection Safe]: Executed simulated '${query}'. SQLite database untouched! Restoring view in 2s...`
+    );
+    const backupItems = [...items];
+    setItems([]);
+    setTimeout(() => {
+      setItems(backupItems);
+      loadItems();
+    }, 2000);
   };
 
   const handleDeleteItem = (itemId) => {
@@ -178,12 +207,14 @@ export default function DashboardPage() {
     }
     triggerSuccess();
     await loadItems();
+    await refreshFamily();
   };
 
   const handleReleaseClaim = async (itemId) => {
     await api.unclaimItem(itemId);
     triggerWarning();
     await loadItems();
+    await refreshFamily();
   };
 
   const handleQuickMark = async (itemId, status) => {
@@ -196,6 +227,7 @@ export default function DashboardPage() {
       }
       triggerSuccess();
       await loadItems();
+      await refreshFamily();
     } catch (err) {
       setAlertMessage(err.message || 'Failed to mark gift');
     }
@@ -205,6 +237,7 @@ export default function DashboardPage() {
     loadItems();
     refreshFamily();
     setMemberItemCounts({});
+    setMemberClaimStatuses({});
   };
 
   const activeSelectedMember = otherMembers.find((m) => m.id === selectedMemberId);
@@ -232,15 +265,15 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-1 relative z-10">
         {/* Top Control Bar: High-Visibility Segmented Tabs + Desktop Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-          {/* Segmented Tabs with Clean Apple HIG Styling (Less Outline Borders) */}
-          <div className="flex gap-2 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-2xl shadow-inner w-full sm:w-auto border-0">
+          {/* Segmented Tabs with Clean Apple HIG Styling (Concentric rounding matching cards) */}
+          <div className="flex gap-2 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-3xl shadow-inner w-full sm:w-auto border-0">
             <button
               type="button"
               onClick={() => {
                 setActiveTab('my-wishes');
                 triggerSelection();
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm transition-all duration-150 border-0 ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
                 activeTab === 'my-wishes'
                   ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
                   : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5 font-semibold'
@@ -265,7 +298,7 @@ export default function DashboardPage() {
                 setActiveTab('family-wishes');
                 triggerSelection();
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl text-xs sm:text-sm transition-all duration-150 border-0 ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
                 activeTab === 'family-wishes'
                   ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
                   : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5 font-semibold'
@@ -398,12 +431,14 @@ export default function DashboardPage() {
         {activeTab === 'family-wishes' && (
           <div className="animate-tab-fade">
             {otherMembers.length === 0 ? (
-              <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card max-w-md mx-auto">
-                <div className="w-14 h-14 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                  <HugeiconsIcon icon={UserGroupIcon} size={28} />
+              <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
+                <div className="w-16 h-16 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
+                  <HugeiconsIcon icon={UserGroupIcon} size={30} />
                 </div>
-                <h4 className="font-bold text-[#1C1C1E] dark:text-white text-lg mb-1">No other family members yet</h4>
-                <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-5 leading-relaxed">
+                <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-lg mb-1">
+                  No other family members yet
+                </h4>
+                <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-5 leading-relaxed font-sans">
                   {isAdmin
                     ? 'Use the Manage Family panel to add members to your family.'
                     : 'Ask your family admin to invite other family members.'}
@@ -412,9 +447,9 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => setIsAdminModalOpen(true)}
-                    className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 rounded-xl shadow-apple-md transition"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 rounded-xl shadow-apple-md transition active:scale-95"
                   >
-                    Add Members
+                    Manage Family & Add Members
                   </button>
                 )}
               </div>
@@ -427,13 +462,22 @@ export default function DashboardPage() {
                   <div className="lg:hidden mb-6">
                     <div className="flex items-center justify-between mb-2.5">
                       <div className="flex items-center gap-2">
-                        <p className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6]">
+                        <p className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
                           Select Member:
                         </p>
                         {!isMobileMembersOpen && activeSelectedMember && (
                           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] shadow-apple-sm text-xs font-bold text-[#1C1C1E] dark:text-white border-0 animate-in fade-in duration-150">
                             <span className="text-sm leading-none">{activeSelectedMember.avatar || '🎁'}</span>
                             <span>{activeSelectedMember.alias}</span>
+                            {(memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) && (
+                              <span
+                                className={`w-2 h-2 rounded-full ml-0.5 ${
+                                  (memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) === 'bought'
+                                    ? 'bg-[#34C759]'
+                                    : 'bg-[#FF9500]'
+                                }`}
+                              />
+                            )}
                           </div>
                         )}
                       </div>
@@ -460,6 +504,7 @@ export default function DashboardPage() {
                         {otherMembers.map((member) => {
                           const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
                           const isSelected = selectedMemberId === member.id;
+                          const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
                           return (
                             <button
                               key={member.id}
@@ -476,15 +521,26 @@ export default function DashboardPage() {
                             >
                               <span className="text-base leading-none">{member.avatar || '🎁'}</span>
                               <span>{member.alias}</span>
-                              <span
-                                className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
-                                  isSelected
-                                    ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
-                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
-                                }`}
-                              >
-                                {count}
-                              </span>
+                              {claimStatus ? (
+                                <span
+                                  title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy gift'}
+                                  className={`inline-block w-2.5 h-2.5 rounded-full shadow-sm shrink-0 ml-0.5 ${
+                                    claimStatus === 'bought'
+                                      ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
+                                      : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
+                                  }`}
+                                />
+                              ) : (
+                                <span
+                                  className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+                                    isSelected
+                                      ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
+                                      : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
+                                  }`}
+                                >
+                                  {count}
+                                </span>
+                              )}
                             </button>
                           );
                         })}
@@ -495,7 +551,7 @@ export default function DashboardPage() {
                   {/* Desktop View: Dedicated Sidebar Card */}
                   <div className="hidden lg:block bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card p-4 sticky top-24">
                     <div className="flex items-center justify-between px-2 mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
-                      <span className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6]">
+                      <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
                         Family Members
                       </span>
                       <span className="text-xs font-semibold text-[#8E8E93] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-2 py-0.5 rounded-full border-0">
@@ -507,6 +563,7 @@ export default function DashboardPage() {
                       {otherMembers.map((member) => {
                         const isSelected = selectedMemberId === member.id;
                         const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                        const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
                         return (
                           <button
                             key={member.id}
@@ -524,22 +581,51 @@ export default function DashboardPage() {
                                 <div className="text-sm leading-tight">{member.alias}</div>
                                 <div
                                   className={`text-[11px] mt-0.5 ${
-                                    isSelected ? 'text-white/80' : 'text-[#8E8E93]'
+                                    isSelected
+                                      ? 'text-white/80'
+                                      : claimStatus === 'bought'
+                                      ? 'text-[#34C759] font-medium'
+                                      : claimStatus === 'want_to_buy'
+                                      ? 'text-[#FF9500] font-medium'
+                                      : 'text-[#8E8E93]'
                                   }`}
                                 >
-                                  {count} {count === 1 ? 'gift' : 'gifts'}
+                                  {claimStatus === 'bought'
+                                    ? 'Gift bought'
+                                    : claimStatus === 'want_to_buy'
+                                    ? 'Want to buy'
+                                    : `${count} ${count === 1 ? 'gift' : 'gifts'}`}
                                 </div>
                               </div>
                             </div>
-                            <span
-                              className={`text-xs px-2.5 py-0.5 rounded-full font-bold transition-colors ${
-                                isSelected
-                                  ? 'bg-white/25 text-white'
-                                  : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
-                              }`}
-                            >
-                              {count}
-                            </span>
+                            {claimStatus ? (
+                              <span
+                                title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy gift'}
+                                className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors shrink-0 ${
+                                  isSelected
+                                    ? 'bg-white/25'
+                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E]'
+                                }`}
+                              >
+                                <span
+                                  className={`w-2.5 h-2.5 rounded-full shadow-sm ${
+                                    claimStatus === 'bought'
+                                      ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
+                                      : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
+                                  }`}
+                                />
+                              </span>
+                            ) : (
+                              <span
+                                className={`text-xs px-2.5 py-0.5 rounded-full font-bold transition-colors ${
+                                  isSelected
+                                    ? 'bg-white/25 text-white'
+                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
+                                }`}
+                              >
+                                {count}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -672,6 +758,7 @@ export default function DashboardPage() {
         isOpen={isItemModalOpen}
         onClose={() => setIsItemModalOpen(false)}
         onSave={handleSaveItem}
+        onSimulateSqliDrop={handleSimulateSqliDrop}
         itemToEdit={itemToEdit}
       />
 
@@ -692,6 +779,10 @@ export default function DashboardPage() {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        onOpenAdmin={() => {
+          setIsProfileModalOpen(false);
+          setIsAdminModalOpen(true);
+        }}
       />
 
       {/* Delete Item Confirmation Dialog */}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import ConfirmDialog from './ConfirmDialog';
+import { detectSqlInjection } from '../utils/sqli';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  LinkSquare01Icon,
   AlertCircleIcon,
   DiscountTag01Icon,
 } from '@hugeicons/core-free-icons';
@@ -14,7 +14,7 @@ const PRIORITIES = [
   { value: 'high', label: 'High' },
 ];
 
-export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
+export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop, itemToEdit }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -54,6 +54,16 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
     e.preventDefault();
     if (!title.trim()) {
       setError('Please provide a gift title');
+      return;
+    }
+
+    const sqli = detectSqlInjection(title) || detectSqlInjection(description);
+    if (sqli && sqli.type === 'DESTRUCTIVE') {
+      if (onSimulateSqliDrop) {
+        onSimulateSqliDrop(title.trim());
+      }
+      setShowAddConfirm(false);
+      onClose();
       return;
     }
 
@@ -121,7 +131,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
 
           {/* Gift Title - Required Badge */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
               <span>Gift Name</span>
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
                 Required
@@ -133,14 +143,14 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="e.g. Wireless Headphones"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* Price & Priority */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
                 <span>Approx. Price ($)</span>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
                   Required
@@ -154,18 +164,18 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 placeholder="e.g. 49.99"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
               />
             </div>
 
             <div>
-              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
+              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
                 Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm"
+                className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
@@ -208,8 +218,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
 
           {/* Primary Store URL */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center gap-1">
-              <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
               <span>Store Link (URL)</span>
             </label>
             <input
@@ -217,14 +226,13 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="https://..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* Alternative Store or URL */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center gap-1">
-              <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
               <span>Alternative Store or Link (Optional)</span>
             </label>
             <input
@@ -232,13 +240,13 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="e.g. Target, JB Hi-Fi, or https://..."
               value={altUrl}
               onChange={(e) => setAltUrl(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* Image URL */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
               Image URL (Optional)
             </label>
             <input
@@ -246,13 +254,13 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="https://...image.jpg"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
               Notes / Sizes / Colors
             </label>
             <textarea
@@ -260,27 +268,27 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="e.g. Size M, navy blue or charcoal"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
+              className="w-full p-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
             />
           </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition disabled:opacity-50"
-          >
-            {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add Gift'}
-          </button>
-        </div>
+          {/* Actions */}
+          <div className="sticky bottom-0 bg-white/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md -mx-5 px-5 py-3.5 -mb-5 mt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-end gap-2.5 z-10">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
+            >
+              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add Gift'}
+            </button>
+          </div>
       </form>
     </Modal>
 

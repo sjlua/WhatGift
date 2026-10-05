@@ -203,6 +203,15 @@ def test_full_family_lifecycle_and_privacy(client):
     mom_view = client.get(f"/api/users/{timmy_id}/items", headers=mom_headers).json()
     assert mom_view[0]["claim"]["is_claimed_by_viewer"] is True
 
+    # D) Verify GET /api/families/current reflects viewer_claim_status
+    mom_fam = client.get("/api/families/current", headers=mom_headers).json()
+    timmy_in_mom_fam = next(m for m in mom_fam["members"] if m["id"] == timmy_id)
+    assert timmy_in_mom_fam["viewer_claim_status"] == "bought"
+
+    dad_fam = client.get("/api/families/current", headers=dad_headers).json()
+    timmy_in_dad_fam = next(m for m in dad_fam["members"] if m["id"] == timmy_id)
+    assert timmy_in_dad_fam["viewer_claim_status"] is None
+
     # 13. Timmy updates his own profile (name & avatar) without logging out
     update_prof = client.put(
         "/api/auth/me",

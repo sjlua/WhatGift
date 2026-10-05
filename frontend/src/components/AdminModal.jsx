@@ -232,8 +232,8 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
         {/* Section 0: Direct Invite Link Box */}
         <div className="bg-[var(--theme-tint)] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-1">
-            <span className="font-sans font-bold text-xs text-[var(--theme-primary)] flex items-center gap-1.5">
-              <HugeiconsIcon icon={Link01Icon} size={14} />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={Link01Icon} size={16} className="text-[var(--theme-primary)]" />
               Family Invite Link
             </span>
             <button
@@ -244,7 +244,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
               {copiedInvite ? 'Copied!' : 'Copy Link'}
             </button>
           </div>
-          <p className="text-xs text-[#636366] dark:text-[#8E8E93] mb-2.5 leading-relaxed">
+          <p className="text-xs text-[#636366] dark:text-[#8E8E93] mb-2.5 leading-relaxed font-sans">
             Send this link to family members. When they open it, they will automatically be launched into {family?.name} and can log in simply by typing their first name.
           </p>
           <div className="flex items-center gap-2">
@@ -267,8 +267,8 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
         {/* Section 1: Family Settings (Name & Invite Code) */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
-              <HugeiconsIcon icon={Edit02Icon} size={14} className="text-[var(--theme-primary)]" />
+            <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
+              <HugeiconsIcon icon={Edit02Icon} size={16} className="text-[var(--theme-primary)]" />
               Family Name & Code
             </span>
             <span className="text-[11px] text-[#8E8E93]">Admin settings</span>
@@ -356,8 +356,8 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
 
         {/* Section 2: Add Member Form */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
-          <h4 className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-3 flex items-center gap-1.5">
-            <HugeiconsIcon icon={Add01Icon} size={14} className="text-[var(--theme-primary)]" />
+          <h4 className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white mb-3 flex items-center gap-2">
+            <HugeiconsIcon icon={Add01Icon} size={16} className="text-[var(--theme-primary)]" />
             Add Family Member
           </h4>
           <form onSubmit={handleCreateMember} className="space-y-3">
@@ -413,7 +413,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
 
         {/* Section 3: Existing Members List */}
         <div>
-          <h4 className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-2">
+          <h4 className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white mb-2">
             Family Members ({members.length})
           </h4>
           <div className="divide-y divide-[#E5E5EA] dark:divide-[#38383A] border-0 rounded-2xl overflow-hidden bg-white dark:bg-[#2C2C2E] shadow-apple-sm">
@@ -431,7 +431,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
                         {m.alias}
                       </div>
                       <div className="text-[11px] text-[#8E8E93]">
-                        {m.is_admin ? 'Family administrator' : 'Direct name login'}
+                        {m.is_admin ? 'Family administrator' : 'Standard member'}
                       </div>
                     </div>
                   </div>
@@ -454,8 +454,8 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
 
         {/* Section 4: Danger Zone - Reset Entire Family Wishlist */}
         <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#38383A]">
-          <h4 className="font-sans font-bold text-xs text-[#FF3B30] mb-2.5 flex items-center gap-1.5">
-            <HugeiconsIcon icon={AlertCircleIcon} size={15} />
+          <h4 className="font-heading font-bold text-sm sm:text-base text-[#FF3B30] mb-2.5 flex items-center gap-2">
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             <span>Danger Zone</span>
           </h4>
           <div className="p-4 rounded-2xl bg-[#FF3B30]/5 dark:bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

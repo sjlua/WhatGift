@@ -1,6 +1,7 @@
 import random
 import re
 import string
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -33,8 +34,19 @@ def generate_family_code(base_name: str, db: Session) -> str:
         if not db.query(Family).filter(Family.code == candidate).first():
             return candidate
 
-def build_member_summary(m: User) -> FamilyMemberSummary:
+
+def build_member_summary(m: User, viewer_id: Optional[int] = None) -> FamilyMemberSummary:
     item_count = len([i for i in m.items if not getattr(i, "is_archived", False)]) if m.items else 0
+    viewer_claim_status = None
+    if viewer_id and m.id != viewer_id and m.items:
+        viewer_claims = [i.claim for i in m.items if i.claim and i.claim.user_id == viewer_id]
+        if viewer_claims:
+            statuses = [c.status for c in viewer_claims]
+            if "bought" in statuses or "purchased" in statuses:
+                viewer_claim_status = "bought"
+            elif "want_to_buy" in statuses or "claimed" in statuses:
+                viewer_claim_status = "want_to_buy"
+
     return FamilyMemberSummary(
         id=m.id,
         alias=m.alias,
@@ -42,6 +54,7 @@ def build_member_summary(m: User) -> FamilyMemberSummary:
         is_admin=m.is_admin,
         has_pin=False,
         item_count=item_count,
+        viewer_claim_status=viewer_claim_status,
     )
 
 
@@ -152,7 +165,7 @@ def get_current_family(
     if not family:
         raise HTTPException(status_code=404, detail="Family not found")
 
-    members_data = [build_member_summary(m) for m in family.members]
+    members_data = [build_member_summary(m, viewer_id=current_user.id) for m in family.members]
 
     return FamilyLookupResponse(
         id=family.id,
@@ -207,7 +220,7 @@ def update_current_family(
     db.commit()
     db.refresh(family)
 
-    members_data = [build_member_summary(m) for m in family.members]
+    members_data = [build_member_summary(m, viewer_id=admin.id) for m in family.members]
 
     return FamilyUpdateResponse(
         id=family.id,
