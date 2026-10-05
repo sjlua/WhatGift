@@ -15,7 +15,7 @@ import {
 
 export default function AuthPage() {
   const { login, registerFamily } = useAuth();
-  const { isDark, toggleDarkMode } = useTheme();
+  const { theme, isDark, toggleDarkMode } = useTheme();
 
   const [mode, setMode] = useState('join'); // 'join' | 'create'
   const [familyCode, setFamilyCode] = useState('');
@@ -49,22 +49,25 @@ export default function AuthPage() {
     }
   };
 
-  // Auto-launch family if embedded in URL query (?family=CODE or ?code=CODE)
+  // Auto-launch family if embedded in URL query (?family=CODE or ?code=CODE) or saved locally
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codeParam = params.get('family') || params.get('code');
+    const rememberedCode = localStorage.getItem('whatgift_last_family_code');
+    const targetCode = codeParam ? codeParam.trim().toUpperCase() : (rememberedCode ? rememberedCode.trim().toUpperCase() : '');
 
-    if (codeParam) {
-      const cleanCode = codeParam.trim().toUpperCase();
-      setFamilyCode(cleanCode);
+    if (targetCode) {
+      setFamilyCode(targetCode);
       setMode('join');
-      setAutoLaunched(true);
-      lookupAndSetFamily(cleanCode);
-    } else {
-      const rememberedCode = localStorage.getItem('whatgift_last_family_code');
-      if (rememberedCode) {
-        setFamilyCode(rememberedCode);
+      if (codeParam) {
+        setAutoLaunched(true);
       }
+      lookupAndSetFamily(targetCode);
+    }
+
+    const rememberedAlias = localStorage.getItem('whatgift_last_alias');
+    if (rememberedAlias) {
+      setFirstName(rememberedAlias);
     }
   }, []);
 
@@ -80,9 +83,11 @@ export default function AuthPage() {
     setLoading(true);
     setError('');
     try {
+      localStorage.setItem('whatgift_last_family_code', familyData.code);
+      localStorage.setItem('whatgift_last_alias', targetName.trim());
       await login(familyData.code, targetName.trim());
       if (window.history.replaceState) {
-        window.history.replaceState({}, document.title, window.location.pathname);
+        window.history.replaceState({}, document.title, `/?family=${encodeURIComponent(familyData.code)}`);
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please check the spelling of your first name.');
@@ -96,12 +101,16 @@ export default function AuthPage() {
     setError('');
     setLoading(true);
     try {
-      await registerFamily({
+      const resp = await registerFamily({
         name: createForm.name.trim(),
         admin_alias: createForm.admin_alias.trim(),
         admin_avatar: createForm.admin_avatar,
         family_code: createForm.family_code.trim() || undefined,
       });
+      if (resp?.family?.code) {
+        localStorage.setItem('whatgift_last_family_code', resp.family.code);
+        localStorage.setItem('whatgift_last_alias', createForm.admin_alias.trim());
+      }
     } catch (err) {
       setError(err.message || 'Failed to create family');
     } finally {
@@ -110,9 +119,19 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#F2F2F7] dark:bg-[#000000] transition-colors duration-200 relative">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#F2F2F7] dark:bg-[#000000] transition-colors duration-200 relative overflow-hidden">
+      {/* Dynamic Ambient Holiday Aura on Login Page */}
+      <div
+        className="absolute top-0 left-0 right-0 h-96 pointer-events-none transition-all duration-500 opacity-70 dark:opacity-40"
+        style={{
+          background: isDark
+            ? `radial-gradient(ellipse 80% 60% at 50% -20%, ${theme.tintDark || theme.tint}, transparent 70%)`
+            : `radial-gradient(ellipse 80% 60% at 50% -20%, ${theme.tint}, transparent 70%)`,
+        }}
+      />
+
       {/* Top right quick theme toggle */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 z-20">
         <button
           type="button"
           onClick={toggleDarkMode}
@@ -123,16 +142,26 @@ export default function AuthPage() {
         </button>
       </div>
 
-      <div className="w-full max-w-md sm:max-w-lg">
-        {/* Apple HIG App Header */}
+      <div className="w-full max-w-md sm:max-w-lg relative z-10">
+        {/* Apple HIG App Header with Festive Christmas Accent */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-[var(--theme-primary)] mx-auto flex items-center justify-center text-white shadow-apple-md mb-3">
+          <div
+            className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white shadow-apple-md mb-3 transition-transform duration-300 hover:scale-105"
+            style={{
+              background: 'var(--theme-navbar-bg, var(--theme-primary))',
+            }}
+          >
             <HugeiconsIcon icon={GiftIcon} size={32} />
           </div>
           <h1 className="text-3xl sm:text-4xl font-heading font-black text-[#1C1C1E] dark:text-white tracking-tight">WhatGift</h1>
           <p className="text-xs sm:text-sm text-[#8E8E93] mt-1 font-medium font-sans">
             Family wishlists and secret gift coordination
           </p>
+          <div className="mt-2.5">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+              🎄 {theme.name}
+            </span>
+          </div>
         </div>
 
         {/* Card with Clean Apple HIG Elevation and Reduced Borders */}
@@ -185,8 +214,11 @@ export default function AuthPage() {
                 /* Step 1: Family Code Form */
                 <form onSubmit={handleLookupFamily} className="space-y-4">
                   <div>
-                    <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
-                      Family Code <span className="text-[#FF3B30] font-bold">*</span>
+                    <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+                      <span>Family Code</span>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                        Required
+                      </span>
                     </label>
                     <input
                       type="text"
@@ -249,8 +281,11 @@ export default function AuthPage() {
                     className="space-y-3.5"
                   >
                     <div>
-                      <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
-                        Type Your First Name <span className="text-[#FF3B30] font-bold">*</span>
+                      <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+                        <span>Type Your First Name</span>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                          Required
+                        </span>
                       </label>
                       <input
                         type="text"
@@ -307,8 +342,11 @@ export default function AuthPage() {
                ========================================== */
             <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div>
-                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
-                  Family Name <span className="text-[#FF3B30] font-bold">*</span>
+                <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+                  <span>Family Name</span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                    Required
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -321,8 +359,11 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
-                  Your First Name <span className="text-[#FF3B30] font-bold">*</span>
+                <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+                  <span>Your First Name</span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                    Required
+                  </span>
                 </label>
                 <input
                   type="text"

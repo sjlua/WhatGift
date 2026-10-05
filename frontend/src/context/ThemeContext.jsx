@@ -2,23 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export const THEMES = [
   {
-    id: 'apple',
-    name: 'Apple Classic',
-    holiday: 'Default / Everyday',
-    primary: '#0071E3',
-    primaryDark: '#0A84FF',
-    hover: '#005BB5',
-    navbarBg: 'linear-gradient(135deg, #0071E3 0%, #0056B3 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #0B2A4A 0%, #06182B 100%)',
-    navbarBgFlat: '#0071E3',
-    navbarBgDarkFlat: '#0B2A4A',
-    tint: 'rgba(0, 113, 227, 0.12)',
-    tintDark: 'rgba(10, 132, 255, 0.20)',
-    border: 'rgba(0, 113, 227, 0.35)',
-    swatch: '#0071E3',
-    gradient: 'linear-gradient(90deg, #0071E3 0%, #0056B3 100%)',
-  },
-  {
     id: 'christmas_duo',
     name: 'Christmas Classic',
     holiday: 'Christmas / Red & Green',
@@ -36,6 +19,23 @@ export const THEMES = [
     swatch: '#DC2626',
     swatches: ['#DC2626', '#16A34A'],
     gradient: 'linear-gradient(90deg, #DC2626 0%, #16A34A 100%)',
+  },
+  {
+    id: 'apple',
+    name: 'Apple Classic',
+    holiday: 'Default / Everyday',
+    primary: '#0071E3',
+    primaryDark: '#0A84FF',
+    hover: '#005BB5',
+    navbarBg: 'linear-gradient(135deg, #0071E3 0%, #0056B3 100%)',
+    navbarBgDark: 'linear-gradient(135deg, #0B2A4A 0%, #06182B 100%)',
+    navbarBgFlat: '#0071E3',
+    navbarBgDarkFlat: '#0B2A4A',
+    tint: 'rgba(0, 113, 227, 0.12)',
+    tintDark: 'rgba(10, 132, 255, 0.20)',
+    border: 'rgba(0, 113, 227, 0.35)',
+    swatch: '#0071E3',
+    gradient: 'linear-gradient(90deg, #0071E3 0%, #0056B3 100%)',
   },
   {
     id: 'birthday',
@@ -164,7 +164,12 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [themeId, setThemeId] = useState(() => {
-    return localStorage.getItem('whatgift_theme') || 'apple';
+    const saved = localStorage.getItem('whatgift_theme');
+    const isCustomized = localStorage.getItem('whatgift_theme_customized');
+    if (!saved || (!isCustomized && saved === 'apple')) {
+      return 'christmas_duo';
+    }
+    return saved;
   });
 
   const [darkMode, setDarkModeState] = useState(() => {

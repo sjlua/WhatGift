@@ -16,16 +16,65 @@ export function getStoredAuth() {
   }
 }
 
+export function updateWebManifest(familyCode) {
+  if (typeof document === 'undefined') return;
+  const manifestLink = document.querySelector('link[rel="manifest"]');
+  if (!manifestLink) return;
+
+  const manifest = {
+    short_name: "WhatGift",
+    name: "WhatGift - Family Wishlist",
+    description: "Mobile-friendly family wishlists and secret gift coordination",
+    icons: [
+      {
+        src: "/icon-192.png",
+        type: "image/png",
+        sizes: "192x192",
+        purpose: "any maskable"
+      },
+      {
+        src: "/icon-512.png",
+        type: "image/png",
+        sizes: "512x512",
+        purpose: "any maskable"
+      },
+      {
+        src: "/icon.svg",
+        type: "image/svg+xml",
+        sizes: "512x512"
+      }
+    ],
+    start_url: familyCode ? `/?family=${encodeURIComponent(familyCode)}` : "/",
+    background_color: "#F2F2F7",
+    theme_color: "#DC2626",
+    display: "standalone",
+    orientation: "portrait"
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  manifestLink.href = URL.createObjectURL(blob);
+}
+
 export function saveStoredAuth(token, user, family) {
   if (token) localStorage.setItem(TOKEN_KEY, token);
-  if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
-  if (family) localStorage.setItem(FAMILY_KEY, JSON.stringify(family));
+  if (user) {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (user.alias) localStorage.setItem('whatgift_last_alias', user.alias);
+  }
+  if (family) {
+    localStorage.setItem(FAMILY_KEY, JSON.stringify(family));
+    if (family.code) {
+      localStorage.setItem('whatgift_last_family_code', family.code);
+      updateWebManifest(family.code);
+    }
+  }
 }
 
 export function clearStoredAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(FAMILY_KEY);
+  // Notice: We intentionally preserve 'whatgift_last_family_code' so users don't have to re-enter it.
 }
 
 export async function apiFetch(endpoint, options = {}) {

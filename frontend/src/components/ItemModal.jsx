@@ -99,6 +99,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
         isOpen={isOpen}
         onClose={onClose}
         title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
+        accentHeader
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -118,10 +119,13 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </div>
           )}
 
-          {/* Gift Title - Required with Red Asterisk */}
+          {/* Gift Title - Required Badge */}
           <div>
-            <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
-              Gift Name <span className="text-[#FF3B30] font-bold">*</span>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+              <span>Gift Name</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                Required
+              </span>
             </label>
             <input
               type="text"
@@ -129,15 +133,18 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               placeholder="e.g. Wireless Headphones"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* Price & Priority */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
-                Approx. Price ($) <span className="text-[#FF3B30] font-bold">*</span>
+              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center">
+                <span>Approx. Price ($)</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                  Required
+                </span>
               </label>
               <input
                 type="number"
@@ -147,18 +154,18 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 placeholder="e.g. 49.99"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
               />
             </div>
 
             <div>
-              <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
+              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                 Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm"
+                className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
@@ -199,63 +206,63 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </div>
           </label>
 
-        {/* Primary Store URL */}
-        <div>
-          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1 flex items-center gap-1">
-            <HugeiconsIcon icon={LinkSquare01Icon} size={13} />
-            Store Link (URL)
-          </label>
-          <input
-            type="url"
-            placeholder="https://..."
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-          />
-        </div>
+          {/* Primary Store URL */}
+          <div>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center gap-1">
+              <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+              <span>Store Link (URL)</span>
+            </label>
+            <input
+              type="url"
+              placeholder="https://..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+            />
+          </div>
 
-        {/* Alternative Store URL */}
-        <div>
-          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1 flex items-center gap-1">
-            <HugeiconsIcon icon={LinkSquare01Icon} size={13} />
-            Alternative Purchase Link (Optional)
-          </label>
-          <input
-            type="url"
-            placeholder="https://... alternative store or backup option"
-            value={altUrl}
-            onChange={(e) => setAltUrl(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-          />
-        </div>
+          {/* Alternative Store or URL */}
+          <div>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5 flex items-center gap-1">
+              <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+              <span>Alternative Store or Link (Optional)</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Target, JB Hi-Fi, or https://..."
+              value={altUrl}
+              onChange={(e) => setAltUrl(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+            />
+          </div>
 
-        {/* Image URL */}
-        <div>
-          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
-            Image URL (Optional)
-          </label>
-          <input
-            type="url"
-            placeholder="https://...image.jpg"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-          />
-        </div>
+          {/* Image URL */}
+          <div>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
+              Image URL (Optional)
+            </label>
+            <input
+              type="url"
+              placeholder="https://...image.jpg"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+            />
+          </div>
 
-        {/* Notes */}
-        <div>
-          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
-            Notes / Sizes / Colors
-          </label>
-          <textarea
-            rows="3"
-            placeholder="e.g. Size M, navy blue or charcoal"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-[15px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
-          />
-        </div>
+          {/* Notes */}
+          <div>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
+              Notes / Sizes / Colors
+            </label>
+            <textarea
+              rows="3"
+              placeholder="e.g. Size M, navy blue or charcoal"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-base sm:text-[17px] text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
+            />
+          </div>
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">

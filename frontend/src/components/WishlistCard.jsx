@@ -45,6 +45,25 @@ export default function WishlistCard({
     }
   };
 
+  const getAltLinkInfo = (rawAlt, title) => {
+    if (!rawAlt) return null;
+    const str = rawAlt.trim();
+    const isUrl = !str.includes(' ') && /^(https?:\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i.test(str);
+    if (isUrl) {
+      const href = str.startsWith('http://') || str.startsWith('https://') ? str : `https://${str}`;
+      return {
+        href,
+        label: `Alt: ${getDomain(href)}`,
+        isStore: false,
+      };
+    }
+    return {
+      href: `https://www.google.com/search?q=${encodeURIComponent(`${title || ''} ${str}`.trim())}`,
+      label: `Alt: ${str}`,
+      isStore: true,
+    };
+  };
+
   // Close lightbox on Escape key
   useEffect(() => {
     if (!showLightbox) return;
@@ -168,17 +187,21 @@ export default function WishlistCard({
                   </a>
                 )}
 
-                {item.alt_url && (
-                  <a
-                    href={item.alt_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 text-xs sm:text-sm font-semibold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] rounded-xl shadow-apple-sm transition active:scale-95 border-0"
-                  >
-                    <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
-                    <span>Alt: {getDomain(item.alt_url)}</span>
-                  </a>
-                )}
+                {item.alt_url && (() => {
+                  const altInfo = getAltLinkInfo(item.alt_url, item.title);
+                  return (
+                    <a
+                      href={altInfo.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={altInfo.isStore ? `Search for ${item.title} at ${item.alt_url}` : undefined}
+                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 text-xs sm:text-sm font-semibold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] rounded-xl shadow-apple-sm transition active:scale-95 border-0"
+                    >
+                      <HugeiconsIcon icon={altInfo.isStore ? ShoppingBag01Icon : LinkSquare01Icon} size={15} />
+                      <span className="truncate max-w-[240px]">{altInfo.label}</span>
+                    </a>
+                  );
+                })()}
               </div>
             )}
 

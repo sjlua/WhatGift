@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useHaptics } from '../context/HapticsContext';
-import { api } from '../api/client';
+import { api, updateWebManifest } from '../api/client';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import Navbar from '../components/Navbar';
 import WishlistCard from '../components/WishlistCard';
@@ -31,6 +31,27 @@ export default function DashboardPage() {
   useEffect(() => {
     refreshFamily();
   }, []);
+
+  // When saved as a web app, preserve family code so user never has to re-enter it
+  useEffect(() => {
+    if (family?.code) {
+      localStorage.setItem('whatgift_last_family_code', family.code);
+      if (user?.alias) {
+        localStorage.setItem('whatgift_last_alias', user.alias);
+      }
+      updateWebManifest(family.code);
+
+      // Keep ?family=CODE in the browser address bar so iOS Safari "Add to Home Screen"
+      // automatically captures the family code into the homescreen web app launcher!
+      try {
+        const currentUrl = new URL(window.location.href);
+        if (currentUrl.searchParams.get('family') !== family.code) {
+          currentUrl.searchParams.set('family', family.code);
+          window.history.replaceState(null, '', currentUrl.pathname + currentUrl.search);
+        }
+      } catch {}
+    }
+  }, [family?.code, user?.alias]);
 
   const [activeTab, setActiveTab] = useState('my-wishes'); // 'my-wishes' | 'family-wishes'
   const [selectedMemberId, setSelectedMemberId] = useState(null);

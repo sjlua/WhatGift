@@ -290,8 +290,11 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
 
           <form onSubmit={handleSaveFamily} className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-white mb-1">
-                Family Name <span className="text-[#FF3B30] font-bold">*</span>
+              <label className="block text-xs sm:text-[13px] font-bold font-sans text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
+                <span>Family Name</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                  Required
+                </span>
               </label>
               <input
                 type="text"
@@ -304,8 +307,11 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1E] dark:text-white mb-1">
-                Family Code <span className="text-[#FF3B30] font-bold">*</span>
+              <label className="block text-xs sm:text-[13px] font-bold font-sans text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
+                <span>Family Code</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                  Required
+                </span>
               </label>
               <input
                 type="text"
@@ -356,8 +362,11 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
           </h4>
           <form onSubmit={handleCreateMember} className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-[#1C1C1E] dark:text-white mb-1">
-                First Name / Alias <span className="text-[#FF3B30] font-bold">*</span>
+              <label className="block text-xs sm:text-[13px] font-bold font-sans text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
+                <span>First Name / Alias</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                  Required
+                </span>
               </label>
               <input
                 type="text"

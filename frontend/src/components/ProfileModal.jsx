@@ -97,8 +97,11 @@ export default function ProfileModal({ isOpen, onClose }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold font-sans text-[#1C1C1E] dark:text-white mb-1">
-              Your First Name / Alias <span className="text-[#FF3B30] font-bold">*</span>
+            <label className="block text-xs sm:text-[13px] font-bold font-sans text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
+              <span>Your First Name / Alias</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                Required
+              </span>
             </label>
             <input
               type="text"
@@ -207,6 +210,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   key={t.id}
                   type="button"
                   onClick={() => {
+                    localStorage.setItem('whatgift_theme_customized', 'true');
                     setThemeId(t.id);
                     triggerSelection();
                   }}
@@ -332,6 +336,11 @@ export default function ProfileModal({ isOpen, onClose }) {
               <span className="font-bold shrink-0 text-[var(--theme-primary)]">Android / Chrome:</span>
               <span>Tap the <strong>⋮ Menu</strong> at top right &rarr; tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</span>
             </div>
+            {family?.code && (
+              <div className="pt-1.5 border-t border-[#E5E5EA] dark:border-[#2C2C2E] text-[11px] text-[var(--theme-primary)] font-semibold flex items-center gap-1.5">
+                <span>✓ Family Code ({family.code}) will be preserved automatically when launched from your homescreen.</span>
+              </div>
+            )}
           </div>
         </div>
 

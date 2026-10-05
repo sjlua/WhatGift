@@ -3,7 +3,14 @@ import { createPortal } from 'react-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon } from '@hugeicons/core-free-icons';
 
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-md' }) {
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  maxWidth = 'max-w-md',
+  accentHeader = false,
+}) {
   // Lock body scroll and listen for Escape key when open
   useEffect(() => {
     if (!isOpen) return;
@@ -46,14 +53,34 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
         className={`relative z-10 w-full ${maxWidth} rounded-3xl bg-white dark:bg-[#1C1C1E] p-0 shadow-2xl overflow-hidden text-[#1C1C1E] dark:text-white border-0 animate-in fade-in zoom-in-95 duration-150`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5E5EA] dark:border-[#2C2C2E] px-5 py-4 bg-[#F9F9FB] dark:bg-[#242426]">
-          <h3 id="modal-title" className="text-base font-semibold text-[#1C1C1E] dark:text-white tracking-tight">
+        <div
+          className={`flex items-center justify-between px-5 py-4 border-b transition-colors duration-200 ${
+            accentHeader
+              ? 'text-white border-transparent'
+              : 'border-[#E5E5EA] dark:border-[#2C2C2E] bg-[#F9F9FB] dark:bg-[#242426]'
+          }`}
+          style={
+            accentHeader
+              ? { background: 'var(--theme-navbar-bg, var(--theme-primary))' }
+              : undefined
+          }
+        >
+          <h3
+            id="modal-title"
+            className={`text-base sm:text-lg font-heading font-black tracking-tight ${
+              accentHeader ? 'text-white drop-shadow-sm' : 'text-[#1C1C1E] dark:text-white'
+            }`}
+          >
             {title}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition"
+            className={`rounded-full p-1.5 transition active:scale-95 ${
+              accentHeader
+                ? 'text-white/80 hover:text-white hover:bg-white/20'
+                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#38383A]'
+            }`}
             aria-label="Close dialog"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={18} />
