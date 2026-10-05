@@ -11,6 +11,7 @@ import ClaimModal from '../components/ClaimModal';
 import AdminModal from '../components/AdminModal';
 import ProfileModal from '../components/ProfileModal';
 import ConfirmDialog from '../components/ConfirmDialog';
+import SettingsView from '../components/SettingsView';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -20,6 +21,10 @@ import {
   Shield01Icon,
   Cancel01Icon,
   ArrowDown01Icon,
+  Settings02Icon,
+  Link01Icon,
+  Tick02Icon,
+  Logout01Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function DashboardPage() {
@@ -103,8 +108,22 @@ export default function DashboardPage() {
     }
   }, [activeTab, otherMembers, selectedMemberId]);
 
+  const [copiedSidebarLink, setCopiedSidebarLink] = useState(false);
+  const handleCopySidebarInvite = () => {
+    if (!family?.code) return;
+    const url = `${window.location.origin}/?family=${encodeURIComponent(family.code)}`;
+    navigator.clipboard.writeText(url);
+    triggerSuccess();
+    setCopiedSidebarLink(true);
+    setTimeout(() => setCopiedSidebarLink(false), 2000);
+  };
+
   // Load wishlist items whenever activeTab or selectedMemberId changes
   const loadItems = async () => {
+    if (activeTab === 'settings') {
+      setLoading(false);
+      return;
+    }
     const targetUserId = activeTab === 'my-wishes' ? user.id : selectedMemberId;
     if (!targetUserId) {
       setItems([]);
@@ -241,7 +260,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] dark:bg-[#000000] flex flex-col pb-24 lg:pb-16 transition-colors duration-200 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#F8F8FA] dark:bg-[#0A0A0C] flex flex-col pb-24 lg:pb-12 transition-colors duration-200 relative overflow-x-hidden">
       {/* Dynamic Ambient Holiday Aura */}
       <div
         className="absolute top-0 left-0 right-0 h-96 pointer-events-none transition-all duration-500 opacity-60 dark:opacity-30"
@@ -255,32 +274,40 @@ export default function DashboardPage() {
       {/* Top Navigation Bar */}
       <Navbar
         onOpenAdmin={() => setIsAdminModalOpen(true)}
-        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenProfile={() => {
+          setActiveTab('settings');
+          triggerSelection();
+        }}
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          triggerSelection();
+        }}
         onSwitchUser={logout}
       />
 
       {/* Main Container - Responsive width from mobile to large desktop displays */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex-1 relative z-10">
-        {/* Top Control Bar: High-Visibility Segmented Tabs + Desktop Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3.5 sm:mb-4.5">
-          {/* Segmented Tabs with Clean Apple HIG Styling (Concentric rounding matching cards) */}
-          <div className="flex gap-2 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-3xl shadow-inner w-full sm:w-auto border-0">
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-6 pt-[calc(max(0.5rem,env(safe-area-inset-top))+4.75rem)] sm:pt-[calc(max(0.5rem,env(safe-area-inset-top))+5.5rem)] lg:pt-4 flex-1 relative z-10">
+        {/* Mobile / Tablet Top Control Bar (Visible below lg, desktop uses persistent sidebar) */}
+        <div className="lg:hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          {/* Segmented Tabs with Clean Apple HIG Styling */}
+          <div className="flex gap-1.5 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-3xl shadow-inner w-full sm:w-auto border-0">
             <button
               type="button"
               onClick={() => {
                 setActiveTab('my-wishes');
                 triggerSelection();
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
                 activeTab === 'my-wishes'
                   ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
-                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5 font-semibold'
+                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white font-semibold'
               }`}
             >
-              <HugeiconsIcon icon={GiftIcon} size={17} />
+              <HugeiconsIcon icon={GiftIcon} size={16} />
               <span>My Wishlist</span>
               <span
-                className={`ml-1 text-[11px] px-2 py-0.5 rounded-full border-0 transition ${
+                className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full border-0 transition ${
                   activeTab === 'my-wishes'
                     ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] font-bold'
                     : 'bg-[#767680]/15 dark:bg-[#38383A] text-[#636366] dark:text-[#8E8E93] font-medium'
@@ -296,16 +323,16 @@ export default function DashboardPage() {
                 setActiveTab('family-wishes');
                 triggerSelection();
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
                 activeTab === 'family-wishes'
                   ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
-                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5 font-semibold'
+                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white font-semibold'
               }`}
             >
-              <HugeiconsIcon icon={UserGroupIcon} size={17} />
-              <span>Family Wishlists</span>
+              <HugeiconsIcon icon={UserGroupIcon} size={16} />
+              <span>Family</span>
               <span
-                className={`ml-1 text-[11px] px-2 py-0.5 rounded-full border-0 transition ${
+                className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full border-0 transition ${
                   activeTab === 'family-wishes'
                     ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] font-bold'
                     : 'bg-[#767680]/15 dark:bg-[#38383A] text-[#636366] dark:text-[#8E8E93] font-medium'
@@ -316,62 +343,29 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Desktop Action Area */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          {/* Tablet Action Area (Hidden on mobile where FAB is used) */}
+          <div className="hidden sm:flex lg:hidden items-center gap-2">
             {activeTab === 'my-wishes' && (
               <>
-                {/* Top Secret Info Tooltip Button */}
-                <div className="relative group">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerSelection();
-                      setShowSecretTooltip((prev) => !prev);
-                    }}
-                    className="inline-flex items-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-white dark:bg-[#1C1C1E] hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm transition border-0 text-xs font-semibold"
-                    aria-label="Top Secret Information"
-                    title="Top Secret info"
-                  >
-                    <HugeiconsIcon icon={ViewOffIcon} size={16} className="text-[var(--theme-primary)]" />
-                    <span>Top Secret</span>
-                  </button>
-
-                  {/* Desktop Tooltip Popover */}
-                  <div
-                    className={`absolute right-0 top-full mt-2 w-72 p-3.5 rounded-2xl bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl shadow-apple-lg border border-black/5 dark:border-white/10 text-xs z-50 transition-all duration-150 ${
-                      showSecretTooltip
-                        ? 'opacity-100 pointer-events-auto'
-                        : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-1.5 mb-1 text-[var(--theme-primary)] font-bold">
-                      <div className="flex items-center gap-1.5">
-                        <HugeiconsIcon icon={ViewOffIcon} size={15} />
-                        <span>Top Secret</span>
-                      </div>
-                      {showSecretTooltip && (
-                        <button
-                          type="button"
-                          onClick={() => setShowSecretTooltip(false)}
-                          className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
-                          aria-label="Close tooltip"
-                        >
-                          <HugeiconsIcon icon={Cancel01Icon} size={13} />
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-[#636366] dark:text-[#8E8E93] text-[11px] leading-relaxed">
-                      You won't know if your items have been claimed or bought! Status is kept hidden from you to preserve the surprise.
-                    </p>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerSelection();
+                    setShowSecretTooltip((prev) => !prev);
+                  }}
+                  className="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl bg-white dark:bg-[#1C1C1E] hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm transition border-0 text-xs font-semibold"
+                  aria-label="Top Secret Information"
+                >
+                  <HugeiconsIcon icon={ViewOffIcon} size={15} className="text-[var(--theme-primary)]" />
+                  <span>Top Secret</span>
+                </button>
 
                 <button
                   type="button"
                   onClick={handleOpenAddItem}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
                 >
-                  <HugeiconsIcon icon={Add01Icon} size={18} />
+                  <HugeiconsIcon icon={Add01Icon} size={16} />
                   <span>Add Gift</span>
                 </button>
               </>
@@ -379,245 +373,439 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* TAB 1: MY WISHLIST */}
-        {activeTab === 'my-wishes' && (
-          <div className="space-y-6 animate-tab-fade">
-            {/* Responsive Desktop Grid: 1 col (mobile) -> 2 cols (tablet) -> 3 cols (desktop) -> 4 cols (large widescreen) */}
-            {loading ? (
-              <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
-                <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                <span>Loading your gifts...</span>
-              </div>
-            ) : items.length === 0 ? (
-              <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
-                <div className="w-16 h-16 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                  <HugeiconsIcon icon={GiftIcon} size={30} />
+        {/* Dual-Column Layout: Persistent Desktop Sidebar on Left, Dynamic Workspace on Right */}
+        <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-5 items-start">
+          {/* DESKTOP PERSISTENT SIDEBAR */}
+          <aside className="hidden lg:block w-[260px] shrink-0 sticky top-4 space-y-2.5">
+            {/* Unified Sidebar Container */}
+            <div className="bg-white dark:bg-[#161618] rounded-2xl border-0 shadow-apple-card p-3 space-y-3.5">
+              {/* Branding Header */}
+              <div className="flex items-center gap-2.5 px-1 pt-0.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-apple-sm shrink-0"
+                  style={{
+                    background: theme.gradient || theme.primary,
+                  }}
+                >
+                  <HugeiconsIcon icon={GiftIcon} size={18} />
                 </div>
-                <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-lg mb-1">
-                  Your wishlist is empty
-                </h4>
-                <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-5 leading-relaxed font-sans">
-                  Add items you would love to receive, with links, sizes, or approximate prices.
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="font-heading font-extrabold text-base text-[#1C1C1E] dark:text-white tracking-tight leading-tight">
+                    WhatGift
+                  </div>
+                  <div className="text-[11px] font-semibold text-[#8E8E93] truncate" title={family?.name}>
+                    {family?.name}
+                  </div>
+                </div>
+              </div>
+
+              {/* Group 1: WISHLISTS */}
+              <div className="space-y-1">
+                <div className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                  Wishlists
+                </div>
+                {/* My Wishlist */}
                 <button
                   type="button"
-                  onClick={handleOpenAddItem}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
+                  onClick={() => {
+                    setActiveTab('my-wishes');
+                    triggerSelection();
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
+                    activeTab === 'my-wishes'
+                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
+                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
+                  }`}
                 >
-                  <HugeiconsIcon icon={Add01Icon} size={18} /> Add Your First Gift
+                  <div className="flex items-center gap-2 text-xs">
+                    <HugeiconsIcon icon={GiftIcon} size={15} />
+                    <span>My Wishlist</span>
+                  </div>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                      activeTab === 'my-wishes'
+                        ? 'bg-white/25 text-white'
+                        : 'bg-[#F0F0F3] dark:bg-[#222226] text-[#8E8E93]'
+                    }`}
+                  >
+                    {items.length && activeTab === 'my-wishes' ? items.length : '•'}
+                  </span>
                 </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 items-start">
-                {items.map((item) => (
-                  <WishlistCard
-                    key={item.id}
-                    item={item}
-                    onEdit={handleOpenEditItem}
-                    onClaim={handleOpenClaim}
-                    onEditClaim={handleOpenClaim}
-                    onReleaseClaim={handleReleaseClaim}
-                    onQuickMark={handleQuickMark}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* TAB 2: FAMILY WISHLISTS (RESPONSIVE SPLIT-VIEW ON DESKTOP) */}
-        {activeTab === 'family-wishes' && (
-          <div className="animate-tab-fade">
-            {otherMembers.length === 0 ? (
-              <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
-                <div className="w-16 h-16 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                  <HugeiconsIcon icon={UserGroupIcon} size={30} />
+                {/* Family Wishlists Header */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('family-wishes');
+                    triggerSelection();
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
+                    activeTab === 'family-wishes' && !selectedMemberId
+                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
+                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-xs">
+                    <HugeiconsIcon icon={UserGroupIcon} size={15} />
+                    <span>Family Wishlists</span>
+                  </div>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                      activeTab === 'family-wishes' && !selectedMemberId
+                        ? 'bg-white/25 text-white'
+                        : 'bg-[#F0F0F3] dark:bg-[#222226] text-[#8E8E93]'
+                    }`}
+                  >
+                    {otherMembers.length}
+                  </span>
+                </button>
+
+                {/* Nested Family Members list under Wishlists */}
+                {otherMembers.length > 0 && (
+                  <div className="pl-3 pr-0.5 pt-0.5 space-y-0.5 border-l border-[#E5E5EA] dark:border-[#2C2C2E] ml-3.5 my-1">
+                    {otherMembers.map((member) => {
+                      const isSelected = activeTab === 'family-wishes' && selectedMemberId === member.id;
+                      const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                      const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
+                      return (
+                        <button
+                          key={member.id}
+                          type="button"
+                          onClick={() => {
+                            triggerSelection();
+                            setActiveTab('family-wishes');
+                            setSelectedMemberId(member.id);
+                          }}
+                          className={`w-full flex items-center justify-between px-2 py-1 rounded-md text-left transition-all duration-150 border-0 ${
+                            isSelected
+                              ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
+                              : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="text-sm leading-none shrink-0">{member.avatar || '🎁'}</span>
+                            <span className="text-xs truncate">{member.alias}</span>
+                          </div>
+                          {claimStatus ? (
+                            <span
+                              className={`w-2 h-2 rounded-full shrink-0 ${
+                                claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
+                              }`}
+                              title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
+                            />
+                          ) : (
+                            <span
+                              className={`text-[10px] font-semibold ${
+                                isSelected ? 'text-white/80' : 'text-[#8E8E93]'
+                              }`}
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Group 2: SETTINGS */}
+              <div className="space-y-1 pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
+                <div className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                  Settings
                 </div>
-                <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-lg mb-1">
-                  No other family members yet
-                </h4>
-                <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-5 leading-relaxed font-sans">
-                  {isAdmin
-                    ? 'Use the Manage Family panel to add members to your family.'
-                    : 'Ask your family admin to invite other family members.'}
-                </p>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    triggerSelection();
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
+                    activeTab === 'settings'
+                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
+                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-xs">
+                    <HugeiconsIcon icon={Settings02Icon} size={15} />
+                    <span>Preferences & Themes</span>
+                  </div>
+                </button>
+
                 {isAdmin && (
                   <button
                     type="button"
                     onClick={() => setIsAdminModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 rounded-xl shadow-apple-md transition active:scale-95"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#1C1C1E] dark:text-white hover:bg-[#F0F0F3] dark:hover:bg-[#222226] transition border-0"
                   >
-                    Manage Family & Add Members
+                    <div className="flex items-center gap-2">
+                      <HugeiconsIcon icon={UserGroupIcon} size={15} />
+                      <span>Manage Family</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                      Admin
+                    </span>
                   </button>
                 )}
+
+                {/* Quick Family Invite code & button */}
+                <div className="p-2 rounded-lg bg-[#F0F0F3] dark:bg-[#222226] flex items-center justify-between gap-1 text-[11px] mt-1">
+                  <span className="font-mono font-bold text-[var(--theme-primary)] truncate">
+                    {family?.code}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopySidebarInvite}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-[#161618] hover:bg-white/80 text-[10px] font-bold text-[#1C1C1E] dark:text-white shadow-apple-sm border-0 transition"
+                  >
+                    {copiedSidebarLink ? (
+                      <span className="text-[#34C759]">Copied</span>
+                    ) : (
+                      <>
+                        <HugeiconsIcon icon={Link01Icon} size={11} />
+                        <span>Invite</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            ) : (
-              /* Split Layout: On Large Desktop screens, render a dedicated Apple-style Sidebar */
-              <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-8 items-start">
-                {/* 1. Member Selector: Horizontal Swipeable on Mobile, Sticky Sidebar on Desktop */}
-                <div className="mb-6 lg:mb-0">
-                  {/* Mobile View: Wrapped Member Selector with Collapse Toggle */}
-                  <div className="lg:hidden mb-6">
-                    <div className="flex items-center justify-between mb-2.5">
-                      <div className="flex items-center gap-2">
-                        <p className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
-                          Select Member:
-                        </p>
-                        {!isMobileMembersOpen && activeSelectedMember && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] shadow-apple-sm text-xs font-bold text-[#1C1C1E] dark:text-white border-0 animate-in fade-in duration-150">
-                            <span className="text-sm leading-none">{activeSelectedMember.avatar || '🎁'}</span>
-                            <span>{activeSelectedMember.alias}</span>
-                            {(memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) && (
-                              <span
-                                className={`w-2 h-2 rounded-full ml-0.5 ${
-                                  (memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) === 'bought'
-                                    ? 'bg-[#34C759]'
-                                    : 'bg-[#FF9500]'
-                                }`}
-                              />
-                            )}
-                          </div>
-                        )}
+
+              {/* User Account & Sign Out (Only option in sidebar) */}
+              <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E] space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xl leading-none shrink-0">{user?.avatar || '🎁'}</span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate">
+                        {user?.alias}
                       </div>
+                      <div className="text-[10px] text-[#8E8E93] truncate">
+                        {isAdmin ? 'Family Admin' : 'Family Member'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Sign Out"
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#636366] dark:text-[#8E8E93] hover:text-[#FF3B30] dark:hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0 active:scale-95"
+                >
+                  <HugeiconsIcon icon={Logout01Icon} size={14} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          {/* MAIN WORKSPACE CONTENT AREA */}
+          <div className="min-w-0 w-full">
+            {/* VIEW 1: MY WISHLIST */}
+            {activeTab === 'my-wishes' && (
+              <div className="space-y-4 lg:space-y-3.5 animate-tab-fade">
+                {/* Wishlist Header Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 lg:p-3 rounded-2xl sm:rounded-3xl lg:rounded-xl bg-white dark:bg-[#161618] border-0 shadow-apple-card">
+                  <div className="flex items-center gap-3 sm:gap-4 lg:gap-2.5">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-9 lg:h-9 rounded-xl sm:rounded-2xl lg:rounded-lg bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0 shadow-apple-sm">
+                      <HugeiconsIcon icon={GiftIcon} size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#1C1C1E] dark:text-white leading-tight">
+                          My Wishlist
+                        </h3>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                          {items.length} {items.length === 1 ? 'Gift' : 'Gifts'}
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-[#8E8E93] mt-0.5 font-sans">
+                        Gifts you would love to receive • Purchases remain secret from you to preserve the surprise
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 self-end sm:self-center">
+                    {/* Top Secret Info Tooltip Button */}
+                    <div className="relative group">
                       <button
                         type="button"
                         onClick={() => {
                           triggerSelection();
-                          setIsMobileMembersOpen(!isMobileMembersOpen);
+                          setShowSecretTooltip((prev) => !prev);
                         }}
-                        className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-[#1C1C1E] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white shadow-apple-sm active:scale-95 transition-all border-0"
-                        aria-label={isMobileMembersOpen ? 'Collapse member list' : 'Expand member list'}
-                        title={isMobileMembersOpen ? 'Collapse' : 'Expand'}
+                        className="inline-flex items-center gap-1.5 py-2 px-3 lg:py-1.5 lg:px-2.5 rounded-xl lg:rounded-lg bg-[#F0F0F3] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm transition border-0 text-xs font-semibold"
+                        aria-label="Top Secret Information"
+                        title="Top Secret info"
                       >
-                        <HugeiconsIcon
-                          icon={ArrowDown01Icon}
-                          size={14}
-                          className={`transition-transform duration-200 ${isMobileMembersOpen ? 'rotate-180' : ''}`}
-                        />
+                        <HugeiconsIcon icon={ViewOffIcon} size={14} className="text-[var(--theme-primary)]" />
+                        <span className="hidden sm:inline">Top Secret</span>
                       </button>
+
+                      {/* Tooltip Popover */}
+                      <div
+                        className={`absolute right-0 top-full mt-2 w-72 p-3.5 rounded-2xl bg-white/95 dark:bg-[#222226]/95 backdrop-blur-xl shadow-apple-lg border-0 text-xs z-50 transition-all duration-150 ${
+                          showSecretTooltip
+                            ? 'opacity-100 pointer-events-auto'
+                            : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1.5 mb-1 text-[var(--theme-primary)] font-bold">
+                          <div className="flex items-center gap-1.5">
+                            <HugeiconsIcon icon={ViewOffIcon} size={15} />
+                            <span>Top Secret</span>
+                          </div>
+                          {showSecretTooltip && (
+                            <button
+                              type="button"
+                              onClick={() => setShowSecretTooltip(false)}
+                              className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
+                              aria-label="Close tooltip"
+                            >
+                              <HugeiconsIcon icon={Cancel01Icon} size={13} />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[#636366] dark:text-[#8E8E93] text-[11px] leading-relaxed">
+                          You won't know if your items have been claimed or bought! Status is kept hidden from you to preserve the surprise.
+                        </p>
+                      </div>
                     </div>
 
-                    {isMobileMembersOpen && (
-                      <div className="flex flex-wrap items-center gap-2 pt-0.5 animate-in fade-in duration-150">
-                        {otherMembers.map((member) => {
-                          const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
-                          const isSelected = selectedMemberId === member.id;
-                          const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
-                          return (
-                            <button
-                              key={member.id}
-                              type="button"
-                              onClick={() => {
-                                triggerSelection();
-                                setSelectedMemberId(member.id);
-                              }}
-                              className={`flex items-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-bold transition-all border-0 shadow-apple-sm active:scale-95 ${
-                                isSelected
-                                  ? 'bg-[#1C1C1E] dark:bg-white text-white dark:text-[#1C1C1E] shadow-apple-md ring-2 ring-black/10 dark:ring-white/10'
-                                  : 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]'
+                    <button
+                      type="button"
+                      onClick={handleOpenAddItem}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 lg:px-3 lg:py-1.5 rounded-xl lg:rounded-lg text-xs sm:text-sm lg:text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
+                    >
+                      <HugeiconsIcon icon={Add01Icon} size={15} />
+                      <span>Add Gift</span>
+                    </button>
+                  </div>
+                </div>
+
+                {loading ? (
+                  <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
+                    <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
+                    <span>Loading your gifts...</span>
+                  </div>
+                ) : items.length === 0 ? (
+                  <div className="text-center py-16 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
+                    <div className="w-14 h-14 rounded-2xl bg-[#F0F0F3] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
+                      <HugeiconsIcon icon={GiftIcon} size={26} />
+                    </div>
+                    <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-base mb-1">
+                      Your wishlist is empty
+                    </h4>
+                    <p className="text-xs text-[#8E8E93] max-w-xs mx-auto mb-4 leading-relaxed font-sans">
+                      Add items you would love to receive, with links, sizes, or approximate prices.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleOpenAddItem}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl lg:rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
+                    >
+                      <HugeiconsIcon icon={Add01Icon} size={16} /> Add Your First Gift
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-3.5 items-start">
+                    {items.map((item) => (
+                      <WishlistCard
+                        key={item.id}
+                        item={item}
+                        onEdit={handleOpenEditItem}
+                        onClaim={handleOpenClaim}
+                        onEditClaim={handleOpenClaim}
+                        onReleaseClaim={handleReleaseClaim}
+                        onQuickMark={handleQuickMark}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* VIEW 2: FAMILY WISHLISTS */}
+            {activeTab === 'family-wishes' && (
+              <div className="animate-tab-fade">
+                {/* Mobile Member Selector (Visible only on mobile/tablet) */}
+                <div className="lg:hidden mb-4 sm:mb-6">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <p className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
+                        Select Member:
+                      </p>
+                      {!isMobileMembersOpen && activeSelectedMember && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] shadow-apple-sm text-xs font-bold text-[#1C1C1E] dark:text-white border-0 animate-in fade-in duration-150">
+                          <span className="text-sm leading-none">{activeSelectedMember.avatar || '🎁'}</span>
+                          <span>{activeSelectedMember.alias}</span>
+                          {(memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) && (
+                            <span
+                              className={`w-2 h-2 rounded-full ml-0.5 ${
+                                (memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) === 'bought'
+                                  ? 'bg-[#34C759]'
+                                  : 'bg-[#FF9500]'
                               }`}
-                            >
-                              <span className="text-base leading-none">{member.avatar || '🎁'}</span>
-                              <span>{member.alias}</span>
-                              {claimStatus ? (
-                                <span
-                                  title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy gift'}
-                                  className={`inline-block w-2.5 h-2.5 rounded-full shadow-sm shrink-0 ml-0.5 ${
-                                    claimStatus === 'bought'
-                                      ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
-                                      : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
-                                  }`}
-                                />
-                              ) : (
-                                <span
-                                  className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
-                                    isSelected
-                                      ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
-                                      : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
-                                  }`}
-                                >
-                                  {count}
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerSelection();
+                        setIsMobileMembersOpen(!isMobileMembersOpen);
+                      }}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-[#1C1C1E] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white shadow-apple-sm active:scale-95 transition-all border-0"
+                      aria-label={isMobileMembersOpen ? 'Collapse member list' : 'Expand member list'}
+                      title={isMobileMembersOpen ? 'Collapse' : 'Expand'}
+                    >
+                      <HugeiconsIcon
+                        icon={ArrowDown01Icon}
+                        size={14}
+                        className={`transition-transform duration-200 ${isMobileMembersOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
                   </div>
 
-                  {/* Desktop View: Dedicated Sidebar Card */}
-                  <div className="hidden lg:block bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card p-4 sticky top-20">
-                    <div className="flex items-center justify-between px-2 mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
-                      <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
-                        Family Members
-                      </span>
-                      <span className="text-xs font-semibold text-[#8E8E93] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-2 py-0.5 rounded-full border-0">
-                        {otherMembers.length}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
+                  {isMobileMembersOpen && (
+                    <div className="flex flex-wrap items-center gap-2 pt-0.5 animate-in fade-in duration-150">
                       {otherMembers.map((member) => {
-                        const isSelected = selectedMemberId === member.id;
                         const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                        const isSelected = selectedMemberId === member.id;
                         const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
                         return (
                           <button
                             key={member.id}
                             type="button"
-                            onClick={() => setSelectedMemberId(member.id)}
-                            className={`w-full flex items-center justify-between p-3 rounded-2xl text-left transition-all duration-150 border-0 ${
+                            onClick={() => {
+                              triggerSelection();
+                              setSelectedMemberId(member.id);
+                            }}
+                            className={`flex items-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-bold transition-all border-0 shadow-apple-sm active:scale-95 ${
                               isSelected
-                                ? 'bg-[var(--theme-primary)] text-white shadow-apple-md font-bold'
-                                : 'bg-transparent hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white font-semibold'
+                                ? 'bg-[#1C1C1E] dark:bg-white text-white dark:text-[#1C1C1E] shadow-apple-md ring-2 ring-black/10 dark:ring-white/10'
+                                : 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]'
                             }`}
                           >
-                            <div className="flex items-center gap-3">
-                              <span className="text-2xl leading-none">{member.avatar || '🎁'}</span>
-                              <div>
-                                <div className="text-sm leading-tight">{member.alias}</div>
-                                <div
-                                  className={`text-[11px] mt-0.5 ${
-                                    isSelected
-                                      ? 'text-white/80'
-                                      : claimStatus === 'bought'
-                                      ? 'text-[#34C759] font-medium'
-                                      : claimStatus === 'want_to_buy'
-                                      ? 'text-[#FF9500] font-medium'
-                                      : 'text-[#8E8E93]'
-                                  }`}
-                                >
-                                  {claimStatus === 'bought'
-                                    ? 'Gift bought'
-                                    : claimStatus === 'want_to_buy'
-                                    ? 'Want to buy'
-                                    : `${count} ${count === 1 ? 'gift' : 'gifts'}`}
-                                </div>
-                              </div>
-                            </div>
+                            <span className="text-base leading-none">{member.avatar || '🎁'}</span>
+                            <span>{member.alias}</span>
                             {claimStatus ? (
                               <span
                                 title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy gift'}
-                                className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors shrink-0 ${
-                                  isSelected
-                                    ? 'bg-white/25'
-                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E]'
+                                className={`inline-block w-2.5 h-2.5 rounded-full shadow-sm shrink-0 ml-0.5 ${
+                                  claimStatus === 'bought'
+                                    ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
+                                    : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
                                 }`}
-                              >
-                                <span
-                                  className={`w-2.5 h-2.5 rounded-full shadow-sm ${
-                                    claimStatus === 'bought'
-                                      ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
-                                      : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
-                                  }`}
-                                />
-                              </span>
+                              />
                             ) : (
                               <span
-                                className={`text-xs px-2.5 py-0.5 rounded-full font-bold transition-colors ${
+                                className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
                                   isSelected
-                                    ? 'bg-white/25 text-white'
+                                    ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
                                     : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
                                 }`}
                               >
@@ -628,122 +816,159 @@ export default function DashboardPage() {
                         );
                       })}
                     </div>
+                  )}
+                </div>
+
+                {otherMembers.length === 0 ? (
+                  <div className="text-center py-16 sm:py-20 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl lg:rounded-xl bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
+                      <HugeiconsIcon icon={UserGroupIcon} size={28} />
+                    </div>
+                    <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-base sm:text-lg mb-1">
+                      No other family members yet
+                    </h4>
+                    <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-4 sm:mb-5 leading-relaxed font-sans">
+                      {isAdmin
+                        ? 'Use the Manage Family panel to add members to your family.'
+                        : 'Ask your family admin to invite other family members.'}
+                    </p>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setIsAdminModalOpen(true)}
+                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 rounded-xl lg:rounded-lg shadow-apple-md transition active:scale-95"
+                      >
+                        Manage Family & Add Members
+                      </button>
+                    )}
                   </div>
-                </div>
-
-                {/* 2. Main Content: Selected Member's Wishlist */}
-                <div>
-                  {/* Active Member Header Card */}
-                  {activeSelectedMember && (
-                    <div className="flex items-center justify-between p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-card mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-2xl shadow-apple-sm border-0 shrink-0">
-                          {activeSelectedMember.avatar || '🎁'}
+                ) : (
+                  <div>
+                    {/* Active Member Header Card */}
+                    {activeSelectedMember && (
+                      <div className="flex items-center justify-between p-3.5 sm:p-5 lg:p-3 rounded-2xl sm:rounded-3xl lg:rounded-xl bg-white dark:bg-[#161618] border-0 shadow-apple-card mb-4 lg:mb-3">
+                        <div className="flex items-center gap-3 sm:gap-4 lg:gap-3">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-9 lg:h-9 rounded-xl sm:rounded-2xl lg:rounded-lg bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-xl sm:text-2xl lg:text-lg shadow-apple-sm border-0 shrink-0">
+                            {activeSelectedMember.avatar || '🎁'}
+                          </div>
+                          <div>
+                            <h3 className="text-base sm:text-xl lg:text-base font-bold text-[#1C1C1E] dark:text-white tracking-tight">
+                              {activeSelectedMember.alias}'s Wishlist
+                            </h3>
+                            <p className="text-xs lg:text-[11px] text-[#8E8E93] mt-0.5">
+                              Claim items to coordinate with family and prevent duplicate gifts.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-lg sm:text-xl font-black text-[#1C1C1E] dark:text-white tracking-tight">
-                            {activeSelectedMember.alias}'s Wishlist
-                          </h3>
-                          <p className="text-xs text-[#8E8E93] mt-0.5">
-                            Claim items to coordinate with family and prevent duplicate gifts.
-                          </p>
+                        <span className="text-xs sm:text-sm lg:text-xs font-bold text-[#636366] dark:text-[#E5E5EA] bg-[#F8F8FA] dark:bg-[#222226] px-2.5 sm:px-3 py-1 sm:py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-lg shadow-apple-sm border-0 shrink-0">
+                          {items.length} {items.length === 1 ? 'gift' : 'gifts'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Segmented Filter Pills: All / Available / Claimed */}
+                    {items.length > 0 && (
+                      <div className="flex items-center gap-2 mb-4 lg:mb-3">
+                        <div className="flex gap-1 p-1 bg-[#E5E5EA]/70 dark:bg-[#222226] rounded-2xl lg:rounded-lg shadow-inner border-0">
+                          <button
+                            type="button"
+                            onClick={() => setFamilyFilter('all')}
+                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 ${
+                              familyFilter === 'all'
+                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                            }`}
+                          >
+                            All ({items.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFamilyFilter('available')}
+                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
+                              familyFilter === 'available'
+                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
+                            <span>Available ({availableCount})</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFamilyFilter('claimed')}
+                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
+                              familyFilter === 'claimed'
+                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                            }`}
+                          >
+                            <span className="w-2 h-2 rounded-full bg-[#34C759]" />
+                            <span>Claimed ({claimedCount})</span>
+                          </button>
                         </div>
                       </div>
-                      <span className="text-xs sm:text-sm font-bold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-3.5 py-1.5 rounded-xl shadow-apple-sm border-0 shrink-0">
-                        {items.length} {items.length === 1 ? 'gift' : 'gifts'}
-                      </span>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Segmented Filter Pills: All / Available / Claimed */}
-                  {items.length > 0 && (
-                    <div className="flex items-center gap-2 mb-5">
-                      <div className="flex gap-1 p-1 bg-[#E5E5EA]/70 dark:bg-[#2C2C2E] rounded-2xl shadow-inner border-0">
-                        <button
-                          type="button"
-                          onClick={() => setFamilyFilter('all')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 ${
-                            familyFilter === 'all'
-                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                          }`}
-                        >
-                          All ({items.length})
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFamilyFilter('available')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
-                            familyFilter === 'available'
-                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                          }`}
-                        >
-                          <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
-                          <span>Available ({availableCount})</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFamilyFilter('claimed')}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
-                            familyFilter === 'claimed'
-                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                          }`}
-                        >
-                          <span className="w-2 h-2 rounded-full bg-[#34C759]" />
-                          <span>Claimed ({claimedCount})</span>
-                        </button>
+                    {/* Grid of Wishlist Items */}
+                    {loading ? (
+                      <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
+                        <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
+                        <span>Loading {activeSelectedMember?.alias}'s wishlist...</span>
                       </div>
-                    </div>
-                  )}
+                    ) : items.length === 0 ? (
+                      <div className="text-center py-16 sm:py-20 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl lg:rounded-xl bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
+                          <HugeiconsIcon icon={GiftIcon} size={26} />
+                        </div>
+                        <h4 className="font-bold text-[#1C1C1E] dark:text-white text-base sm:text-lg mb-1">
+                          {activeSelectedMember?.alias || 'This member'} hasn't added any wishes yet
+                        </h4>
+                        <p className="text-xs sm:text-sm text-[#8E8E93] max-w-sm mx-auto">
+                          Check back soon or remind them to add some ideas!
+                        </p>
+                      </div>
+                    ) : displayedFamilyItems.length === 0 ? (
+                      <div className="text-center py-14 sm:py-16 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
+                        <p className="text-sm font-semibold text-[#8E8E93]">
+                          {familyFilter === 'available'
+                            ? 'All items on this wishlist have been claimed or bought! 🎉'
+                            : 'No claimed items on this wishlist yet.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-3.5 items-start">
+                        {displayedFamilyItems.map((item) => (
+                          <WishlistCard
+                            key={item.id}
+                            item={item}
+                            onEdit={handleOpenEditItem}
+                            onClaim={handleOpenClaim}
+                            onEditClaim={handleOpenClaim}
+                            onReleaseClaim={handleReleaseClaim}
+                            onQuickMark={handleQuickMark}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
-                  {/* Grid of Wishlist Items */}
-                  {loading ? (
-                    <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
-                      <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                      <span>Loading {activeSelectedMember?.alias}'s wishlist...</span>
-                    </div>
-                  ) : items.length === 0 ? (
-                    <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
-                      <div className="w-14 h-14 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                        <HugeiconsIcon icon={GiftIcon} size={28} />
-                      </div>
-                      <h4 className="font-bold text-[#1C1C1E] dark:text-white text-base sm:text-lg mb-1">
-                        {activeSelectedMember?.alias || 'This member'} hasn't added any wishes yet
-                      </h4>
-                      <p className="text-xs sm:text-sm text-[#8E8E93] max-w-sm mx-auto">
-                        Check back soon or remind them to add some ideas!
-                      </p>
-                    </div>
-                  ) : displayedFamilyItems.length === 0 ? (
-                    <div className="text-center py-16 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
-                      <p className="text-sm font-semibold text-[#8E8E93]">
-                        {familyFilter === 'available'
-                          ? 'All items on this wishlist have been claimed or bought! 🎉'
-                          : 'No claimed items on this wishlist yet.'}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 items-start">
-                      {displayedFamilyItems.map((item) => (
-                        <WishlistCard
-                          key={item.id}
-                          item={item}
-                          onEdit={handleOpenEditItem}
-                          onClaim={handleOpenClaim}
-                          onEditClaim={handleOpenClaim}
-                          onReleaseClaim={handleReleaseClaim}
-                          onQuickMark={handleQuickMark}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* VIEW 3: SETTINGS VIEW (Dedicated page instead of modal) */}
+            {activeTab === 'settings' && (
+              <div className="animate-tab-fade">
+                <SettingsView
+                  onOpenAdmin={() => setIsAdminModalOpen(true)}
+                  onBackToWishes={() => {
+                    setActiveTab('my-wishes');
+                    triggerSelection();
+                  }}
+                />
               </div>
             )}
           </div>
-        )}
+        </div>
       </main>
 
       {/* Mobile Floating Action Controls */}
@@ -753,7 +978,7 @@ export default function DashboardPage() {
           <div className="relative">
             {showMobileSecretTooltip && (
               <div
-                className="absolute right-0 bottom-full mb-2 w-64 p-3.5 rounded-2xl bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl shadow-apple-lg border border-black/5 dark:border-white/10 text-xs z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                className="absolute right-0 bottom-full mb-2 w-64 p-3.5 rounded-2xl bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl shadow-apple-lg border-0 text-xs z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between gap-1.5 mb-1 text-[var(--theme-primary)] font-bold">

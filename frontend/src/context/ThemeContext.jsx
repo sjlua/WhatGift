@@ -5,6 +5,7 @@ export const THEMES = [
     id: 'christmas_duo',
     name: 'Christmas Classic',
     holiday: 'Christmas / Red & Green',
+    isEvent: true,
     primary: '#DC2626',
     primaryDark: '#EF4444',
     secondary: '#16A34A',
@@ -24,23 +25,24 @@ export const THEMES = [
     id: 'apple',
     name: 'Apple Classic',
     holiday: 'Default / Everyday',
+    isEvent: false,
     primary: '#0071E3',
     primaryDark: '#0A84FF',
     hover: '#005BB5',
-    navbarBg: 'linear-gradient(135deg, #0071E3 0%, #0056B3 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #0B2A4A 0%, #06182B 100%)',
+    navbarBg: '#0071E3',
+    navbarBgDark: '#0B2A4A',
     navbarBgFlat: '#0071E3',
     navbarBgDarkFlat: '#0B2A4A',
     tint: 'rgba(0, 113, 227, 0.12)',
     tintDark: 'rgba(10, 132, 255, 0.20)',
     border: 'rgba(0, 113, 227, 0.35)',
     swatch: '#0071E3',
-    gradient: 'linear-gradient(90deg, #0071E3 0%, #0056B3 100%)',
   },
   {
     id: 'birthday',
     name: 'Birthday Fiesta',
     holiday: 'Birthday / Festive Blue & Gold',
+    isEvent: true,
     primary: '#2563EB',
     primaryDark: '#60A5FA',
     secondary: '#EAB308',
@@ -60,103 +62,103 @@ export const THEMES = [
     id: 'christmas',
     name: 'Crimson Holiday',
     holiday: 'Christmas / Red Velvet',
+    isEvent: false,
     primary: '#DC2626',
     primaryDark: '#EF4444',
     hover: '#B91C1C',
-    navbarBg: 'linear-gradient(135deg, #B91C1C 0%, #991B1B 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #4A0E13 0%, #30070A 100%)',
-    navbarBgFlat: '#B91C1C',
+    navbarBg: '#DC2626',
+    navbarBgDark: '#30070A',
+    navbarBgFlat: '#DC2626',
     navbarBgDarkFlat: '#30070A',
     tint: 'rgba(220, 38, 38, 0.14)',
     tintDark: 'rgba(239, 68, 68, 0.22)',
     border: 'rgba(220, 38, 38, 0.35)',
     swatch: '#DC2626',
-    gradient: 'linear-gradient(90deg, #DC2626 0%, #991B1B 100%)',
   },
   {
     id: 'hanukkah',
     name: 'Winter Sapphire',
     holiday: 'Hanukkah / Winter',
+    isEvent: false,
     primary: '#0284C7',
     primaryDark: '#38BDF8',
     hover: '#0369A1',
-    navbarBg: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #0C384E 0%, #051F2C 100%)',
+    navbarBg: '#0284C7',
+    navbarBgDark: '#051F2C',
     navbarBgFlat: '#0284C7',
     navbarBgDarkFlat: '#051F2C',
     tint: 'rgba(2, 132, 199, 0.14)',
     tintDark: 'rgba(56, 189, 248, 0.22)',
     border: 'rgba(2, 132, 199, 0.35)',
     swatch: '#0284C7',
-    gradient: 'linear-gradient(90deg, #0284C7 0%, #0369A1 100%)',
   },
   {
     id: 'halloween',
     name: 'Pumpkin Harvest',
     holiday: 'Halloween / Autumn',
+    isEvent: false,
     primary: '#EA580C',
     primaryDark: '#FB923C',
     hover: '#C2410C',
-    navbarBg: 'linear-gradient(135deg, #C2410C 0%, #9A3412 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #431407 0%, #260A03 100%)',
-    navbarBgFlat: '#C2410C',
+    navbarBg: '#EA580C',
+    navbarBgDark: '#260A03',
+    navbarBgFlat: '#EA580C',
     navbarBgDarkFlat: '#260A03',
     tint: 'rgba(234, 88, 12, 0.14)',
     tintDark: 'rgba(251, 146, 60, 0.22)',
     border: 'rgba(234, 88, 12, 0.35)',
     swatch: '#EA580C',
-    gradient: 'linear-gradient(90deg, #EA580C 0%, #C2410C 100%)',
   },
   {
     id: 'valentine',
     name: 'Rose Blush',
     holiday: 'Valentine / Love',
+    isEvent: false,
     primary: '#E11D48',
     primaryDark: '#FB7185',
     hover: '#BE123C',
-    navbarBg: 'linear-gradient(135deg, #BE123C 0%, #9F1239 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #4C0519 0%, #2C030D 100%)',
-    navbarBgFlat: '#BE123C',
+    navbarBg: '#E11D48',
+    navbarBgDark: '#2C030D',
+    navbarBgFlat: '#E11D48',
     navbarBgDarkFlat: '#2C030D',
     tint: 'rgba(225, 29, 72, 0.14)',
     tintDark: 'rgba(251, 113, 133, 0.22)',
     border: 'rgba(225, 29, 72, 0.35)',
     swatch: '#E11D48',
-    gradient: 'linear-gradient(90deg, #E11D48 0%, #BE123C 100%)',
   },
   {
     id: 'pine',
     name: 'Pine Evergreen',
     holiday: 'Winter Woodland',
+    isEvent: false,
     primary: '#16A34A',
     primaryDark: '#4ADE80',
     hover: '#15803D',
-    navbarBg: 'linear-gradient(135deg, #15803D 0%, #166534 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #07381C 0%, #032010 100%)',
-    navbarBgFlat: '#15803D',
+    navbarBg: '#16A34A',
+    navbarBgDark: '#032010',
+    navbarBgFlat: '#16A34A',
     navbarBgDarkFlat: '#032010',
     tint: 'rgba(22, 163, 74, 0.14)',
     tintDark: 'rgba(74, 222, 128, 0.22)',
     border: 'rgba(22, 163, 74, 0.35)',
     swatch: '#16A34A',
-    gradient: 'linear-gradient(90deg, #16A34A 0%, #15803D 100%)',
   },
   {
     id: 'newyear',
     name: 'Midnight Gold',
     holiday: 'New Year / Elegant',
+    isEvent: false,
     primary: '#D97706',
     primaryDark: '#FBBF24',
     hover: '#B45309',
-    navbarBg: 'linear-gradient(135deg, #B45309 0%, #92400E 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #382006 0%, #201202 100%)',
-    navbarBgFlat: '#B45309',
+    navbarBg: '#D97706',
+    navbarBgDark: '#201202',
+    navbarBgFlat: '#D97706',
     navbarBgDarkFlat: '#201202',
     tint: 'rgba(217, 119, 6, 0.14)',
     tintDark: 'rgba(251, 191, 36, 0.22)',
     border: 'rgba(217, 119, 6, 0.35)',
     swatch: '#D97706',
-    gradient: 'linear-gradient(90deg, #D97706 0%, #B45309 100%)',
   },
 ];
 
@@ -189,6 +191,15 @@ export function ThemeProvider({ children }) {
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
+
+  const [uiScale, setUiScaleState] = useState(() => {
+    return localStorage.getItem('whatgift_ui_scale') || 'default'; // 'compact' | 'default' | 'spacious' | 'large'
+  });
+
+  const setUiScale = (scale) => {
+    setUiScaleState(scale);
+    localStorage.setItem('whatgift_ui_scale', scale);
+  };
 
   const isDark = darkMode === 'dark' || (darkMode === 'system' && isSystemDark);
 
@@ -228,15 +239,15 @@ export function ThemeProvider({ children }) {
       if (body) body.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
       root.style.colorScheme = 'dark';
-      root.style.backgroundColor = '#000000';
-      if (body) body.style.backgroundColor = '#000000';
+      root.style.backgroundColor = '#0A0A0C';
+      if (body) body.style.backgroundColor = '#0A0A0C';
     } else {
       root.classList.remove('dark');
       if (body) body.classList.remove('dark');
       root.setAttribute('data-theme', 'light');
       root.style.colorScheme = 'light';
-      root.style.backgroundColor = '#F2F2F7';
-      if (body) body.style.backgroundColor = '#F2F2F7';
+      root.style.backgroundColor = '#F8F8FA';
+      if (body) body.style.backgroundColor = '#F8F8FA';
     }
 
     // Update browser theme-color meta tag so browser status bar matches navbar accent
@@ -251,6 +262,11 @@ export function ThemeProvider({ children }) {
     }
   }, [themeId, activeTheme, isDark]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-ui-scale', uiScale);
+  }, [uiScale]);
+
   return (
     <ThemeContext.Provider
       value={{
@@ -262,6 +278,8 @@ export function ThemeProvider({ children }) {
         setDarkMode,
         toggleDarkMode,
         isDark,
+        uiScale,
+        setUiScale,
       }}
     >
       {children}

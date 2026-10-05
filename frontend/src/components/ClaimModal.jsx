@@ -108,7 +108,7 @@ export default function ClaimModal({
         </div>
 
         {/* Purchaser Identity Preview */}
-        <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#2C2C2E] border border-black/[0.04] dark:border-white/[0.06] shadow-apple-sm">
+        <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#2C2C2E] border-0 shadow-apple-sm">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl leading-none">{user?.avatar || '🎁'}</span>
             <div>

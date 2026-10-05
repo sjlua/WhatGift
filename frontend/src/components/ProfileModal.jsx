@@ -259,7 +259,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span
-                      className="w-4 h-4 rounded-full shadow-apple-sm border border-black/10 dark:border-white/10 shrink-0"
+                      className="w-4 h-4 rounded-full shadow-apple-sm border-0 shrink-0"
                       style={{ background: t.gradient || t.primary }}
                     />
                     {isSelected && (
@@ -352,8 +352,8 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
         </div>
 
         {/* Section 6: Add to Homescreen Instructions */}
-        <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
-          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
+        <div className="bg-[#F8F8FA] dark:bg-[#222226] p-4 rounded-2xl lg:rounded-xl border-0 shadow-apple-sm">
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
             <div className="w-7 h-7 rounded-lg bg-[var(--theme-tint)] flex items-center justify-center text-[var(--theme-primary)]">
               <HugeiconsIcon icon={SmartPhone01Icon} size={15} />
             </div>
@@ -364,37 +364,37 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
           <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed mb-3 font-sans">
             Install WhatGift on your iPhone or Android phone for instant 1-tap app access without browser address bars:
           </p>
-          <div className="space-y-2 text-xs text-[#1C1C1E] dark:text-white bg-white dark:bg-[#1C1C1E] p-3 rounded-xl border-0 shadow-apple-sm">
+          <div className="space-y-2 text-xs text-[#1C1C1E] dark:text-white bg-white dark:bg-[#161618] p-3 rounded-xl lg:rounded-lg border-0 shadow-apple-sm">
             <div className="flex items-start gap-2">
               <span className="font-bold shrink-0 text-[var(--theme-primary)]">iPhone / Safari:</span>
               <span>Tap the <HugeiconsIcon icon={Share01Icon} size={13} className="inline mx-0.5 text-[#007AFF]" /> <strong>Share</strong> button at bottom &rarr; tap <strong>"Add to Home Screen"</strong>.</span>
             </div>
-            <div className="flex items-start gap-2 pt-1 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
+            <div className="flex items-start gap-2 pt-1 border-t border-[#E5E5EA] dark:border-[#222226]">
               <span className="font-bold shrink-0 text-[var(--theme-primary)]">Android / Chrome:</span>
               <span>Tap the <strong>⋮ Menu</strong> at top right &rarr; tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</span>
             </div>
             {family?.code && (
-              <div className="pt-1.5 border-t border-[#E5E5EA] dark:border-[#2C2C2E] text-[11px] text-[var(--theme-primary)] font-semibold flex items-center gap-1.5">
+              <div className="pt-1.5 border-t border-[#E5E5EA] dark:border-[#222226] text-[11px] text-[var(--theme-primary)] font-semibold flex items-center gap-1.5">
                 <span>✓ Family Code ({family.code}) will be preserved automatically when launched from your homescreen.</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Section 7: Leave the Family */}
-        <div className="pt-3 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between shrink-0 pb-1">
+        {/* Section 7: Sign Out (Leave family is safely in Settings under Danger Zone) */}
+        <div className="pt-3 border-t border-[#E5E5EA] dark:border-[#222226] flex items-center justify-between shrink-0 pb-1">
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition font-sans active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl lg:rounded-lg text-xs font-semibold text-[#8E8E93] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition font-sans active:scale-95"
           >
             <HugeiconsIcon icon={Logout01Icon} size={15} />
-            <span>Leave the {family?.name}</span>
+            <span>Sign Out</span>
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition font-sans active:scale-95"
+            className="px-4 py-2 rounded-xl lg:rounded-lg text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F8F8FA] dark:hover:bg-[#222226] transition font-sans active:scale-95"
           >
             Done
           </button>

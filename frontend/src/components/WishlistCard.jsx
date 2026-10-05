@@ -94,12 +94,12 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="relative bg-white dark:bg-[#1C1C1E] rounded-3xl shadow-apple-card hover:shadow-apple-card-hover transition-all duration-200 flex flex-col overflow-hidden border-0">
+      <div className="relative bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl shadow-apple-card hover:shadow-apple-card-hover transition-all duration-200 flex flex-col overflow-hidden border-0">
         {/* Product Image with Click-to-Expand Lightbox */}
         {item.image_url ? (
           <div
             onClick={handleOpenLightbox}
-            className="relative w-full h-44 sm:h-48 md:h-52 bg-[#F2F2F7] dark:bg-[#2C2C2E] overflow-hidden cursor-pointer group"
+            className="relative w-full h-44 sm:h-48 md:h-52 lg:h-40 bg-[#F8F8FA] dark:bg-[#222226] overflow-hidden cursor-pointer group"
             title="Click to view full image"
           >
             <img
@@ -111,13 +111,15 @@ export default function WishlistCard({
                 e.target.style.display = 'none';
               }}
             />
-            <span
-              className={`absolute top-3 right-3 text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full shadow-apple-sm backdrop-blur-md ${priorityInfo.style} bg-white/95 dark:bg-[#1C1C1E]/95`}
-            >
-              {priorityInfo.label}
-            </span>
-
-            {/* Hover overlay hint */}
+            {/* Labeled Priority Ranking Badge */}
+            <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3 z-10 pointer-events-none">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 lg:px-2 lg:py-0.5 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold shadow-apple-sm backdrop-blur-md bg-white/95 dark:bg-[#161618]/95 text-[#1C1C1E] dark:text-white border-0">
+                <span className="text-[#8E8E93] text-[10px] uppercase font-bold tracking-wider">Priority</span>
+                <span className="font-extrabold text-[var(--theme-primary)]">
+                  {item.priority === 'high' || item.priority === 'must_have' ? '★★★ High' : item.priority === 'low' ? '★ Low' : '★★ Medium'}
+                </span>
+              </span>
+            </div>
             <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 text-white text-xs font-semibold backdrop-blur-md shadow-apple-sm">
                 <HugeiconsIcon icon={Maximize01Icon} size={13} />
@@ -126,9 +128,9 @@ export default function WishlistCard({
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-4 sm:p-5 pb-0">
-            <div className="w-9 h-9 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93]">
-              <HugeiconsIcon icon={GiftIcon} size={18} />
+          <div className="flex items-center justify-between p-4 sm:p-5 lg:p-3.5 pb-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl lg:rounded-lg bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93]">
+              <HugeiconsIcon icon={GiftIcon} size={17} />
             </div>
             <span className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${priorityInfo.style}`}>
               {priorityInfo.label}
@@ -137,26 +139,26 @@ export default function WishlistCard({
         )}
 
         {/* Card Body: Unified Content with Uniform Spacing */}
-        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+        <div className="p-4 sm:p-5 lg:p-3.5 flex-1 flex flex-col justify-between">
           <div>
             {/* Title & Price */}
             <div className="flex items-baseline justify-between gap-2 mb-1.5">
-              <h4 className="font-heading font-bold text-base sm:text-lg text-[#1C1C1E] dark:text-white leading-snug break-words">
+              <h4 className="font-heading font-bold text-base sm:text-lg lg:text-sm text-[#1C1C1E] dark:text-white leading-snug break-words">
                 {item.title}
               </h4>
 
               {/* Price Tag: Highlighted with accent colour if on sale, otherwise monochrome black/white */}
               {item.price !== null && item.price !== undefined && (
                 <span
-                  className={`shrink-0 text-sm sm:text-base font-extrabold px-2.5 py-0.5 rounded-lg shadow-apple-sm transition-all duration-200 inline-flex items-center gap-1.5 ${
+                  className={`shrink-0 text-sm sm:text-base lg:text-xs font-extrabold px-2.5 py-0.5 lg:px-2 lg:py-0.5 rounded-lg lg:rounded-md shadow-apple-sm transition-all duration-200 inline-flex items-center gap-1.5 ${
                     item.is_on_sale
                       ? 'bg-[var(--theme-primary)] text-white shadow-apple-md ring-1 ring-white/20'
-                      : 'text-[#1C1C1E] dark:text-white bg-[#F2F2F7] dark:bg-[#2C2C2E]'
+                      : 'text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226]'
                   }`}
                   title={item.is_on_sale ? 'On Sale' : undefined}
                 >
                   {item.is_on_sale && (
-                    <HugeiconsIcon icon={DiscountTag01Icon} size={14} className="shrink-0" />
+                    <HugeiconsIcon icon={DiscountTag01Icon} size={13} className="shrink-0" />
                   )}
                   <span>${Number(item.price).toFixed(2)}</span>
                 </span>
@@ -164,25 +166,25 @@ export default function WishlistCard({
             </div>
 
             {item.description && (
-              <p className="text-xs sm:text-sm text-[#636366] dark:text-[#8E8E93] line-clamp-3 leading-relaxed whitespace-pre-line">
+              <p className="text-xs sm:text-sm lg:text-xs text-[#636366] dark:text-[#8E8E93] line-clamp-3 leading-relaxed whitespace-pre-line">
                 {item.description}
               </p>
             )}
           </div>
 
           {/* Action Area: Store Links & Edit/Mark Gift Button grouped closely together */}
-          <div className="space-y-2 mt-4">
-            {/* Store Links: Positioned directly above Edit/Mark with tight 8px spacing */}
+          <div className="space-y-2 lg:space-y-1.5 mt-3.5 lg:mt-3">
+            {/* Store Links: Positioned directly above Edit/Mark with tight spacing */}
             {(item.url || item.alt_url) && (
-              <div className="space-y-2 w-full">
+              <div className="space-y-2 lg:space-y-1.5 w-full">
                 {item.url && (
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 text-xs sm:text-sm font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] hover:opacity-90 rounded-xl shadow-apple-sm transition active:scale-95 border-0"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] hover:opacity-90 rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
                   >
-                    <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
+                    <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
                     <span>{getDomain(item.url)}</span>
                   </a>
                 )}
@@ -195,9 +197,9 @@ export default function WishlistCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       title={altInfo.isStore ? `Search for ${item.title} at ${item.alt_url}` : undefined}
-                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 text-xs sm:text-sm font-semibold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] rounded-xl shadow-apple-sm transition active:scale-95 border-0"
+                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[#636366] dark:text-[#E5E5EA] bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
                     >
-                      <HugeiconsIcon icon={altInfo.isStore ? ShoppingBag01Icon : LinkSquare01Icon} size={15} />
+                      <HugeiconsIcon icon={altInfo.isStore ? ShoppingBag01Icon : LinkSquare01Icon} size={14} />
                       <span className="truncate max-w-[240px]">{altInfo.label}</span>
                     </a>
                   );
@@ -210,41 +212,41 @@ export default function WishlistCard({
               <button
                 type="button"
                 onClick={() => onEdit(item)}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 text-xs sm:text-sm font-semibold text-[#1C1C1E] dark:text-white bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] rounded-xl shadow-apple-sm transition active:scale-95 border-0"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
               >
-                <HugeiconsIcon icon={PencilEdit02Icon} size={15} />
+                <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
                 <span>Edit Gift</span>
               </button>
             ) : (
               /* FAMILY MEMBER VIEW */
               <div>
               {claim ? (
-                <div className="space-y-2.5">
+                <div className="space-y-2.5 lg:space-y-2">
                   {/* Status Badge with Purchaser Emoji Avatar */}
                   <div
-                    className={`p-3 rounded-2xl text-xs flex flex-col gap-2 shadow-apple-sm transition-all border-0 ${
+                    className={`p-3 lg:p-2.5 rounded-2xl lg:rounded-xl text-xs flex flex-col gap-2 shadow-apple-sm transition-all border-0 ${
                       isBought
                         ? 'bg-[#34C759]/15 dark:bg-[#34C759]/20 text-[#1B8036] dark:text-[#30D158]'
                         : 'bg-[#FF9500]/15 dark:bg-[#FF9500]/20 text-[#B25900] dark:text-[#FF9F0A]'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-sans font-bold flex items-center gap-1.5 text-xs sm:text-sm">
+                      <span className="font-sans font-bold flex items-center gap-1.5 text-xs sm:text-sm lg:text-xs">
                         {isBought ? (
                           <>
-                            <HugeiconsIcon icon={Tick02Icon} size={17} />
+                            <HugeiconsIcon icon={Tick02Icon} size={16} />
                             <span>Bought</span>
                           </>
                         ) : (
                           <>
-                            <HugeiconsIcon icon={ShoppingBag01Icon} size={17} />
+                            <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
                             <span>Want to Buy</span>
                           </>
                         )}
                       </span>
 
                       {/* Purchaser Avatar & Alias */}
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm font-bold text-xs shrink-0">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#222226] text-[#1C1C1E] dark:text-white shadow-apple-sm font-bold text-xs shrink-0">
                         <span className="text-base leading-none">
                           {claim.claimed_by_avatar || '🎁'}
                         </span>
@@ -264,14 +266,14 @@ export default function WishlistCard({
                       <button
                         type="button"
                         onClick={handleEditClaimClick}
-                        className="flex-1 py-2 px-3 text-xs sm:text-sm font-semibold text-[#1C1C1E] dark:text-white bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] rounded-xl shadow-apple-sm transition active:scale-95"
+                        className="flex-1 py-2 px-3 lg:py-1.5 lg:px-2.5 text-xs sm:text-sm lg:text-xs font-semibold text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95"
                       >
                         Update Mark
                       </button>
                       <button
                         type="button"
                         onClick={() => onReleaseClaim(item.id)}
-                        className="py-2 px-3 text-xs sm:text-sm font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-xl shadow-apple-sm transition active:scale-95"
+                        className="py-2 px-3 lg:py-1.5 lg:px-2.5 text-xs sm:text-sm lg:text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95"
                       >
                         Unmark
                       </button>
@@ -289,9 +291,9 @@ export default function WishlistCard({
                 <button
                   type="button"
                   onClick={handleClaimClick}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-[0.98]"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 lg:py-1.5 lg:px-3 rounded-xl lg:rounded-lg text-xs sm:text-sm lg:text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-[0.98]"
                 >
-                  <HugeiconsIcon icon={GiftIcon} size={17} />
+                  <HugeiconsIcon icon={GiftIcon} size={16} />
                   <span>Mark this Gift</span>
                 </button>
               )}

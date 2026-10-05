@@ -11,7 +11,27 @@
     --theme-hover: #0066CC;
     --theme-tint: rgba(0, 122, 255, 0.12);
     --theme-tint-dark: rgba(10, 132, 255, 0.22);
-    --theme-border: rgba(0, 122, 255, 0.35);
+    --app-radius: 10px;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --app-radius: 3px;
+    }
+
+    /* Desktop UI Scaling options */
+    html[data-ui-scale="compact"] {
+      font-size: 14px;
+    }
+    html[data-ui-scale="default"] {
+      font-size: 16px;
+    }
+    html[data-ui-scale="spacious"] {
+      font-size: 17.5px;
+    }
+    html[data-ui-scale="large"] {
+      font-size: 19px;
+    }
   }
 
   html, body {
@@ -48,14 +68,44 @@
     font-weight: 700;
   }
 
+  /* Remove all outlines around every card and field */
+  *, *::before, *::after {
+    outline: none !important;
+  }
+
+  *:focus, *:focus-visible {
+    outline: none !important;
+  }
+
+  input, textarea, select {
+    outline: none !important;
+  }
+
+  /* Round corner radius to 3px on desktop, and 10px on mobile */
+  [class*="rounded"],
+  button,
+  input,
+  select,
+  textarea,
+  aside,
+  dialog,
+  img {
+    border-radius: var(--app-radius) !important;
+  }
+
+  /* Elements that must remain square */
+  html, body, .rounded-none, .fixed.inset-0, dialog::backdrop {
+    border-radius: 0px !important;
+  }
+
   html.dark, html[data-theme="dark"], html.dark body, body.dark {
-    background-color: #000000 !important;
+    background-color: #0A0A0C !important;
     color: #FFFFFF !important;
     color-scheme: dark;
   }
 
   html:not(.dark), html[data-theme="light"], html:not(.dark) body, body:not(.dark) {
-    background-color: #F2F2F7 !important;
+    background-color: #F8F8FA !important;
     color: #1C1C1E !important;
     color-scheme: light;
   }
@@ -66,7 +116,7 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Apple-style clean scrollbars */
+  /* Clean scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -76,7 +126,7 @@
   }
   ::-webkit-scrollbar-thumb {
     background: #C7C7CC;
-    border-radius: 9999px;
+    border-radius: var(--app-radius) !important;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #8E8E93;

@@ -202,7 +202,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
           {/* ======================================================== */}
           {/* 1. TOP FIELD: Product Link (URL) with Smart Auto-Fill     */}
           {/* ======================================================== */}
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-[var(--theme-tint)]/50 via-[#F8F8FA] to-[#F2F2F7] dark:from-[var(--theme-tint)]/25 dark:via-[#262628] dark:to-[#1E1E20] border-2 border-[var(--theme-primary)]/35 dark:border-[var(--theme-primary)]/50 shadow-apple-card space-y-3">
+          <div className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-[var(--theme-tint)]/50 via-[#F8F8FA] to-[#F2F2F7] dark:from-[var(--theme-tint)]/25 dark:via-[#262628] dark:to-[#1E1E20] border-0 shadow-apple-card space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[var(--theme-primary)] text-white flex items-center justify-center shadow-apple-sm shrink-0">
@@ -238,7 +238,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 onChange={(e) => setUrl(e.target.value)}
                 onPaste={handleUrlPaste}
                 disabled={isScraping}
-                className={`w-full h-12 pl-4 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border border-black/10 dark:border-white/10 text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm ${
+                className={`w-full h-12 pl-4 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm ${
                   isScraping
                     ? 'ring-2 ring-[var(--theme-primary)] bg-[var(--theme-tint)]/40 animate-pulse'
                     : 'focus:ring-2 focus:ring-[var(--theme-primary)]'
@@ -308,11 +308,11 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
 
             {/* Extracted Image Preview Card */}
             {imageUrl && (
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] shadow-apple-sm border border-black/5 dark:border-white/5 animate-in fade-in duration-150">
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] shadow-apple-sm border-0 animate-in fade-in duration-150">
                 <img
                   src={imageUrl}
                   alt="Product preview"
-                  className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border border-black/5 dark:border-white/5"
+                  className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border-0"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
