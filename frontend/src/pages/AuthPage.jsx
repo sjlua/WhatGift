@@ -129,7 +129,7 @@ export default function AuthPage() {
           <div className="w-16 h-16 rounded-2xl bg-[var(--theme-primary)] mx-auto flex items-center justify-center text-white shadow-apple-md mb-3">
             <HugeiconsIcon icon={GiftIcon} size={32} />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-heading font-medium text-[#1C1C1E] dark:text-white tracking-tight">WhatGift</h1>
+          <h1 className="text-3xl sm:text-4xl font-heading font-black text-[#1C1C1E] dark:text-white tracking-tight">WhatGift</h1>
           <p className="text-xs sm:text-sm text-[#8E8E93] mt-1 font-medium font-sans">
             Family wishlists and secret gift coordination
           </p>
@@ -185,7 +185,7 @@ export default function AuthPage() {
                 /* Step 1: Family Code Form */
                 <form onSubmit={handleLookupFamily} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-1.5">
+                    <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                       Family Code <span className="text-[#FF3B30] font-bold">*</span>
                     </label>
                     <input
@@ -249,7 +249,7 @@ export default function AuthPage() {
                     className="space-y-3.5"
                   >
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-1.5">
+                      <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                         Type Your First Name <span className="text-[#FF3B30] font-bold">*</span>
                       </label>
                       <input
@@ -275,7 +275,7 @@ export default function AuthPage() {
                   {/* Or tap from family list for 1-tap convenience */}
                   {familyData.members.length > 0 && (
                     <div className="pt-2">
-                      <p className="text-xs font-bold text-[#8E8E93] uppercase tracking-wide mb-2.5 text-center">
+                      <p className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-2.5 text-center">
                         Or tap your name:
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -307,7 +307,7 @@ export default function AuthPage() {
                ========================================== */
             <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-1.5">
+                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                   Family Name <span className="text-[#FF3B30] font-bold">*</span>
                 </label>
                 <input
@@ -321,7 +321,7 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-1.5">
+                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                   Your First Name <span className="text-[#FF3B30] font-bold">*</span>
                 </label>
                 <input
@@ -336,7 +336,7 @@ export default function AuthPage() {
 
               {/* Profile Avatar Selection */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-2">
+                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-2">
                   Your Profile Avatar
                 </label>
                 <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1.5 bg-[#F2F2F7] dark:bg-[#2C2C2E] rounded-xl">
@@ -358,7 +358,7 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wide text-[#8E8E93] mb-1.5">
+                <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1.5">
                   Custom Family Code (Optional)
                 </label>
                 <input

@@ -85,6 +85,7 @@ export const api = {
   createMember: (payload) => apiFetch('/admin/members', { method: 'POST', body: JSON.stringify(payload) }),
   updateMember: (userId, payload) => apiFetch(`/admin/members/${userId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteMember: (userId) => apiFetch(`/admin/members/${userId}`, { method: 'DELETE' }),
+  resetWishlist: () => apiFetch('/admin/reset-wishlist', { method: 'POST' }),
 
   // Items
   getUserItems: (userId) => apiFetch(`/users/${userId}/items`),

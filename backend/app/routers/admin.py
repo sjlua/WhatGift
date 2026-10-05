@@ -5,17 +5,17 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_admin
 from app.database import get_db
-from app.models import User
+from app.models import User, Item, ItemClaim
 from app.schemas import (
     MemberCreateRequest,
     MemberUpdateRequest,
     UserResponse,
 )
 
-router = APIRouter(prefix="/admin/members", tags=["Admin Member Management"])
+router = APIRouter(prefix="/admin", tags=["Admin Management"])
 
 
-@router.get("", response_model=List[UserResponse])
+@router.get("/members", response_model=List[UserResponse])
 def list_family_members(
     admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db),
@@ -43,7 +43,7 @@ def list_family_members(
     ]
 
 
-@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/members", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_family_member(
     payload: MemberCreateRequest,
     admin: User = Depends(get_current_admin),
@@ -92,7 +92,7 @@ def create_family_member(
     )
 
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/members/{user_id}", response_model=UserResponse)
 def update_family_member(
     user_id: int,
     payload: MemberUpdateRequest,
@@ -149,7 +149,7 @@ def update_family_member(
     )
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_family_member(
     user_id: int,
     admin: User = Depends(get_current_admin),
@@ -179,3 +179,38 @@ def delete_family_member(
     db.delete(member)
     db.commit()
     return None
+
+
+@router.post("/reset-wishlist", status_code=status.HTTP_200_OK)
+def reset_family_wishlist(
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Admin only: Permanently deletes all wishlist items and claims for all members in the family.
+    """
+    family_user_ids = [
+        uid for (uid,) in db.query(User.id).filter(User.family_id == admin.family_id).all()
+    ]
+    if not family_user_ids:
+        return {"message": "No users found in family.", "deleted_count": 0}
+
+    item_ids = [
+        iid for (iid,) in db.query(Item.id).filter(Item.user_id.in_(family_user_ids)).all()
+    ]
+    if item_ids:
+        db.query(ItemClaim).filter(ItemClaim.item_id.in_(item_ids)).delete(synchronize_session=False)
+        deleted_count = (
+            db.query(Item)
+            .filter(Item.id.in_(item_ids))
+            .delete(synchronize_session=False)
+        )
+    else:
+        deleted_count = 0
+
+    db.commit()
+
+    return {
+        "message": f"Successfully reset family wishlist. Removed {deleted_count} items.",
+        "deleted_count": deleted_count,
+    }

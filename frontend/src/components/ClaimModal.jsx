@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
+import ConfirmDialog from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
 import { useHaptics } from '../context/HapticsContext';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -25,6 +26,7 @@ export default function ClaimModal({
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [showReleaseConfirm, setShowReleaseConfirm] = useState(false);
 
   const isExistingClaim = item?.claim?.is_claimed_by_viewer;
 
@@ -60,12 +62,18 @@ export default function ClaimModal({
     }
   };
 
-  const handleRelease = async () => {
-    if (!item || !window.confirm('Are you sure you want to release this gift so another family member can mark it?')) return;
+  const handleRelease = () => {
+    triggerWarning();
+    setShowReleaseConfirm(true);
+  };
+
+  const handleConfirmRelease = async () => {
+    if (!item) return;
     setSubmitting(true);
     try {
       await onReleaseClaim(item.id);
       triggerWarning();
+      setShowReleaseConfirm(false);
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to release mark');
@@ -77,7 +85,8 @@ export default function ClaimModal({
   if (!item) return null;
 
   return (
-    <Modal
+    <>
+      <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={isExistingClaim ? 'Update Gift Status' : `Mark "${item.title}"`}
@@ -119,7 +128,7 @@ export default function ClaimModal({
 
         {/* Choice: BOUGHT or WANT TO BUY */}
         <div>
-          <label className="block text-[12px] font-bold text-[#8E8E93] dark:text-[#8E8E93] uppercase tracking-wide mb-2">
+          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-2">
             Choose Status
           </label>
           <div className="grid grid-cols-2 gap-2.5">
@@ -141,14 +150,14 @@ export default function ClaimModal({
                   <HugeiconsIcon icon={ShoppingBag01Icon} size={18} />
                 </div>
                 {status === 'want_to_buy' && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FF9500] text-white px-2 py-0.5 rounded-full shadow-apple-sm">
+                  <span className="text-[10px] font-bold bg-[#FF9500] text-white px-2 py-0.5 rounded-full shadow-apple-sm font-sans">
                     Selected
                   </span>
                 )}
               </div>
               <div>
-                <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide">
-                  WANT TO BUY
+                <div className="text-xs sm:text-sm font-bold font-sans">
+                  Want to Buy
                 </div>
                 <div className="text-[11px] text-[#8E8E93] mt-0.5">
                   Reserving to buy soon
@@ -174,14 +183,14 @@ export default function ClaimModal({
                   <HugeiconsIcon icon={Tick02Icon} size={18} />
                 </div>
                 {status === 'bought' && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#34C759] text-white px-2 py-0.5 rounded-full shadow-apple-sm">
+                  <span className="text-[10px] font-bold bg-[#34C759] text-white px-2 py-0.5 rounded-full shadow-apple-sm font-sans">
                     Selected
                   </span>
                 )}
               </div>
               <div>
-                <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide">
-                  BOUGHT
+                <div className="text-xs sm:text-sm font-bold font-sans">
+                  Bought
                 </div>
                 <div className="text-[11px] text-[#8E8E93] mt-0.5">
                   Already ordered / bought
@@ -193,7 +202,7 @@ export default function ClaimModal({
 
         {/* Secret Notes */}
         <div>
-          <label className="block text-[12px] font-semibold text-[#8E8E93] dark:text-[#8E8E93] uppercase tracking-wide mb-1">
+          <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
             Secret Note (Visible to other family buyers)
           </label>
           <textarea
@@ -239,5 +248,19 @@ export default function ClaimModal({
         </div>
       </form>
     </Modal>
+
+    {/* Release Gift Confirmation Dialog */}
+    <ConfirmDialog
+      isOpen={showReleaseConfirm}
+      title="Release This Gift?"
+      message="Are you sure you want to release this gift? Other family members will be able to claim or purchase it."
+      confirmText="Release Gift"
+      cancelText="Cancel"
+      isDestructive={true}
+      loading={submitting}
+      onConfirm={handleConfirmRelease}
+      onCancel={() => !submitting && setShowReleaseConfirm(false)}
+    />
+  </>
   );
 }

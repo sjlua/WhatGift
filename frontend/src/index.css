@@ -23,24 +23,24 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  /* Merriweather Editorial Headings: Medium/Bold brand, thinner for h1/h2 */
+  /* Merriweather Headings: Bold title weights */
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-heading);
     letter-spacing: -0.015em;
   }
 
   h1 {
-    font-weight: 300;
+    font-weight: 900;
     letter-spacing: -0.025em;
   }
 
   h2 {
-    font-weight: 300;
+    font-weight: 900;
     letter-spacing: -0.02em;
   }
 
   h3 {
-    font-weight: 400;
+    font-weight: 800;
     letter-spacing: -0.015em;
   }
 
@@ -95,3 +95,46 @@ dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
 }
+
+/* Apple-style Fluid Spring Animations */
+@keyframes sidebarSlideIn {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes backdropFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes tabFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-sidebar-slide {
+  animation: sidebarSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-backdrop-fade {
+  animation: backdropFadeIn 0.22s ease-out forwards;
+}
+
+.animate-tab-fade {
+  animation: tabFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

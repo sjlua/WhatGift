@@ -10,6 +10,7 @@ import ItemModal from '../components/ItemModal';
 import ClaimModal from '../components/ClaimModal';
 import AdminModal from '../components/AdminModal';
 import ProfileModal from '../components/ProfileModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -17,6 +18,8 @@ import {
   Add01Icon,
   ViewOffIcon,
   Shield01Icon,
+  Cancel01Icon,
+  ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function DashboardPage() {
@@ -44,6 +47,10 @@ export default function DashboardPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [showMobileSecretTooltip, setShowMobileSecretTooltip] = useState(false);
   const [showSecretTooltip, setShowSecretTooltip] = useState(false);
+  const [isMobileMembersOpen, setIsMobileMembersOpen] = useState(true);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isDeletingItem, setIsDeletingItem] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
 
   // Other members in family (excluding the current user)
   const otherMembers = family?.members?.filter((m) => m.id !== user.id) || [];
@@ -115,14 +122,23 @@ export default function DashboardPage() {
     await loadItems();
   };
 
-  const handleDeleteItem = async (itemId) => {
-    if (!window.confirm('Are you sure you want to remove this gift from your wishlist?')) return;
+  const handleDeleteItem = (itemId) => {
+    const item = items.find((i) => i.id === itemId);
+    setItemToDelete(item || { id: itemId, title: 'this gift' });
+  };
+
+  const handleConfirmDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setIsDeletingItem(true);
     try {
-      await api.deleteItem(itemId);
+      await api.deleteItem(itemToDelete.id);
       triggerWarning();
+      setItemToDelete(null);
       await loadItems();
     } catch (err) {
-      alert(err.message || 'Failed to delete item');
+      setAlertMessage(err.message || 'Failed to delete item');
+    } finally {
+      setIsDeletingItem(false);
     }
   };
 
@@ -160,8 +176,14 @@ export default function DashboardPage() {
       triggerSuccess();
       await loadItems();
     } catch (err) {
-      alert(err.message || 'Failed to mark gift');
+      setAlertMessage(err.message || 'Failed to mark gift');
     }
+  };
+
+  const handleWishlistReset = () => {
+    loadItems();
+    refreshFamily();
+    setMemberItemCounts({});
   };
 
   const activeSelectedMember = otherMembers.find((m) => m.id === selectedMemberId);
@@ -279,9 +301,10 @@ export default function DashboardPage() {
                         <button
                           type="button"
                           onClick={() => setShowSecretTooltip(false)}
-                          className="text-[10px] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white font-normal"
+                          className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
+                          aria-label="Close tooltip"
                         >
-                          Dismiss
+                          <HugeiconsIcon icon={Cancel01Icon} size={13} />
                         </button>
                       )}
                     </div>
@@ -306,7 +329,7 @@ export default function DashboardPage() {
 
         {/* TAB 1: MY WISHLIST */}
         {activeTab === 'my-wishes' && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-tab-fade">
             {/* Responsive Desktop Grid: 1 col (mobile) -> 2 cols (tablet) -> 3 cols (desktop) -> 4 cols (large widescreen) */}
             {loading ? (
               <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
@@ -318,7 +341,7 @@ export default function DashboardPage() {
                 <div className="w-16 h-16 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
                   <HugeiconsIcon icon={GiftIcon} size={30} />
                 </div>
-                <h4 className="font-heading font-normal text-[#1C1C1E] dark:text-white text-lg mb-1">
+                <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-lg mb-1">
                   Your wishlist is empty
                 </h4>
                 <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-5 leading-relaxed font-sans">
@@ -352,7 +375,7 @@ export default function DashboardPage() {
 
         {/* TAB 2: FAMILY WISHLISTS (RESPONSIVE SPLIT-VIEW ON DESKTOP) */}
         {activeTab === 'family-wishes' && (
-          <div>
+          <div className="animate-tab-fade">
             {otherMembers.length === 0 ? (
               <div className="text-center py-20 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card max-w-md mx-auto">
                 <div className="w-14 h-14 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
@@ -379,47 +402,79 @@ export default function DashboardPage() {
               <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-8 items-start">
                 {/* 1. Member Selector: Horizontal Swipeable on Mobile, Sticky Sidebar on Desktop */}
                 <div className="mb-6 lg:mb-0">
-                  {/* Mobile View: Horizontal Scroll Pills */}
-                  <div className="lg:hidden">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93] mb-2">
-                      Select Member:
-                    </p>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                      {otherMembers.map((member) => {
-                        const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
-                        const isSelected = selectedMemberId === member.id;
-                        return (
-                          <button
-                            key={member.id}
-                            type="button"
-                            onClick={() => setSelectedMemberId(member.id)}
-                            className={`flex items-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-bold shrink-0 transition-all border-0 shadow-apple-sm ${
-                              isSelected
-                                ? 'bg-[#1C1C1E] dark:bg-white text-white dark:text-[#1C1C1E] shadow-apple-md ring-2 ring-black/10 dark:ring-white/10'
-                                : 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]'
-                            }`}
-                          >
-                            <span className="text-base leading-none">{member.avatar || '🎁'}</span>
-                            <span>{member.alias}</span>
-                            <span
-                              className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+                  {/* Mobile View: Wrapped Member Selector with Collapse Toggle */}
+                  <div className="lg:hidden mb-6">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <p className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6]">
+                          Select Member:
+                        </p>
+                        {!isMobileMembersOpen && activeSelectedMember && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] shadow-apple-sm text-xs font-bold text-[#1C1C1E] dark:text-white border-0 animate-in fade-in duration-150">
+                            <span className="text-sm leading-none">{activeSelectedMember.avatar || '🎁'}</span>
+                            <span>{activeSelectedMember.alias}</span>
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerSelection();
+                          setIsMobileMembersOpen(!isMobileMembersOpen);
+                        }}
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-[#1C1C1E] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white shadow-apple-sm active:scale-95 transition-all border-0"
+                        aria-label={isMobileMembersOpen ? 'Collapse member list' : 'Expand member list'}
+                        title={isMobileMembersOpen ? 'Collapse' : 'Expand'}
+                      >
+                        <HugeiconsIcon
+                          icon={ArrowDown01Icon}
+                          size={14}
+                          className={`transition-transform duration-200 ${isMobileMembersOpen ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                    </div>
+
+                    {isMobileMembersOpen && (
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5 animate-in fade-in duration-150">
+                        {otherMembers.map((member) => {
+                          const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                          const isSelected = selectedMemberId === member.id;
+                          return (
+                            <button
+                              key={member.id}
+                              type="button"
+                              onClick={() => {
+                                triggerSelection();
+                                setSelectedMemberId(member.id);
+                              }}
+                              className={`flex items-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-bold transition-all border-0 shadow-apple-sm active:scale-95 ${
                                 isSelected
-                                  ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
-                                  : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
+                                  ? 'bg-[#1C1C1E] dark:bg-white text-white dark:text-[#1C1C1E] shadow-apple-md ring-2 ring-black/10 dark:ring-white/10'
+                                  : 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]'
                               }`}
                             >
-                              {count}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                              <span className="text-base leading-none">{member.avatar || '🎁'}</span>
+                              <span>{member.alias}</span>
+                              <span
+                                className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+                                  isSelected
+                                    ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
+                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
+                                }`}
+                              >
+                                {count}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Desktop View: Dedicated Sidebar Card */}
                   <div className="hidden lg:block bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card p-4 sticky top-24">
                     <div className="flex items-center justify-between px-2 mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
-                      <span className="text-xs font-bold uppercase tracking-wider text-[#8E8E93]">
+                      <span className="font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6]">
                         Family Members
                       </span>
                       <span className="text-xs font-semibold text-[#8E8E93] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-2 py-0.5 rounded-full border-0">
@@ -475,21 +530,21 @@ export default function DashboardPage() {
                 <div>
                   {/* Active Member Header Card */}
                   {activeSelectedMember && (
-                    <div className="flex items-center justify-between p-4 sm:p-0 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-sm mb-6">
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-12 h-12 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-2xl shadow-apple-sm border-0">
+                    <div className="flex items-center justify-between p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-card mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-center justify-center text-2xl shadow-apple-sm border-0 shrink-0">
                           {activeSelectedMember.avatar || '🎁'}
                         </div>
                         <div>
-                          <h3 className="text-base sm:text-lg font-bold text-[#1C1C1E] dark:text-white">
+                          <h3 className="text-lg sm:text-xl font-black text-[#1C1C1E] dark:text-white tracking-tight">
                             {activeSelectedMember.alias}'s Wishlist
                           </h3>
-                          <p className="text-xs text-[#8E8E93]">
+                          <p className="text-xs text-[#8E8E93] mt-0.5">
                             Claim items to coordinate with family and prevent duplicate gifts.
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs sm:text-sm font-bold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-3 py-1 rounded-xl shadow-apple-sm border-0">
+                      <span className="text-xs sm:text-sm font-bold text-[#636366] dark:text-[#E5E5EA] bg-[#F2F2F7] dark:bg-[#2C2C2E] px-3.5 py-1.5 rounded-xl shadow-apple-sm border-0 shrink-0">
                         {items.length} {items.length === 1 ? 'gift' : 'gifts'}
                       </span>
                     </div>
@@ -553,9 +608,10 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => setShowMobileSecretTooltip(false)}
-                    className="text-[10px] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white"
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
+                    aria-label="Close tooltip"
                   >
-                    Dismiss
+                    <HugeiconsIcon icon={Cancel01Icon} size={13} />
                   </button>
                 </div>
                 <p className="text-[#636366] dark:text-[#8E8E93] text-[11px] leading-relaxed">
@@ -609,11 +665,37 @@ export default function DashboardPage() {
       <AdminModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
+        onWishlistReset={handleWishlistReset}
       />
 
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* Delete Item Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!itemToDelete}
+        title="Delete Gift Wish"
+        message={`Are you sure you want to remove "${itemToDelete?.title || 'this gift'}" from your wishlist? This action cannot be undone.`}
+        confirmText="Delete Wish"
+        cancelText="Cancel"
+        isDestructive={true}
+        loading={isDeletingItem}
+        onConfirm={handleConfirmDeleteItem}
+        onCancel={() => !isDeletingItem && setItemToDelete(null)}
+      />
+
+      {/* In-App Native Notice Dialog */}
+      <ConfirmDialog
+        isOpen={!!alertMessage}
+        title="Notice"
+        message={alertMessage || ''}
+        confirmText="OK"
+        cancelText="Close"
+        isDestructive={false}
+        onConfirm={() => setAlertMessage(null)}
+        onCancel={() => setAlertMessage(null)}
       />
     </div>
   );

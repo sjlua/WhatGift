@@ -88,27 +88,29 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-heading font-medium text-white tracking-tight text-lg sm:text-xl whitespace-nowrap drop-shadow-sm">
+                <span className="font-heading font-bold text-white tracking-tight text-lg sm:text-xl whitespace-nowrap drop-shadow-sm">
                   WhatGift
                 </span>
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5 text-xs text-white/80">
-                <span className="font-semibold text-white/95 max-w-[110px] tablet:max-w-[160px] truncate whitespace-nowrap">
+                <span className="font-semibold text-white/95 max-w-[120px] min-[360px]:max-w-[150px] min-[390px]:max-w-[180px] min-[440px]:max-w-[240px] sm:max-w-[320px] tablet:max-w-[420px] truncate whitespace-nowrap">
                   {family?.name}
                 </span>
                 <span className="text-white/50">·</span>
+                {/* Shorten to just a LINK icon button on narrow mobile views to prevent navbar overlap */}
                 <button
                   type="button"
-                  onClick={copyFamilyCode}
-                  title="Click to copy family code"
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/20 hover:bg-white/30 border-0 text-white transition font-mono text-[11px] font-medium shadow-apple-sm whitespace-nowrap shrink-0 backdrop-blur-md active:scale-95"
+                  onClick={copyInviteLink}
+                  title={`Copy invite link (Code: ${family?.code || ''})`}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2 rounded-lg bg-white/20 hover:bg-white/30 border-0 text-white transition text-[11px] font-medium shadow-apple-sm whitespace-nowrap shrink-0 backdrop-blur-md active:scale-95"
+                  aria-label="Copy family invite link"
                 >
-                  <span>{family?.code}</span>
-                  {copiedCode ? (
-                    <HugeiconsIcon icon={Tick02Icon} size={11} className="text-[#34C759]" />
+                  {copiedLink ? (
+                    <HugeiconsIcon icon={Tick02Icon} size={12} className="text-[#34C759]" />
                   ) : (
-                    <HugeiconsIcon icon={Copy01Icon} size={11} className="text-white/80" />
+                    <HugeiconsIcon icon={Link01Icon} size={12} className="text-white/90" />
                   )}
+                  <span className="hidden sm:inline font-mono">{family?.code}</span>
                 </button>
               </div>
             </div>
@@ -198,15 +200,15 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
           {/* MOBILE ACTIONS: Settings Icon + Hamburger Toggle (< nav: 880px) */}
           {/* ========================================================================= */}
           <div className="flex nav:hidden items-center gap-1.5 shrink-0">
-            {/* Quick Dark Mode Toggle */}
+            {/* Quick Dark Mode Toggle - Matched to w-9 h-9 */}
             <button
               type="button"
               onClick={handleToggleDark}
               title={isDark ? 'Switch to Light' : 'Switch to Dark'}
-              className="p-2 rounded-xl text-white/90 hover:text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95"
+              className="w-9 h-9 rounded-xl text-white/90 hover:text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0"
               aria-label="Toggle Dark Mode"
             >
-              <HugeiconsIcon icon={isDark ? Sun01Icon : Moon02Icon} size={17} />
+              <HugeiconsIcon icon={isDark ? Sun01Icon : Moon02Icon} size={18} />
             </button>
 
             {/* Settings Icon button */}
@@ -214,21 +216,21 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
               type="button"
               onClick={onOpenProfile}
               title="Settings & Appearance"
-              className="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center active:scale-95 shadow-apple-sm transition text-white border-0"
+              className="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center active:scale-95 shadow-apple-sm transition text-white border-0 shrink-0"
               aria-label="Settings"
             >
               <HugeiconsIcon icon={Settings02Icon} size={18} />
             </button>
 
-            {/* Hamburger Menu Toggle Button */}
+            {/* Hamburger Menu Toggle Button - Matched to w-9 h-9 */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 transition active:scale-95 shadow-apple-sm"
+              className="w-9 h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 transition active:scale-95 shadow-apple-sm flex items-center justify-center shrink-0"
               aria-label={mobileMenuOpen ? 'Close Navigation Sidebar' : 'Open Navigation Sidebar'}
               aria-expanded={mobileMenuOpen}
             >
-              <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={20} />
+              <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={18} />
             </button>
           </div>
         </div>
@@ -239,14 +241,14 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
       {/* ========================================================================= */}
       {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] flex justify-end">
-          {/* Full Screen Dim Backdrop */}
+          {/* Full Screen Dim Backdrop with Smooth Fade Animation */}
           <div
-            className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-200"
+            className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-backdrop-fade"
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* True Full-Height Opaque Sidebar Drawer */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#1C1C1E] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-in slide-in-from-right duration-200 border-l border-black/[0.08] dark:border-white/[0.12]">
+          {/* True Full-Height Opaque Sidebar Drawer with Smooth Slide-In Animation */}
+          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#1C1C1E] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-sidebar-slide border-l border-black/[0.08] dark:border-white/[0.12]">
             <div className="space-y-4">
               {/* Sidebar Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
@@ -341,7 +343,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile }) {
                     <HugeiconsIcon
                       icon={isDark ? Sun01Icon : Moon02Icon}
                       size={17}
-                      className="text-[#FF9500]"
+                      className="text-[var(--theme-primary)]"
                     />
                     <span>Appearance</span>
                   </div>

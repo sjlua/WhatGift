@@ -122,7 +122,7 @@ export default function WishlistCard({
           <div>
             {/* Title & Price */}
             <div className="flex items-baseline justify-between gap-2 mb-1.5">
-              <h4 className="font-heading font-normal text-base sm:text-lg text-[#1C1C1E] dark:text-white leading-snug break-words">
+              <h4 className="font-heading font-bold text-base sm:text-lg text-[#1C1C1E] dark:text-white leading-snug break-words">
                 {item.title}
               </h4>
 
@@ -206,16 +206,16 @@ export default function WishlistCard({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-extrabold flex items-center gap-1.5 text-xs sm:text-sm tracking-wide uppercase">
+                      <span className="font-sans font-bold flex items-center gap-1.5 text-xs sm:text-sm">
                         {isBought ? (
                           <>
                             <HugeiconsIcon icon={Tick02Icon} size={17} />
-                            <span>BOUGHT</span>
+                            <span>Bought</span>
                           </>
                         ) : (
                           <>
                             <HugeiconsIcon icon={ShoppingBag01Icon} size={17} />
-                            <span>WANT TO BUY</span>
+                            <span>Want to Buy</span>
                           </>
                         )}
                       </span>
@@ -309,7 +309,7 @@ export default function WishlistCard({
 
             {/* Title & Price Caption */}
             <div className="mt-3.5 text-center text-white max-w-lg">
-              <h4 className="font-heading font-normal text-base sm:text-lg leading-snug drop-shadow-sm">
+              <h4 className="font-heading font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
                 {item.title}
               </h4>
               {item.price !== null && item.price !== undefined && (

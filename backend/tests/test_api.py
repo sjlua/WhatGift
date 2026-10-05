@@ -264,3 +264,15 @@ def test_full_family_lifecycle_and_privacy(client):
     # 18. Verify public lookup with new code works, old code returns 404
     assert client.get("/api/families/lookup?code=MILLER-2025").status_code == 200
     assert client.get("/api/families/lookup?code=MILLER-2024").status_code == 404
+
+    # 19. Wishlist Reset: Non-admin fails with 403, Admin resets all items
+    reset_forbidden = client.post("/api/admin/reset-wishlist", headers=timmy_headers)
+    assert reset_forbidden.status_code == 403
+
+    reset_success = client.post("/api/admin/reset-wishlist", headers=mom_headers)
+    assert reset_success.status_code == 200
+    assert reset_success.json()["deleted_count"] == 1
+
+    # Verify Timmy's list is now empty
+    empty_items = client.get(f"/api/users/{timmy_id}/items", headers=timmy_headers).json()
+    assert len(empty_items) == 0

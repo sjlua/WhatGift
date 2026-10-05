@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
+import ChangelogModal from './ChangelogModal';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useHaptics } from '../context/HapticsContext';
@@ -17,6 +18,7 @@ import {
   Moon02Icon,
   ComputerIcon,
   Touch01Icon,
+  SparklesIcon,
 } from '@hugeicons/core-free-icons';
 
 export default function ProfileModal({ isOpen, onClose }) {
@@ -28,6 +30,7 @@ export default function ProfileModal({ isOpen, onClose }) {
   const [avatar, setAvatar] = useState('🎁');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
@@ -67,7 +70,8 @@ export default function ProfileModal({ isOpen, onClose }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Profile & Settings" maxWidth="max-w-lg">
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} title="Profile & Settings" maxWidth="max-w-lg">
       <div className="space-y-5">
         {error && (
           <div className="flex items-center gap-2 p-3 text-xs rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]">
@@ -85,7 +89,7 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 1: User Profile Settings (Name & Avatar used to login) */}
         <form onSubmit={handleSubmit} className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 space-y-4 shadow-apple-sm">
           <div className="flex items-center justify-between pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold uppercase tracking-wide text-[#8E8E93] flex items-center gap-1.5">
+            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
               <HugeiconsIcon icon={UserIcon} size={14} className="text-[var(--theme-primary)]" />
               Your Login Details
             </span>
@@ -93,7 +97,7 @@ export default function ProfileModal({ isOpen, onClose }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#1C1C1E] dark:text-white mb-1">
+            <label className="block text-xs font-bold font-sans text-[#1C1C1E] dark:text-white mb-1">
               Your First Name / Alias <span className="text-[#FF3B30] font-bold">*</span>
             </label>
             <input
@@ -103,14 +107,14 @@ export default function ProfileModal({ isOpen, onClose }) {
               onChange={(e) => setAlias(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] text-sm text-[#1C1C1E] dark:text-white focus:outline-none shadow-apple-sm transition"
             />
-            <p className="text-[11px] text-[#8E8E93] mt-1">
+            <p className="text-[11px] text-[#8E8E93] mt-1 font-sans">
               You will use this first name to log into {family?.name}.
             </p>
           </div>
 
           {/* Profile Avatar Emojis */}
           <div>
-            <label className="block text-xs font-bold text-[#1C1C1E] dark:text-white mb-1.5">
+            <label className="block text-xs font-bold font-sans text-[#1C1C1E] dark:text-white mb-1.5">
               Assigned Profile Avatar (Emoji)
             </label>
             <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-2 bg-white dark:bg-[#1C1C1E] rounded-xl border-0 shadow-inner">
@@ -138,7 +142,7 @@ export default function ProfileModal({ isOpen, onClose }) {
             <button
               type="submit"
               disabled={submitting || !alias.trim()}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:opacity-90 shadow-apple-sm transition disabled:opacity-50 border-0"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:opacity-90 shadow-apple-sm transition disabled:opacity-50 border-0 font-sans"
             >
               {submitting ? 'Saving...' : 'Save Profile'}
             </button>
@@ -148,7 +152,7 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 2: Dark Mode & Appearance */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold uppercase tracking-wide text-[#8E8E93] flex items-center gap-1.5">
+            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
               <HugeiconsIcon icon={Moon02Icon} size={15} className="text-[var(--theme-primary)]" />
               Appearance & Dark Mode
             </span>
@@ -186,7 +190,7 @@ export default function ProfileModal({ isOpen, onClose }) {
         {/* Section 3: Holiday & Color Scheme Themings */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
-            <span className="text-xs font-bold uppercase tracking-wide text-[#8E8E93] flex items-center gap-1.5">
+            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
               <HugeiconsIcon icon={PaintBoardIcon} size={15} className="text-[var(--theme-primary)]" />
               Holiday Accent Themes
             </span>
@@ -282,17 +286,41 @@ export default function ProfileModal({ isOpen, onClose }) {
           )}
         </div>
 
-        {/* Section 5: Add to Homescreen Instructions */}
+        {/* Section 5: What's New & Changelog */}
+        <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
+          <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
+            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6] flex items-center gap-1.5">
+              <HugeiconsIcon icon={SparklesIcon} size={15} className="text-[var(--theme-primary)]" />
+              What's New & Changelog
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white">
+              v1.1
+            </span>
+          </div>
+          <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed mb-3 font-sans">
+            See recent updates, feature additions, and release notes from the initial launch to today.
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsChangelogOpen(true)}
+            className="w-full py-2.5 px-4 rounded-xl text-xs font-bold font-sans text-[var(--theme-primary)] bg-white dark:bg-[#1C1C1E] shadow-apple-sm hover:opacity-90 transition active:scale-95 flex items-center justify-center gap-1.5 border-0"
+          >
+            <HugeiconsIcon icon={SparklesIcon} size={14} />
+            <span>View Release History</span>
+          </button>
+        </div>
+
+        {/* Section 6: Add to Homescreen Instructions */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
             <div className="w-7 h-7 rounded-lg bg-[var(--theme-tint)] flex items-center justify-center text-[var(--theme-primary)]">
               <HugeiconsIcon icon={SmartPhone01Icon} size={15} />
             </div>
-            <span className="text-xs font-bold uppercase tracking-wide text-[#8E8E93]">
+            <span className="text-xs font-bold font-sans text-[#8E8E93] dark:text-[#A1A1A6]">
               Save to Homescreen
             </span>
           </div>
-          <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed mb-3">
+          <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed mb-3 font-sans">
             Install WhatGift on your iPhone or Android phone for instant 1-tap app access without browser address bars:
           </p>
           <div className="space-y-2 text-xs text-[#1C1C1E] dark:text-white bg-white dark:bg-[#1C1C1E] p-3 rounded-xl border-0 shadow-apple-sm">
@@ -307,12 +335,12 @@ export default function ProfileModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Section 6: Leave the Family */}
+        {/* Section 7: Leave the Family */}
         <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between">
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition font-sans"
           >
             <HugeiconsIcon icon={Logout01Icon} size={15} />
             <span>Leave the {family?.name}</span>
@@ -320,12 +348,19 @@ export default function ProfileModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition font-sans"
           >
             Done
           </button>
         </div>
       </div>
     </Modal>
+
+    {/* Changelog Modal */}
+    <ChangelogModal
+      isOpen={isChangelogOpen}
+      onClose={() => setIsChangelogOpen(false)}
+    />
+  </>
   );
 }

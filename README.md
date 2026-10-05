@@ -106,6 +106,10 @@ cd /path/to/WhatGift
    ```bash
    pytest tests
    ```
+Or use this command if it is not in the usual directory (and running in the virtual environmentcd ../frontend):
+   ```bash
+   .venv/bin/python -m pytest tests
+   ``` 
 
 ---
 
@@ -190,7 +194,7 @@ WantedBy=multi-user.target
 
 Ensure the `www-data` user has read/write permissions to the database file:
 ```bash
-sudo chown -R www-data:www-data /var/www/WhatGift/backend
+sudo chown -R www-data:www-data /var/www/whatgift
 ```
 
 Enable and start the backend service:
@@ -352,6 +356,63 @@ sudo ufw enable
 
 ---
 
+## 🔄 Updating & Pulling New Changes on the Server
+
+When you push code updates or bug fixes to GitHub and want to pull them onto your production server:
+
+### 1. Pull Latest Commits
+```bash
+cd /var/www/WhatGift   # (or /var/www/whatgift)
+git pull origin main
+```
+
+---
+
+### 2. If Frontend Code Changed (UI, components, styles, or new npm packages)
+Whenever you modify React files or frontend dependencies, you **must rebuild the production bundle** into `frontend/dist`:
+
+```bash
+cd frontend
+npm install            # Only needed if package.json dependencies were added/updated
+npm run build
+```
+> [!NOTE]
+> Apache/Nginx immediately serves the updated files from `frontend/dist/`. You do **not** need to restart Apache unless you changed `.conf` VirtualHost settings.
+
+---
+
+### 3. If Backend Code Changed (Python endpoints, database models, or new pip packages)
+Whenever you modify backend code, you **must restart the systemd service** so uvicorn loads the new Python code:
+
+```bash
+cd backend
+source .venv/bin/activate
+pip install -r requirements.txt   # Only needed if requirements.txt changed
+
+# Restart the background backend service
+sudo systemctl restart whatgift
+```
+
+Verify backend health:
+```bash
+sudo systemctl status whatgift
+curl http://127.0.0.1:8100/api/health
+```
+
+---
+
+### 🚀 All-in-One Quick Update Script
+If you want to pull and apply all updates in one shot, run this single block from the repository root:
+
+```bash
+git pull origin main && \
+(cd frontend && npm install && npm run build) && \
+(cd backend && .venv/bin/pip install -r requirements.txt) && \
+sudo systemctl restart whatgift
+```
+
+---
+
 ## 🔗 Direct Family Invite Links
 
 Once deployed on your domain, invite links automatically adapt to your live URL:
@@ -362,4 +423,3 @@ Once deployed on your domain, invite links automatically adapt to your live URL:
 **Sharing Links**:
 - Click **"Copy Invite Link"** in the top navigation bar to copy the direct URL.
 - Family members who tap the link on mobile or desktop are immediately logged into the family view without needing to enter the family code.
-
