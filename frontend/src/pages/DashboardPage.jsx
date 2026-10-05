@@ -55,6 +55,7 @@ export default function DashboardPage() {
 
   const [activeTab, setActiveTab] = useState('my-wishes'); // 'my-wishes' | 'family-wishes'
   const [selectedMemberId, setSelectedMemberId] = useState(null);
+  const [familyFilter, setFamilyFilter] = useState('all'); // 'all' | 'available' | 'claimed'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -160,18 +161,6 @@ export default function DashboardPage() {
     await loadItems();
   };
 
-  const handleSimulateSqliDrop = (query) => {
-    setAlertMessage(
-      `💉 [UI SQL Injection Safe]: Executed simulated '${query}'. SQLite database untouched! Restoring view in 2s...`
-    );
-    const backupItems = [...items];
-    setItems([]);
-    setTimeout(() => {
-      setItems(backupItems);
-      loadItems();
-    }, 2000);
-  };
-
   const handleDeleteItem = (itemId) => {
     const item = items.find((i) => i.id === itemId);
     setItemToDelete(item || { id: itemId, title: 'this gift' });
@@ -241,6 +230,15 @@ export default function DashboardPage() {
   };
 
   const activeSelectedMember = otherMembers.find((m) => m.id === selectedMemberId);
+
+  const availableCount = items.filter((i) => !i.claim).length;
+  const claimedCount = items.filter((i) => Boolean(i.claim)).length;
+
+  const displayedFamilyItems = items.filter((item) => {
+    if (familyFilter === 'available') return !item.claim;
+    if (familyFilter === 'claimed') return Boolean(item.claim);
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] dark:bg-[#000000] flex flex-col pb-24 lg:pb-16 transition-colors duration-200 relative overflow-x-hidden">
@@ -657,6 +655,49 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {/* Segmented Filter Pills: All / Available / Claimed */}
+                  {items.length > 0 && (
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="flex gap-1 p-1 bg-[#E5E5EA]/70 dark:bg-[#2C2C2E] rounded-2xl shadow-inner border-0">
+                        <button
+                          type="button"
+                          onClick={() => setFamilyFilter('all')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 ${
+                            familyFilter === 'all'
+                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                          }`}
+                        >
+                          All ({items.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFamilyFilter('available')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
+                            familyFilter === 'available'
+                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                          }`}
+                        >
+                          <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
+                          <span>Available ({availableCount})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFamilyFilter('claimed')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
+                            familyFilter === 'claimed'
+                              ? 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white shadow-apple-sm'
+                              : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                          }`}
+                        >
+                          <span className="w-2 h-2 rounded-full bg-[#34C759]" />
+                          <span>Claimed ({claimedCount})</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Grid of Wishlist Items */}
                   {loading ? (
                     <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
@@ -675,9 +716,17 @@ export default function DashboardPage() {
                         Check back soon or remind them to add some ideas!
                       </p>
                     </div>
+                  ) : displayedFamilyItems.length === 0 ? (
+                    <div className="text-center py-16 px-6 bg-white dark:bg-[#1C1C1E] rounded-3xl border-0 shadow-apple-card w-full">
+                      <p className="text-sm font-semibold text-[#8E8E93]">
+                        {familyFilter === 'available'
+                          ? 'All items on this wishlist have been claimed or bought! 🎉'
+                          : 'No claimed items on this wishlist yet.'}
+                      </p>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 items-start">
-                      {items.map((item) => (
+                      {displayedFamilyItems.map((item) => (
                         <WishlistCard
                           key={item.id}
                           item={item}
@@ -758,7 +807,6 @@ export default function DashboardPage() {
         isOpen={isItemModalOpen}
         onClose={() => setIsItemModalOpen(false)}
         onSave={handleSaveItem}
-        onSimulateSqliDrop={handleSimulateSqliDrop}
         itemToEdit={itemToEdit}
       />
 

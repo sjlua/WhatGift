@@ -3,7 +3,6 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { AVATAR_OPTIONS } from '../constants/avatars';
-import { detectSqlInjection } from '../utils/sqli';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -22,7 +21,6 @@ export default function AuthPage() {
   const [familyData, setFamilyData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [sqliMessage, setSqliMessage] = useState('');
   const [autoLaunched, setAutoLaunched] = useState(false);
 
   // Start new family form
@@ -74,39 +72,13 @@ export default function AuthPage() {
   const handleLookupFamily = async (e) => {
     e?.preventDefault();
     const clean = familyCode.trim();
-    const sqli = detectSqlInjection(clean);
-    if (sqli) {
-      setSqliMessage(sqli.message);
-      setError('');
-      // Client-side UI SQLi bypass: bypass check and load family
-      const fallbackCode = localStorage.getItem('whatgift_last_family_code') || 'SL-XMAS-2026';
-      try {
-        await lookupAndSetFamily(fallbackCode);
-      } catch {
-        try {
-          await lookupAndSetFamily('TEST');
-        } catch {
-          setError('SQL Injection simulated: Condition evaluated to TRUE, but no family records were available to mount.');
-        }
-      }
-      return;
-    }
+    if (!clean) return;
     lookupAndSetFamily(clean.toUpperCase());
   };
 
   const handleLoginWithName = async (nameToUse) => {
     let targetName = (nameToUse || firstName).trim();
     if (!targetName || !familyData) return;
-
-    const sqli = detectSqlInjection(targetName);
-    if (sqli) {
-      setSqliMessage(sqli.message);
-      // Admin bypass or Tautology: Find the administrator of the family
-      const adminMember = familyData.members.find((m) => m.is_admin) || familyData.members[0];
-      if (adminMember) {
-        targetName = adminMember.alias;
-      }
-    }
 
     setLoading(true);
     setError('');
@@ -182,13 +154,6 @@ export default function AuthPage() {
 
         {/* Card with Clean Apple HIG Elevation and Reduced Borders */}
         <div className="bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 sm:p-8 shadow-apple-lg border-0 transition-colors duration-200">
-          {sqliMessage && (
-            <div className="flex items-start gap-2.5 p-3.5 text-xs sm:text-sm rounded-xl bg-[#34C759]/15 text-[#1B8036] dark:text-[#30D158] border border-[#34C759]/30 mb-5 font-mono">
-              <span className="shrink-0 text-base leading-none">💉</span>
-              <span className="leading-snug">{sqliMessage}</span>
-            </div>
-          )}
-
           {error && (
             <div className="flex items-start gap-2.5 p-3.5 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 text-[#FF3B30] mb-5">
               <HugeiconsIcon icon={AlertCircleIcon} size={17} className="shrink-0 mt-0.5" />

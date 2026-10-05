@@ -19,3 +19,6 @@ frontend/dist/
 # Logs & Environment
 *.log
 .env
+.agent
+.agents
+.impeccable

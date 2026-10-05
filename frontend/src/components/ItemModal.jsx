@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
-import ConfirmDialog from './ConfirmDialog';
 import { api } from '../api/client';
-import { detectSqlInjection } from '../utils/sqli';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AlertCircleIcon,
@@ -18,7 +16,7 @@ const PRIORITIES = [
   { value: 'high', label: 'High' },
 ];
 
-export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop, itemToEdit }) {
+export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -27,9 +25,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
   const [price, setPrice] = useState('');
   const [priority, setPriority] = useState('medium');
   const [isOnSale, setIsOnSale] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [showAddConfirm, setShowAddConfirm] = useState(false);
 
   // Link understanding / prefill state
   const [isScraping, setIsScraping] = useState(false);
@@ -47,6 +45,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
       setPrice(itemToEdit.price !== null && itemToEdit.price !== undefined ? String(itemToEdit.price) : '');
       setPriority(itemToEdit.priority || 'medium');
       setIsOnSale(Boolean(itemToEdit.is_on_sale));
+      setShowAdvanced(
+        Boolean(itemToEdit.alt_url || itemToEdit.image_url || itemToEdit.is_on_sale || (itemToEdit.priority && itemToEdit.priority !== 'medium'))
+      );
     } else {
       setTitle('');
       setDescription('');
@@ -56,6 +57,7 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
       setPrice('');
       setPriority('medium');
       setIsOnSale(false);
+      setShowAdvanced(false);
     }
     setError('');
     setIsScraping(false);
@@ -122,23 +124,8 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
       return;
     }
 
-    const sqli = detectSqlInjection(title) || detectSqlInjection(description);
-    if (sqli && sqli.type === 'DESTRUCTIVE') {
-      if (onSimulateSqliDrop) {
-        onSimulateSqliDrop(title.trim());
-      }
-      setShowAddConfirm(false);
-      onClose();
-      return;
-    }
-
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
       setError('Please provide a valid approximate price (e.g. 29.99)');
-      return;
-    }
-
-    if (!itemToEdit) {
-      setShowAddConfirm(true);
       return;
     }
 
@@ -159,7 +146,6 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
         priority,
         is_on_sale: isOnSale,
       });
-      setShowAddConfirm(false);
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to save gift item');
@@ -169,9 +155,8 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
   };
 
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
+    <Modal
+      isOpen={isOpen}
         onClose={onClose}
         title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
         accentHeader
@@ -385,145 +370,151 @@ export default function ItemModal({ isOpen, onClose, onSave, onSimulateSqliDrop,
           </div>
 
           {/* ======================================================== */}
-          {/* 3. Price & Priority (Aligned Grid) */}
-          {/* ======================================================== */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-                <span>Approx. Price ($)</span>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
-                  Required
-                </span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                placeholder="e.g. 49.99"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-                Priority
-              </label>
-              <div className="relative">
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="w-full h-12 pl-4 pr-10 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer appearance-none"
-                >
-                  {PRIORITIES.map((p) => (
-                    <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]">
-                  <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ======================================================== */}
-          {/* 4. Sale Checkbox */}
-          {/* ======================================================== */}
-          <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer select-none transition hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] group">
-            <input
-              type="checkbox"
-              checked={isOnSale}
-              onChange={(e) => setIsOnSale(e.target.checked)}
-              className="w-5 h-5 rounded-md text-[var(--theme-primary)] focus:ring-[var(--theme-primary)] accent-[var(--theme-primary)] border-0 transition cursor-pointer"
-            />
-            <div className="flex-1 flex items-center justify-between gap-2">
-              <div>
-                <span className="text-xs sm:text-sm font-semibold text-[#1C1C1E] dark:text-white flex items-center gap-1.5">
-                  <HugeiconsIcon
-                    icon={DiscountTag01Icon}
-                    size={15}
-                    className={isOnSale ? 'text-[var(--theme-primary)]' : 'text-[#8E8E93]'}
-                  />
-                  <span>On Sale</span>
-                </span>
-                <p className="text-[11px] text-[#8E8E93] leading-tight mt-0.5">
-                  Highlight the price to let everyone know this gift is on sale.
-                </p>
-              </div>
-              {isOnSale && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white shadow-apple-sm shrink-0 font-sans">
-                  Sale
-                </span>
-              )}
-            </div>
-          </label>
-
-          {/* ======================================================== */}
-          {/* 5. Alternative Store Link */}
+          {/* 3. Approx. Price (Required) */}
           {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-              <span>Alternative Store or Link (Optional)</span>
+              <span>Approx. Price ($)</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
+                Required
+              </span>
             </label>
             <input
-              type="text"
-              placeholder="e.g. Target, JB Hi-Fi, or https://..."
-              value={altUrl}
-              onChange={(e) => setAltUrl(e.target.value)}
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              placeholder="e.g. 49.99"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
               className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
             />
           </div>
 
           {/* ======================================================== */}
-          {/* 6. Image URL (Optional) */}
+          {/* 4. Notes / Sizes / Colors */}
           {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-              Image URL (Optional)
-            </label>
-            <input
-              type="url"
-              placeholder="https://...image.jpg"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-            />
-          </div>
-
-          {/* ======================================================== */}
-          {/* 7. Notes / Sizes / Colors */}
-          {/* ======================================================== */}
-          <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-              Notes / Sizes / Colors
+              Notes / Sizes / Colors (Optional)
             </label>
             <textarea
-              rows="3"
+              rows="2"
               placeholder="e.g. Size M, navy blue or charcoal"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
+              className="w-full p-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
             />
+          </div>
+
+          {/* ======================================================== */}
+          {/* 5. Progressive Disclosure: Additional Options           */}
+          {/* ======================================================== */}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] text-xs font-bold text-[#636366] dark:text-[#A1A1A6] transition group"
+            >
+              <div className="flex items-center gap-2">
+                <span>{showAdvanced ? 'Hide additional options' : 'More options (Priority, Sale, Alt link, Image)'}</span>
+                {!showAdvanced && (isOnSale || altUrl || imageUrl || priority !== 'medium') && (
+                  <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
+                )}
+              </div>
+              <HugeiconsIcon
+                icon={ArrowDown01Icon}
+                size={16}
+                className={`transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {showAdvanced && (
+              <div className="space-y-3.5 pt-3 animate-in fade-in duration-150">
+                {/* Priority */}
+                <div>
+                  <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+                    Priority
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value)}
+                      className="w-full h-11 pl-4 pr-10 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer appearance-none"
+                    >
+                      {PRIORITIES.map((p) => (
+                        <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]">
+                      <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sale Checkbox */}
+                <label className="flex items-center gap-3 p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer select-none transition hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] group">
+                  <input
+                    type="checkbox"
+                    checked={isOnSale}
+                    onChange={(e) => setIsOnSale(e.target.checked)}
+                    className="w-4 h-4 rounded text-[var(--theme-primary)] focus:ring-[var(--theme-primary)] accent-[var(--theme-primary)] border-0 transition cursor-pointer"
+                  />
+                  <div className="flex-1 flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-xs font-semibold text-[#1C1C1E] dark:text-white flex items-center gap-1.5">
+                        <HugeiconsIcon
+                          icon={DiscountTag01Icon}
+                          size={14}
+                          className={isOnSale ? 'text-[var(--theme-primary)]' : 'text-[#8E8E93]'}
+                        />
+                        <span>On Sale</span>
+                      </span>
+                      <p className="text-[11px] text-[#8E8E93] leading-tight">
+                        Highlight price to let everyone know this gift is on sale.
+                      </p>
+                    </div>
+                    {isOnSale && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white shadow-apple-sm shrink-0 font-sans">
+                        Sale
+                      </span>
+                    )}
+                  </div>
+                </label>
+
+                {/* Alternative Store Link */}
+                <div>
+                  <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
+                    Alternative Store or Link (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Target, JB Hi-Fi, or https://..."
+                    value={altUrl}
+                    onChange={(e) => setAltUrl(e.target.value)}
+                    className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                  />
+                </div>
+
+                {/* Image URL (Optional) */}
+                <div>
+                  <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
+                    Image URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://...image.jpg"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </Modal>
-
-    {/* Add Gift Confirmation Dialog */}
-    <ConfirmDialog
-      isOpen={showAddConfirm}
-      title="Add to Wishlist?"
-      message={`Add "${title}" ($${parseFloat(price || 0).toFixed(2)}) to your family wishlist?`}
-      confirmText="Add Gift"
-      cancelText="Cancel"
-      isDestructive={false}
-      loading={submitting}
-      onConfirm={executeSave}
-      onCancel={() => !submitting && setShowAddConfirm(false)}
-    />
-  </>
   );
 }
