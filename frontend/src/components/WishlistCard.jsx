@@ -160,18 +160,21 @@ export default function WishlistCard({
                 : 'Medium priority'}
             </p>
 
-            {/* Store link — subtle, inline */}
+            {/* Store link button — generous size and easy to click */}
             {item.url && (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-[11px] text-[var(--theme-primary)] hover:underline inline-flex items-center gap-1 mt-0.5"
-              >
-                <HugeiconsIcon icon={LinkSquare01Icon} size={11} />
-                {getDomain(item.url)}
-              </a>
+              <div className="pt-1.5">
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full min-h-[34px] py-1.5 px-2.5 rounded-lg text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border border-[var(--theme-primary)]/20 shadow-sm"
+                  title={`Open ${item.title} on ${getDomain(item.url)}`}
+                >
+                  <HugeiconsIcon icon={LinkSquare01Icon} size={15} className="shrink-0" />
+                  <span className="truncate">Open Link ({getDomain(item.url)})</span>
+                </a>
+              </div>
             )}
           </div>
         </div>
@@ -256,17 +259,18 @@ export default function WishlistCard({
               <h4 className="font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
                 {item.title}
               </h4>
-              {item.price !== null && item.price !== undefined && (
-                <p className="text-xs sm:text-sm font-semibold mt-1">
-                  {item.is_on_sale ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[var(--theme-primary)] text-white font-bold">
-                      <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
-                      <span>${Number(item.price).toFixed(2)} (Sale)</span>
-                    </span>
-                  ) : (
-                    <span className="text-white/80">${Number(item.price).toFixed(2)}</span>
-                  )}
-                </p>
+              {item.url && (
+                <div className="pt-2">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-md border-0"
+                  >
+                    <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
+                    <span>Open in Store ({getDomain(item.url)})</span>
+                  </a>
+                </div>
               )}
             </div>
           </div>
