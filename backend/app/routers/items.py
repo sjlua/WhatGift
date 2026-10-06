@@ -15,7 +15,7 @@ from app.schemas import (
     ScrapeLinkRequest,
     ScrapeLinkResponse,
 )
-from app.scraper import scrape_opengraph_metadata
+from app.scraper import scrape_opengraph_metadata, sanitize_url
 
 router = APIRouter(tags=["Wishlist Items & Claims"])
 
@@ -29,7 +29,7 @@ async def scrape_product_link(
     Scrapes Open Graph, Twitter Cards, Schema.org and standard metadata from a product link
     to prefill item fields (title, price, image, description, site name).
     """
-    clean_url = payload.url.strip()
+    clean_url = sanitize_url(payload.url) or payload.url.strip()
     if not clean_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -88,9 +88,9 @@ def create_wishlist_item(
         user_id=current_user.id,
         title=payload.title.strip(),
         description=payload.description.strip() if payload.description else None,
-        url=str(payload.url).strip() if payload.url else None,
-        alt_url=str(payload.alt_url).strip() if payload.alt_url else None,
-        image_url=str(payload.image_url).strip() if payload.image_url else None,
+        url=sanitize_url(payload.url) if payload.url else None,
+        alt_url=sanitize_url(payload.alt_url) if payload.alt_url else None,
+        image_url=sanitize_url(payload.image_url) if payload.image_url else None,
         price=payload.price,
         priority=payload.priority,
         is_on_sale=payload.is_on_sale,
@@ -127,11 +127,11 @@ def update_wishlist_item(
     if "description" in payload.model_fields_set:
         item.description = payload.description.strip() if payload.description else None
     if "url" in payload.model_fields_set:
-        item.url = str(payload.url).strip() if payload.url else None
+        item.url = sanitize_url(payload.url) if payload.url else None
     if "alt_url" in payload.model_fields_set:
-        item.alt_url = str(payload.alt_url).strip() if payload.alt_url else None
+        item.alt_url = sanitize_url(payload.alt_url) if payload.alt_url else None
     if "image_url" in payload.model_fields_set:
-        item.image_url = str(payload.image_url).strip() if payload.image_url else None
+        item.image_url = sanitize_url(payload.image_url) if payload.image_url else None
     if "price" in payload.model_fields_set and payload.price is not None:
         item.price = payload.price
     if "priority" in payload.model_fields_set and payload.priority is not None:

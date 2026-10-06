@@ -277,12 +277,50 @@ def extract_image_from_html(html_content: str, domain: str = "") -> Optional[str
     return None
 
 
+def sanitize_url(raw_url: Optional[str]) -> Optional[str]:
+    """
+    Sanitizes and cleans URLs, preventing duplication (e.g. <url><url>)
+    and fixing common malformed URL patterns like doubled protocols.
+    """
+    if not raw_url:
+        return None
+    url = str(raw_url).strip()
+    if not url:
+        return None
+
+    # Fix doubled scheme e.g. https://https:// or http://https://
+    url = re.sub(r'^(?:https?://)+(https?://)', r'\1', url, flags=re.IGNORECASE)
+
+    # Handle whitespace-separated duplicates e.g. "https://a.com https://a.com"
+    tokens = url.split()
+    if len(tokens) >= 2 and tokens[0] == tokens[1]:
+        url = tokens[0]
+
+    # Exact duplication where string is repeated twice: A + A
+    if len(url) % 2 == 0:
+        half = len(url) // 2
+        if url[:half] == url[half:]:
+            url = url[:half]
+
+    # Concatenated duplicate URLs: https://...https://... or http://...http://...
+    match = re.search(r'.(https?://)', url, flags=re.IGNORECASE)
+    if match:
+        split_idx = match.start() + 1
+        part1 = url[:split_idx].strip()
+        part2 = url[split_idx:].strip()
+        if part1 == part2 or part1.rstrip('/') == part2.rstrip('/'):
+            url = part1
+
+    return url
+
+
 async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
     """
     Scrapes Open Graph, Twitter Cards, Schema.org JSON-LD and standard HTML metadata
     from a given product URL.
     """
-    clean_url = target_url.strip()
+    sanitized = sanitize_url(target_url)
+    clean_url = (sanitized or target_url).strip()
     if not clean_url.startswith("http://") and not clean_url.startswith("https://"):
         clean_url = "https://" + clean_url
 

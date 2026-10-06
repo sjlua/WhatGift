@@ -407,3 +407,57 @@ def test_amazon_scraper_html_parsing():
     assert extract_price_from_html(amazon_json_html, "amazon.com.au") == 149.50
 
 
+def test_url_sanitization_and_item_deduplication(client):
+    from app.scraper import sanitize_url
+
+    apple_dup = (
+        "https://www.apple.com/au/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white"
+        "https://www.apple.com/au/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white"
+    )
+    expected_apple = "https://www.apple.com/au/shop/buy-iphone/iphone-duo/7.6-inch-display-256gb-star-white"
+    assert sanitize_url(apple_dup) == expected_apple
+    assert sanitize_url("https://https://apple.com") == "https://apple.com"
+    assert sanitize_url("https://apple.com https://apple.com") == "https://apple.com"
+    assert sanitize_url(expected_apple) == expected_apple
+
+    # Test via API lifecycle
+    setup_resp = client.post(
+        "/api/families",
+        json={
+            "name": "Duo Family",
+            "family_code": "DUO-2026",
+            "admin_alias": "Tester",
+            "admin_avatar": "🎁",
+        },
+    )
+    token = setup_resp.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    create_resp = client.post(
+        "/api/items",
+        headers=headers,
+        json={
+            "title": "iPhone Duo",
+            "url": apple_dup,
+            "price": 1999.00,
+        },
+    )
+    assert create_resp.status_code == 201
+    created_item = create_resp.json()
+    assert created_item["url"] == expected_apple
+
+    # Test update with duplicated URL
+    update_resp = client.put(
+        f"/api/items/{created_item['id']}",
+        headers=headers,
+        json={
+            "url": (
+                "https://www.jbhifi.com.au/products/case"
+                "https://www.jbhifi.com.au/products/case"
+            ),
+        },
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["url"] == "https://www.jbhifi.com.au/products/case"
+
+

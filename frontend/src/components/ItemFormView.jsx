@@ -12,6 +12,7 @@ import {
   Tick02Icon,
   GiftIcon,
 } from '@hugeicons/core-free-icons';
+import { sanitizeUrl } from '../utils/url';
 
 const PRIORITIES = [
   { value: 'low', label: 'Low Priority' },
@@ -80,8 +81,11 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
   }, [itemToEdit]);
 
   const handleAutoFillFromUrl = async (targetUrl) => {
-    const cleanUrl = (targetUrl || url).trim();
+    let cleanUrl = sanitizeUrl(targetUrl || url);
     if (!cleanUrl) return;
+    if (cleanUrl.startsWith('www.')) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
     if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
       setScrapeNotice('Please enter a full URL starting with http:// or https://');
       return;
@@ -123,10 +127,12 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
 
   const handleUrlPaste = (e) => {
     const text = e.clipboardData?.getData('text') || '';
-    const clean = text.trim();
-    if (clean.startsWith('http://') || clean.startsWith('https://')) {
-      setUrl(clean);
-      setTimeout(() => handleAutoFillFromUrl(clean), 80);
+    const clean = sanitizeUrl(text.trim());
+    if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('www.')) {
+      e.preventDefault();
+      const finalUrl = clean.startsWith('www.') ? `https://${clean}` : clean;
+      setUrl(finalUrl);
+      setTimeout(() => handleAutoFillFromUrl(finalUrl), 80);
     }
   };
 
@@ -148,9 +154,9 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
       await onSave({
         title: title.trim(),
         description: description.trim() || null,
-        url: url.trim() || null,
-        alt_url: altUrl.trim() || null,
-        image_url: imageUrl.trim() || null,
+        url: sanitizeUrl(url) || null,
+        alt_url: sanitizeUrl(altUrl) || null,
+        image_url: sanitizeUrl(imageUrl) || null,
         price: parseFloat(price),
         priority,
         is_on_sale: isOnSale,
@@ -249,7 +255,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                 type="url"
                 placeholder="https://www.amazon.com/dp/..."
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
                 onPaste={handleUrlPaste}
                 disabled={isScraping}
                 className="w-full h-11 pl-3.5 pr-24 rounded-lg bg-white dark:bg-[#3A3B3C] border border-[#CCD0D5] dark:border-[#4E4F50] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] transition"
@@ -420,7 +426,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     type="url"
                     placeholder="https://...image.jpg"
                     value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
+                    onChange={(e) => setImageUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
                   />
                 </div>
@@ -433,7 +439,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     type="text"
                     placeholder="e.g. Target or secondary link"
                     value={altUrl}
-                    onChange={(e) => setAltUrl(e.target.value)}
+                    onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
                   />
                 </div>

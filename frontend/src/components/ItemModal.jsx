@@ -9,6 +9,7 @@ import {
   Link01Icon,
   SparklesIcon,
 } from '@hugeicons/core-free-icons';
+import { sanitizeUrl } from '../utils/url';
 
 const PRIORITIES = [
   { value: 'low', label: 'Low' },
@@ -67,8 +68,11 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
   }, [itemToEdit, isOpen]);
 
   const handleAutoFillFromUrl = async (targetUrl) => {
-    const cleanUrl = (targetUrl || url).trim();
+    let cleanUrl = sanitizeUrl(targetUrl || url);
     if (!cleanUrl) return;
+    if (cleanUrl.startsWith('www.')) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
     if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
       setScrapeNotice('Please enter a full URL starting with http:// or https://');
       return;
@@ -110,10 +114,12 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
 
   const handleUrlPaste = (e) => {
     const text = e.clipboardData?.getData('text') || '';
-    const clean = text.trim();
-    if (clean.startsWith('http://') || clean.startsWith('https://')) {
-      setUrl(clean);
-      setTimeout(() => handleAutoFillFromUrl(clean), 80);
+    const clean = sanitizeUrl(text.trim());
+    if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('www.')) {
+      e.preventDefault();
+      const finalUrl = clean.startsWith('www.') ? `https://${clean}` : clean;
+      setUrl(finalUrl);
+      setTimeout(() => handleAutoFillFromUrl(finalUrl), 80);
     }
   };
 
@@ -139,9 +145,9 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
       await onSave({
         title: title.trim(),
         description: description.trim() || null,
-        url: url.trim() || null,
-        alt_url: altUrl.trim() || null,
-        image_url: imageUrl.trim() || null,
+        url: sanitizeUrl(url) || null,
+        alt_url: sanitizeUrl(altUrl) || null,
+        image_url: sanitizeUrl(imageUrl) || null,
         price: parseFloat(price),
         priority,
         is_on_sale: isOnSale,
@@ -235,7 +241,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 type="url"
                 placeholder="Paste link (Amazon, JB Hi-Fi, Target, Kmart...)"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
                 onPaste={handleUrlPaste}
                 disabled={isScraping}
                 className={`w-full h-12 pl-4 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm ${
@@ -493,7 +499,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                     type="text"
                     placeholder="e.g. Target, JB Hi-Fi, or https://..."
                     value={altUrl}
-                    onChange={(e) => setAltUrl(e.target.value)}
+                    onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
                   />
                 </div>
@@ -507,7 +513,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                     type="url"
                     placeholder="https://...image.jpg"
                     value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
+                    onChange={(e) => setImageUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
                   />
                 </div>

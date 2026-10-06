@@ -12,6 +12,7 @@ import {
   Cancel01Icon,
   DiscountTag01Icon,
 } from '@hugeicons/core-free-icons';
+import { sanitizeUrl, getDomain } from '../utils/url';
 
 export default function WishlistCard({
   item,
@@ -40,13 +41,7 @@ export default function WishlistCard({
   const isBought = claim?.status === 'bought' || claim?.status === 'purchased';
   const isWantToBuy = claim?.status === 'want_to_buy' || claim?.status === 'claimed';
 
-  const getDomain = (url) => {
-    try {
-      return new URL(url).hostname.replace('www.', '');
-    } catch {
-      return 'Store Link';
-    }
-  };
+  const cleanUrl = sanitizeUrl(item.url);
 
   // Close lightbox on Escape key
   useEffect(() => {
@@ -195,17 +190,17 @@ export default function WishlistCard({
 
         {/* Action buttons group — tightly grouped together with decreased padding */}
         <div className="relative z-[1] mt-2 space-y-1.5">
-          {item.url && (
+          {cleanUrl && (
             <a
-              href={item.url}
+              href={cleanUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="w-full min-h-[32px] py-1 px-2.5 rounded-md text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border-0 outline-none"
-              title={`Open ${item.title} on ${getDomain(item.url)}`}
+              title={`Open ${item.title} on ${getDomain(cleanUrl)}`}
             >
               <HugeiconsIcon icon={LinkSquare01Icon} size={14} className="shrink-0" />
-              <span className="truncate">Open Link ({getDomain(item.url)})</span>
+              <span className="truncate">Open Link ({getDomain(cleanUrl)})</span>
             </a>
           )}
 
@@ -287,16 +282,16 @@ export default function WishlistCard({
               <h4 className="font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
                 {item.title}
               </h4>
-              {item.url && (
+              {cleanUrl && (
                 <div className="pt-2">
                   <a
-                    href={item.url}
+                    href={cleanUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-md border-0"
                   >
                     <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
-                    <span>Open in Store ({getDomain(item.url)})</span>
+                    <span>Open in Store ({getDomain(cleanUrl)})</span>
                   </a>
                 </div>
               )}

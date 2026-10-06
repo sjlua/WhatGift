@@ -20,6 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.database import Base
+from app.scraper import sanitize_url
 
 
 class ItemPriority(str, enum.Enum):
@@ -204,9 +205,9 @@ class Item(Base):
             "user_id": self.user_id,
             "title": self.title,
             "description": self.description,
-            "url": self.url,
-            "alt_url": self.alt_url,
-            "image_url": self.image_url,
+            "url": sanitize_url(self.url),
+            "alt_url": sanitize_url(self.alt_url),
+            "image_url": sanitize_url(self.image_url),
             "price": self.price,
             "priority": self.priority.value if isinstance(self.priority, ItemPriority) else self.priority,
             "is_on_sale": bool(self.is_on_sale) if self.is_on_sale is not None else False,
