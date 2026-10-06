@@ -202,7 +202,7 @@ export default function WishlistCard({
                   onClick={(e) => { e.stopPropagation(); onReleaseClaim(item.id); }}
                   className="py-1.5 px-2 text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-md transition active:scale-[0.98] border-0"
                 >
-                  Release
+                  Unassign
                 </button>
               </div>
             ) : (

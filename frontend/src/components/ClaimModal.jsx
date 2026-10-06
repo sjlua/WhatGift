@@ -249,13 +249,13 @@ export default function ClaimModal({
       </form>
     </Modal>
 
-    {/* Release Gift Confirmation Dialog */}
+    {/* Cancel Gift Confirmation Dialog */}
     <ConfirmDialog
       isOpen={showReleaseConfirm}
-      title="Release This Gift?"
-      message="Are you sure you want to release this gift? Other family members will be able to claim or purchase it."
-      confirmText="Release Gift"
-      cancelText="Cancel"
+      title="Unassign Gift?"
+      message="Are you sure you want to unassign yourself from this gift? Other family members will be able to claim or purchase it."
+      confirmText="Unassign Gift"
+      cancelText="Keep Marked"
       isDestructive={true}
       loading={submitting}
       onConfirm={handleConfirmRelease}
