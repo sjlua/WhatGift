@@ -201,7 +201,7 @@ export default function WishlistCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="w-full min-h-[32px] py-1 px-2.5 rounded-md text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border-0 shadow-sm"
+              className="w-full min-h-[32px] py-1 px-2.5 rounded-md text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border-0 outline-none"
               title={`Open ${item.title} on ${getDomain(item.url)}`}
             >
               <HugeiconsIcon icon={LinkSquare01Icon} size={14} className="shrink-0" />
