@@ -9,16 +9,8 @@ import {
   Tick02Icon,
   ShoppingBag01Icon,
   Cancel01Icon,
-  Maximize01Icon,
   DiscountTag01Icon,
 } from '@hugeicons/core-free-icons';
-
-const PRIORITY_BADGES = {
-  high: { label: 'HIGH', style: 'bg-[#FF9500]/15 text-[#C46200]' },
-  medium: { label: 'MEDIUM', style: 'bg-[var(--theme-tint)] text-[var(--theme-primary)]' },
-  low: { label: 'LOW', style: 'bg-[#8E8E93]/15 text-[#636366]' },
-  must_have: { label: 'HIGH', style: 'bg-[#FF9500]/15 text-[#C46200]' },
-};
 
 export default function WishlistCard({
   item,
@@ -26,11 +18,11 @@ export default function WishlistCard({
   onClaim,
   onEditClaim,
   onReleaseClaim,
+  onQuickMark,
 }) {
   const { triggerLight } = useHaptics();
   const [showLightbox, setShowLightbox] = useState(false);
 
-  const priorityInfo = PRIORITY_BADGES[item.priority] || PRIORITY_BADGES.medium;
   const isOwner = item.is_owner;
   const claim = item.claim;
 
@@ -43,25 +35,6 @@ export default function WishlistCard({
     } catch {
       return 'Store Link';
     }
-  };
-
-  const getAltLinkInfo = (rawAlt, title) => {
-    if (!rawAlt) return null;
-    const str = rawAlt.trim();
-    const isUrl = !str.includes(' ') && /^(https?:\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i.test(str);
-    if (isUrl) {
-      const href = str.startsWith('http://') || str.startsWith('https://') ? str : `https://${str}`;
-      return {
-        href,
-        label: `Alt: ${getDomain(href)}`,
-        isStore: false,
-      };
-    }
-    return {
-      href: `https://www.google.com/search?q=${encodeURIComponent(`${title || ''} ${str}`.trim())}`,
-      label: `Alt: ${str}`,
-      isStore: true,
-    };
   };
 
   // Close lightbox on Escape key
@@ -92,218 +65,164 @@ export default function WishlistCard({
     onEditClaim(item);
   };
 
+  // Format price display — FB Marketplace style
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return null;
+    const num = Number(price);
+    if (num === 0) return 'FREE';
+    return `$${num % 1 === 0 ? num.toLocaleString() : num.toFixed(2)}`;
+  };
+
+  const priceDisplay = formatPrice(item.price);
+
   return (
     <>
-      <div className="relative bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl shadow-apple-card hover:shadow-apple-card-hover transition-all duration-200 flex flex-col overflow-hidden border-0">
-        {/* Product Image with Click-to-Expand Lightbox */}
-        {item.image_url ? (
+      <div className="group rounded-xl p-2 sm:p-2.5 transition-colors duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] flex flex-col justify-between">
+        <div>
+          {/* Image container — square aspect ratio like FB Marketplace */}
           <div
-            onClick={handleOpenLightbox}
-            className="relative w-full h-44 sm:h-48 md:h-52 lg:h-40 bg-[#F8F8FA] dark:bg-[#222226] overflow-hidden cursor-pointer group"
-            title="Click to view full image"
+            onClick={item.image_url ? handleOpenLightbox : undefined}
+            className="relative w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] overflow-hidden rounded-lg cursor-pointer"
           >
-            <img
-              src={item.image_url}
-              alt={item.title}
-              loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-            {/* Labeled Priority Ranking Badge */}
-            <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3 z-10 pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 lg:px-2 lg:py-0.5 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold shadow-apple-sm backdrop-blur-md bg-white/95 dark:bg-[#161618]/95 text-[#1C1C1E] dark:text-white border-0">
-                <span className="text-[#8E8E93] text-[10px] uppercase font-bold tracking-wider">Priority</span>
-                <span className="font-extrabold text-[var(--theme-primary)]">
-                  {item.priority === 'high' || item.priority === 'must_have' ? '★★★ High' : item.priority === 'low' ? '★ Low' : '★★ Medium'}
-                </span>
-              </span>
-            </div>
-            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 text-white text-xs font-semibold backdrop-blur-md shadow-apple-sm">
-                <HugeiconsIcon icon={Maximize01Icon} size={13} />
-                <span>View Full Image</span>
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between p-4 sm:p-5 lg:p-3.5 pb-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl lg:rounded-lg bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93]">
-              <HugeiconsIcon icon={GiftIcon} size={17} />
-            </div>
-            <span className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${priorityInfo.style}`}>
-              {priorityInfo.label}
-            </span>
-          </div>
-        )}
-
-        {/* Card Body: Unified Content with Uniform Spacing */}
-        <div className="p-4 sm:p-5 lg:p-3.5 flex-1 flex flex-col justify-between">
-          <div>
-            {/* Title & Price */}
-            <div className="flex items-baseline justify-between gap-2 mb-1.5">
-              <h4 className="font-heading font-bold text-base sm:text-lg lg:text-sm text-[#1C1C1E] dark:text-white leading-snug break-words">
-                {item.title}
-              </h4>
-
-              {/* Price Tag: Highlighted with accent colour if on sale, otherwise monochrome black/white */}
-              {item.price !== null && item.price !== undefined && (
-                <span
-                  className={`shrink-0 text-sm sm:text-base lg:text-xs font-extrabold px-2.5 py-0.5 lg:px-2 lg:py-0.5 rounded-lg lg:rounded-md shadow-apple-sm transition-all duration-200 inline-flex items-center gap-1.5 ${
-                    item.is_on_sale
-                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-md ring-1 ring-white/20'
-                      : 'text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226]'
-                  }`}
-                  title={item.is_on_sale ? 'On Sale' : undefined}
-                >
-                  {item.is_on_sale && (
-                    <HugeiconsIcon icon={DiscountTag01Icon} size={13} className="shrink-0" />
-                  )}
-                  <span>${Number(item.price).toFixed(2)}</span>
-                </span>
-              )}
-            </div>
-
-            {item.description && (
-              <p className="text-xs sm:text-sm lg:text-xs text-[#636366] dark:text-[#8E8E93] line-clamp-3 leading-relaxed whitespace-pre-line">
-                {item.description}
-              </p>
-            )}
-          </div>
-
-          {/* Action Area: Store Links & Edit/Mark Gift Button grouped closely together */}
-          <div className="space-y-2 lg:space-y-1.5 mt-3.5 lg:mt-3">
-            {/* Store Links: Positioned directly above Edit/Mark with tight spacing */}
-            {(item.url || item.alt_url) && (
-              <div className="space-y-2 lg:space-y-1.5 w-full">
-                {item.url && (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] hover:opacity-90 rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
-                  >
-                    <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
-                    <span>{getDomain(item.url)}</span>
-                  </a>
-                )}
-
-                {item.alt_url && (() => {
-                  const altInfo = getAltLinkInfo(item.alt_url, item.title);
-                  return (
-                    <a
-                      href={altInfo.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={altInfo.isStore ? `Search for ${item.title} at ${item.alt_url}` : undefined}
-                      className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[#636366] dark:text-[#E5E5EA] bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
-                    >
-                      <HugeiconsIcon icon={altInfo.isStore ? ShoppingBag01Icon : LinkSquare01Icon} size={14} />
-                      <span className="truncate max-w-[240px]">{altInfo.label}</span>
-                    </a>
-                  );
-                })()}
+            {item.image_url ? (
+              <img
+                src={item.image_url}
+                alt={item.title}
+                loading="lazy"
+                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                <HugeiconsIcon icon={GiftIcon} size={42} />
               </div>
             )}
 
-            {isOwner ? (
-              /* OWNER VIEW: Clean Edit Gift button */
-              <button
-                type="button"
-                onClick={() => onEdit(item)}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 lg:py-1.5 lg:px-3 text-xs sm:text-sm lg:text-xs font-semibold text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95 border-0"
+            {/* Sale badge overlay — top-left */}
+            {item.is_on_sale && (
+              <div className="absolute top-2 left-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded">
+                  <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
+                  Sale
+                </span>
+              </div>
+            )}
+
+            {/* Claim status overlay — top-right, only for non-owner */}
+            {!isOwner && claim && (
+              <div className="absolute top-2 right-2">
+                {isBought ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[#34C759] text-white rounded shadow-sm">
+                    <HugeiconsIcon icon={Tick02Icon} size={11} />
+                    Bought
+                  </span>
+                ) : isWantToBuy ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[#FF9500] text-white rounded shadow-sm">
+                    <HugeiconsIcon icon={ShoppingBag01Icon} size={11} />
+                    Claimed
+                  </span>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* Card body — minimal, like FB Marketplace listing */}
+          <div className="pt-2 pb-1 space-y-0.5">
+            {/* Price — bold, prominent, first line */}
+            {priceDisplay && (
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[15px] font-bold leading-tight ${
+                  priceDisplay === 'FREE'
+                    ? 'text-[var(--theme-primary)]'
+                    : 'text-[#050505] dark:text-[#E4E6EB]'
+                }`}>
+                  {priceDisplay}
+                </span>
+                {item.is_on_sale && (
+                  <HugeiconsIcon icon={DiscountTag01Icon} size={13} className="text-[var(--theme-primary)]" />
+                )}
+              </div>
+            )}
+
+            {/* Title — single line, truncated */}
+            <h4 className="text-[13px] text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2 font-normal">
+              {item.title}
+            </h4>
+
+            {/* Priority — subtle text */}
+            <p className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] leading-tight">
+              {item.priority === 'high' || item.priority === 'must_have'
+                ? 'High priority'
+                : item.priority === 'low'
+                ? 'Low priority'
+                : 'Medium priority'}
+            </p>
+
+            {/* Store link — subtle, inline */}
+            {item.url && (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-[11px] text-[var(--theme-primary)] hover:underline inline-flex items-center gap-1 mt-0.5"
               >
-                <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
-                <span>Edit Gift</span>
-              </button>
-            ) : (
-              /* FAMILY MEMBER VIEW */
-              <div>
-              {claim ? (
-                <div className="space-y-2.5 lg:space-y-2">
-                  {/* Status Badge with Purchaser Emoji Avatar */}
-                  <div
-                    className={`p-3 lg:p-2.5 rounded-2xl lg:rounded-xl text-xs flex flex-col gap-2 shadow-apple-sm transition-all border-0 ${
-                      isBought
-                        ? 'bg-[#34C759]/15 dark:bg-[#34C759]/20 text-[#1B8036] dark:text-[#30D158]'
-                        : 'bg-[#FF9500]/15 dark:bg-[#FF9500]/20 text-[#B25900] dark:text-[#FF9F0A]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-sans font-bold flex items-center gap-1.5 text-xs sm:text-sm lg:text-xs">
-                        {isBought ? (
-                          <>
-                            <HugeiconsIcon icon={Tick02Icon} size={16} />
-                            <span>Bought</span>
-                          </>
-                        ) : (
-                          <>
-                            <HugeiconsIcon icon={ShoppingBag01Icon} size={16} />
-                            <span>Want to Buy</span>
-                          </>
-                        )}
-                      </span>
+                <HugeiconsIcon icon={LinkSquare01Icon} size={11} />
+                {getDomain(item.url)}
+              </a>
+            )}
+          </div>
+        </div>
 
-                      {/* Purchaser Avatar & Alias */}
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#222226] text-[#1C1C1E] dark:text-white shadow-apple-sm font-bold text-xs shrink-0">
-                        <span className="text-base leading-none">
-                          {claim.claimed_by_avatar || '🎁'}
-                        </span>
-                        <span>{claim.claimed_by_alias || 'Family member'}</span>
-                      </div>
-                    </div>
-
-                    {claim.notes && (
-                      <div className="text-[11px] text-[#636366] dark:text-[#8E8E93] pt-1.5 border-t border-black/[0.06] dark:border-white/[0.08] italic">
-                        "{claim.notes}"
-                      </div>
-                    )}
-                  </div>
-
-                  {claim.is_claimed_by_viewer ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleEditClaimClick}
-                        className="flex-1 py-2 px-3 lg:py-1.5 lg:px-2.5 text-xs sm:text-sm lg:text-xs font-semibold text-[#1C1C1E] dark:text-white bg-[#F8F8FA] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95"
-                      >
-                        Update Mark
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onReleaseClaim(item.id)}
-                        className="py-2 px-3 lg:py-1.5 lg:px-2.5 text-xs sm:text-sm lg:text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-xl lg:rounded-lg shadow-apple-sm transition active:scale-95"
-                      >
-                        Unmark
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-center text-xs text-[#8E8E93] py-1 font-semibold flex items-center justify-center gap-1.5">
-                      <span>Marked by</span>
-                      <span className="text-base leading-none">{claim.claimed_by_avatar || '🎁'}</span>
-                      <span className="text-[#1C1C1E] dark:text-white">{claim.claimed_by_alias}</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* UNMARKED ITEM: Direct Click to Mark */
+        {/* Action button — ALWAYS VISIBLE at all times (not hidden behind hover) */}
+        <div className="mt-2 pt-1">
+          {isOwner ? (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(item); }}
+              className="w-full py-1.5 px-3 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-md transition active:scale-[0.98] border-0 flex items-center justify-center gap-1.5"
+            >
+              <HugeiconsIcon icon={PencilEdit02Icon} size={13} />
+              <span>Edit Gift</span>
+            </button>
+          ) : claim ? (
+            claim.is_claimed_by_viewer ? (
+              <div className="flex gap-1.5">
                 <button
                   type="button"
-                  onClick={handleClaimClick}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 lg:py-1.5 lg:px-3 rounded-xl lg:rounded-lg text-xs sm:text-sm lg:text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-[0.98]"
+                  onClick={(e) => { e.stopPropagation(); handleEditClaimClick(); }}
+                  className="flex-1 py-1.5 px-2 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-md transition active:scale-[0.98] border-0"
                 >
-                  <HugeiconsIcon icon={GiftIcon} size={16} />
-                  <span>Mark this Gift</span>
+                  Update
                 </button>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onReleaseClaim(item.id); }}
+                  className="py-1.5 px-2 text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-md transition active:scale-[0.98] border-0"
+                >
+                  Release
+                </button>
+              </div>
+            ) : (
+              <div className="text-center text-[11px] text-[#65676B] dark:text-[#B0B3B8] py-1 font-medium bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-md">
+                Claimed by {claim.claimed_by_alias}
+              </div>
+            )
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); handleClaimClick(); }}
+              className="w-full py-1.5 px-3 text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-md transition active:scale-[0.98] border-0"
+            >
+              Mark this Gift
+            </button>
           )}
         </div>
       </div>
-    </div>
 
-    {/* FULL IMAGE LIGHTBOX MODAL */}
+      {/* FULL IMAGE LIGHTBOX MODAL */}
       {showLightbox && typeof document !== 'undefined' && createPortal(
         <div
           role="dialog"
@@ -319,7 +238,7 @@ export default function WishlistCard({
             <button
               type="button"
               onClick={() => setShowLightbox(false)}
-              className="absolute -top-12 right-0 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition active:scale-95 shadow-apple-md"
+              className="absolute -top-12 right-0 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition active:scale-95 shadow-md border-0"
               aria-label="Close full image view"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={20} />
@@ -329,18 +248,18 @@ export default function WishlistCard({
             <img
               src={item.image_url}
               alt={item.title}
-              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl bg-black/40"
+              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-black/40"
             />
 
             {/* Title & Price Caption */}
             <div className="mt-3.5 text-center text-white max-w-lg">
-              <h4 className="font-heading font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
+              <h4 className="font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
                 {item.title}
               </h4>
               {item.price !== null && item.price !== undefined && (
                 <p className="text-xs sm:text-sm font-semibold mt-1">
                   {item.is_on_sale ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-[var(--theme-primary)] text-white font-bold shadow-apple-sm">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[var(--theme-primary)] text-white font-bold">
                       <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
                       <span>${Number(item.price).toFixed(2)} (Sale)</span>
                     </span>

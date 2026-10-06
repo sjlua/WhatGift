@@ -13,10 +13,48 @@ import {
 export default function ChangelogModal({ isOpen, onClose }) {
   const releases = [
     {
-      version: 'v2.0.0',
-      title: 'Smart Link Auto-Fill & Modern Floating Island UI',
+      version: 'v2.1.0',
+      title: 'Marketplace Redesign, Full-Page Views & Mobile Navigation',
       tag: 'Latest',
       tagColor: 'bg-[var(--theme-primary)] text-white',
+      highlights: [
+        {
+          icon: GiftIcon,
+          title: 'Facebook Marketplace-Style Layout',
+          description:
+            'Dense, clean product grid with square aspect-ratio photography, prominent price-first display, subtle card darkening/lightening on hover, and always-visible Edit Gift and claim action buttons.',
+        },
+        {
+          icon: SparklesIcon,
+          title: 'Dedicated Full-Page Workflows',
+          description:
+            'Adding gifts, editing items, managing family members, and configuring settings now take up full pages with live preview cards instead of cramped popup modals.',
+        },
+        {
+          icon: Tick02Icon,
+          title: 'Persistent Mobile Navigation',
+          description:
+            'Added a dedicated mobile bottom navigation bar with 1-tap switching between My Wishlist, Family, Add Gift, and Settings, plus individual member chip counters.',
+        },
+        {
+          icon: PaintBoardIcon,
+          title: 'Harmonized Theme Highlights',
+          description:
+            'Active sidebar selections, pills, and navigation highlights now dynamically match your active holiday accent color instead of hardcoded blue.',
+        },
+        {
+          icon: Delete02Icon,
+          title: 'Desktop Sidebar & Danger Zone Refinements',
+          description:
+            'Moved family management directly into the Family Members sidebar section on desktop, and placed the wishlist reset Danger Zone at the bottom of the page.',
+        },
+      ],
+    },
+    {
+      version: 'v2.0.0',
+      title: 'Smart Link Auto-Fill & Modern Floating Island UI',
+      tag: 'Previous',
+      tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
       highlights: [
         {
           icon: SparklesIcon,
@@ -159,16 +197,16 @@ export default function ChangelogModal({ isOpen, onClose }) {
               {rel.highlights.map((feat) => (
                 <div
                   key={feat.title}
-                  className="p-3.5 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] flex items-start gap-3 shadow-apple-sm"
+                  className="p-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-start gap-3"
                 >
-                  <div className="w-7 h-7 rounded-xl bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] flex items-center justify-center shrink-0 mt-0.5">
                     <HugeiconsIcon icon={feat.icon} size={15} />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold font-sans text-[#1C1C1E] dark:text-white">
+                    <h5 className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB]">
                       {feat.title}
                     </h5>
-                    <p className="text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] mt-0.5 leading-relaxed font-sans">
+                    <p className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] mt-0.5 leading-relaxed">
                       {feat.description}
                     </p>
                   </div>
@@ -182,7 +220,7 @@ export default function ChangelogModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition active:scale-95 font-sans"
+            className="w-full py-2.5 px-4 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 transition"
           >
             Got It
           </button>

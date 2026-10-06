@@ -7,53 +7,23 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
   UserGroupIcon,
-  Copy01Icon,
   Tick02Icon,
   Logout01Icon,
   Link01Icon,
   Menu01Icon,
   Cancel01Icon,
-  Sun01Icon,
-  Moon02Icon,
   Settings02Icon,
   PaintBoardIcon,
+  UserSettings01Icon,
+  Add01Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelectTab }) {
   const { user, family, isAdmin, logout } = useAuth();
-  const { theme, isDark, toggleDarkMode } = useTheme();
-  const { triggerMedium, triggerSuccess, triggerLight } = useHaptics();
+  const { theme, isDark } = useTheme();
+  const { triggerSuccess, triggerLight } = useHaptics();
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-
-  // Auto-hide on scroll down, show on scroll up at any point on the page
-  useEffect(() => {
-    let lastY = typeof window !== 'undefined' ? window.scrollY : 0;
-    let ticking = false;
-
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (currentY <= 15) {
-            setIsVisible(true);
-          } else if (currentY > lastY + 5 && currentY > 60) {
-            setIsVisible(false);
-          } else if (currentY < lastY - 5) {
-            setIsVisible(true);
-          }
-          lastY = currentY;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Lock body scroll when mobile sidebar drawer is open
   useEffect(() => {
@@ -76,146 +46,114 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const copyFamilyCode = () => {
-    if (!family?.code) return;
-    navigator.clipboard.writeText(family.code);
-    triggerSuccess();
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
   const handleMobileAction = (actionFn) => {
     triggerLight();
     setMobileMenuOpen(false);
     if (actionFn) actionFn();
   };
 
-  const handleToggleDark = () => {
-    triggerMedium();
-    toggleDarkMode();
-  };
-
-  const navbarBackground = isDark
-    ? (theme.navbarBgDark || theme.primary)
-    : (theme.navbarBg || theme.gradient || theme.primary);
-
   return (
     <>
-      <header
-        className={`lg:hidden fixed top-0 left-0 right-0 z-40 w-full pointer-events-none pt-[max(0.5rem,env(safe-area-inset-top))] sm:pt-2 pb-0.5 transition-all duration-300 ease-in-out ${
-          isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className="w-full pointer-events-auto rounded-2xl sm:rounded-xl shadow-[0_8px_25px_-5px_rgba(0,0,0,0.22)] dark:shadow-[0_12px_32px_-6px_rgba(0,0,0,0.65)] border-0 transition-all duration-300 px-4 sm:px-6 py-2.5 sm:py-3.5 min-h-[3.75rem] sm:min-h-[4.25rem] flex items-center justify-between text-white backdrop-blur-md"
-            style={{
-              background: navbarBackground,
+      {/* Mobile Sticky Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-white dark:bg-[#242526] border-b border-[#E4E6EB] dark:border-[#3A3B3C] pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 px-4 transition-colors">
+        <div className="flex items-center justify-between h-12">
+          {/* Brand & Family Info */}
+          <button
+            type="button"
+            onClick={() => {
+              triggerLight();
+              onSelectTab?.('my-wishes');
             }}
+            className="flex items-center gap-2.5 text-left border-0 bg-transparent"
           >
-            {/* Brand & Family Info */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-apple-sm shrink-0">
-                <HugeiconsIcon icon={GiftIcon} size={20} />
-              </div>
-              <div className="flex flex-col justify-center">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-heading font-extrabold text-white tracking-tight text-base sm:text-[17px] whitespace-nowrap drop-shadow-sm">
-                    WhatGift
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-white/90 font-medium leading-tight mt-0.5">
-                  <span className="max-w-[120px] min-[360px]:max-w-[150px] min-[390px]:max-w-[180px] min-[440px]:max-w-[240px] sm:max-w-[320px] tablet:max-w-[420px] truncate whitespace-nowrap font-bold text-white">
-                    {family?.name}
-                  </span>
-                  <span className="text-white/40 text-xs">·</span>
-                  <button
-                    type="button"
-                    onClick={copyInviteLink}
-                    title={`Copy invite link (Code: ${family?.code || ''})`}
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2 rounded-lg sm:rounded-md bg-white/20 hover:bg-white/30 border-0 text-white transition text-[11px] font-semibold shadow-apple-sm whitespace-nowrap shrink-0 backdrop-blur-md active:scale-95"
-                    aria-label="Copy family invite link"
-                  >
-                    {copiedLink ? (
-                      <HugeiconsIcon icon={Tick02Icon} size={12} className="text-[#34C759]" />
-                    ) : (
-                      <HugeiconsIcon icon={Link01Icon} size={12} className="text-white/90" />
-                    )}
-                    <span className="hidden sm:inline font-mono">{family?.code}</span>
-                  </button>
-                </div>
-              </div>
+            <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white shrink-0">
+              <HugeiconsIcon icon={GiftIcon} size={18} />
             </div>
+            <div className="flex flex-col justify-center">
+              <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] leading-tight">
+                WhatGift
+              </span>
+              <span className="text-[11px] font-medium text-[#65676B] dark:text-[#B0B3B8] truncate max-w-[150px]">
+                {family?.name}
+              </span>
+            </div>
+          </button>
 
-            {/* MOBILE & TABLET ACTIONS */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={onOpenAdmin}
-                  title="Manage Family"
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 shadow-apple-sm transition active:scale-95 flex items-center justify-center shrink-0 backdrop-blur-md"
-                  aria-label="Manage Family"
-                >
-                  <HugeiconsIcon icon={UserGroupIcon} size={17} />
-                </button>
+          {/* Quick Actions */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={copyInviteLink}
+              title="Copy family invite link"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition border-0"
+              aria-label="Copy family invite link"
+            >
+              {copiedLink ? (
+                <>
+                  <HugeiconsIcon icon={Tick02Icon} size={13} className="text-[#34C759]" />
+                  <span className="text-[#34C759]">Copied</span>
+                </>
+              ) : (
+                <>
+                  <HugeiconsIcon icon={Link01Icon} size={13} />
+                  <span>Invite</span>
+                </>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  triggerLight();
-                  if (onSelectTab) onSelectTab('settings');
-                  else onOpenProfile?.();
-                }}
-                title="Settings & Appearance"
-                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center active:scale-95 shadow-apple-sm transition border-0 shrink-0 ${
-                  activeTab === 'settings'
-                    ? 'bg-white text-[var(--theme-primary)]'
-                    : 'bg-white/20 hover:bg-white/30 text-white'
-                }`}
-                aria-label="Settings"
-              >
-                <HugeiconsIcon icon={Settings02Icon} size={17} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-white bg-white/20 hover:bg-white/30 border-0 transition active:scale-95 shadow-apple-sm flex items-center justify-center shrink-0"
-                aria-label={mobileMenuOpen ? 'Close Navigation Sidebar' : 'Open Navigation Sidebar'}
-                aria-expanded={mobileMenuOpen}
-              >
-                <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={17} />
-              </button>
-            </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                triggerLight();
+                onSelectTab?.('settings');
+              }}
+              title="Settings & Appearance"
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition border-0 ${
+                activeTab === 'settings'
+                  ? 'bg-[var(--theme-primary)] text-white'
+                  : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
+              }`}
+              aria-label="Settings"
+            >
+              <HugeiconsIcon icon={Settings02Icon} size={16} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition flex items-center justify-center border-0"
+              aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              aria-expanded={mobileMenuOpen}
+            >
+              <HugeiconsIcon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={16} />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* ========================================================================= */}
-      {/* MOBILE SLIDE-OVER SIDEBAR PORTAL (Attached to document.body to avoid header clipping) */}
-      {/* ========================================================================= */}
+      {/* MOBILE SLIDE-OVER SIDEBAR PORTAL */}
       {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] flex justify-end">
-          {/* Full Screen Dim Backdrop with Smooth Fade Animation */}
+          {/* Full Screen Dim Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-backdrop-fade"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-backdrop-fade"
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* True Full-Height Opaque Sidebar Drawer with Smooth Slide-In Animation */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#1C1C1E] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-0 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+          {/* Drawer */}
+          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#242526] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-0 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
             <div className="space-y-4">
               {/* Sidebar Header */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <div className="flex items-center justify-between pb-3.5 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-[var(--theme-primary)] flex items-center justify-center text-white shadow-apple-sm">
+                  <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white">
                     <HugeiconsIcon icon={GiftIcon} size={17} />
                   </div>
                   <div>
-                    <div className="font-extrabold text-sm text-[#1C1C1E] dark:text-white tracking-tight">
+                    <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB]">
                       WhatGift
                     </div>
-                    <div className="text-[11px] font-semibold text-[#8E8E93] truncate max-w-[140px]">
+                    <div className="text-xs text-[#65676B] dark:text-[#B0B3B8] truncate max-w-[140px]">
                       {family?.name}
                     </div>
                   </div>
@@ -223,7 +161,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-xl text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition"
+                  className="p-1.5 rounded-full text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
                   aria-label="Close Sidebar"
                 >
                   <HugeiconsIcon icon={Cancel01Icon} size={18} />
@@ -231,90 +169,114 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
               </div>
 
               {/* User Profile Card */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F2F2F7] dark:bg-[#2C2C2E] shadow-apple-sm">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C]">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{user?.avatar || '🎁'}</span>
                   <div>
-                    <div className="font-bold text-sm text-[#1C1C1E] dark:text-white">
+                    <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB]">
                       {user?.alias}
                     </div>
-                    <div className="text-[11px] text-[#8E8E93]">{family?.name}</div>
+                    <div className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                      {isAdmin ? 'Family Admin' : 'Family Member'}
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Primary Wishlist Navigation Links */}
+              <div className="space-y-1 pt-1 border-b border-[#E4E6EB] dark:border-[#3A3B3C] pb-3">
                 <button
                   type="button"
-                  onClick={() => handleMobileAction(() => (onSelectTab ? onSelectTab('settings') : onOpenProfile?.()))}
-                  className="text-xs font-bold text-[var(--theme-primary)] hover:underline flex items-center gap-1"
+                  onClick={() => handleMobileAction(() => onSelectTab?.('my-wishes'))}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                    activeTab === 'my-wishes'
+                      ? 'bg-[var(--theme-primary)] text-white'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                  }`}
                 >
-                  <HugeiconsIcon icon={Settings02Icon} size={14} />
-                  <span>Settings</span>
+                  <HugeiconsIcon icon={GiftIcon} size={18} />
+                  <span>My Wishlist</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleMobileAction(() => onSelectTab?.('family-wishes'))}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                    activeTab === 'family-wishes'
+                      ? 'bg-[var(--theme-primary)] text-white'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                  }`}
+                >
+                  <HugeiconsIcon icon={UserGroupIcon} size={18} />
+                  <span>Family Wishlists</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleMobileAction(() => onSelectTab?.('add-gift'))}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                    activeTab === 'add-gift'
+                      ? 'bg-[var(--theme-primary)] text-white'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                  }`}
+                >
+                  <HugeiconsIcon icon={Add01Icon} size={18} />
+                  <span>Add New Gift</span>
                 </button>
               </div>
 
-              {/* Navigation Action Links */}
-              <div className="space-y-2 pt-1">
-                {/* Copy Invite Link */}
-                <button
-                  type="button"
-                  onClick={copyInviteLink}
-                  className="w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold bg-[var(--theme-tint)] text-[var(--theme-primary)] hover:opacity-90 transition active:scale-98 shadow-apple-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <HugeiconsIcon icon={Link01Icon} size={17} />
-                    <span>Copy Invite Link</span>
-                  </div>
-                  {copiedLink ? (
-                    <span className="text-[#34C759] font-bold flex items-center gap-1">
-                      <HugeiconsIcon icon={Tick02Icon} size={14} /> Copied!
-                    </span>
-                  ) : (
-                    <span className="text-[11px] opacity-75">Share</span>
-                  )}
-                </button>
-
-                {/* Admin Management (if Admin) */}
+              {/* Secondary Actions */}
+              <div className="space-y-1">
                 {isAdmin && (
                   <button
                     type="button"
-                    onClick={() => handleMobileAction(onOpenAdmin)}
-                    className="w-full flex items-center gap-3 p-3.5 rounded-2xl text-xs font-bold text-[#1C1C1E] dark:text-white bg-[#F0F0F3] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] transition shadow-apple-sm"
+                    onClick={() => handleMobileAction(() => onSelectTab?.('admin'))}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                      activeTab === 'admin'
+                        ? 'bg-[var(--theme-primary)] text-white'
+                        : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                    }`}
                   >
-                    <HugeiconsIcon
-                      icon={UserGroupIcon}
-                      size={17}
-                      className="text-[var(--theme-primary)]"
-                    />
-                    <span>Manage Family & Members</span>
+                    <HugeiconsIcon icon={UserSettings01Icon} size={18} />
+                    <span>Manage Family</span>
                   </button>
                 )}
 
-                {/* Theme & Holiday Accent Settings */}
                 <button
                   type="button"
-                  onClick={() => handleMobileAction(() => (onSelectTab ? onSelectTab('settings') : onOpenProfile?.()))}
-                  className="w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold text-[#1C1C1E] dark:text-white bg-[#F0F0F3] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] transition shadow-apple-sm"
+                  onClick={() => handleMobileAction(() => onSelectTab?.('settings'))}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                    activeTab === 'settings'
+                      ? 'bg-[var(--theme-primary)] text-white'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <HugeiconsIcon
-                      icon={PaintBoardIcon}
-                      size={17}
-                      className="text-[var(--theme-primary)]"
-                    />
-                    <span>Holiday Theme</span>
+                  <HugeiconsIcon icon={Settings02Icon} size={18} />
+                  <span>Settings & Preferences</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={copyInviteLink}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <HugeiconsIcon icon={Link01Icon} size={18} className="text-[var(--theme-primary)]" />
+                    <span>Copy Invite Link</span>
                   </div>
-                  <span className="text-[11px] font-semibold text-[var(--theme-primary)]">
-                    {theme.name}
-                  </span>
+                  {copiedLink && (
+                    <span className="text-[#34C759] text-xs font-bold">Copied!</span>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Sidebar Footer: Sign Out (Only option in sidebar) */}
-            <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-auto shrink-0 pb-1">
+            {/* Sidebar Footer: Sign Out */}
+            <div className="pt-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-auto shrink-0">
               <button
                 type="button"
                 onClick={() => handleMobileAction(logout)}
-                className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl text-xs font-bold text-[#636366] dark:text-[#8E8E93] hover:text-[#FF3B30] dark:hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition shadow-apple-sm active:scale-95 border-0"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0"
               >
                 <HugeiconsIcon icon={Logout01Icon} size={16} />
                 <span>Sign Out</span>

@@ -239,15 +239,15 @@ export function ThemeProvider({ children }) {
       if (body) body.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
       root.style.colorScheme = 'dark';
-      root.style.backgroundColor = '#0A0A0C';
-      if (body) body.style.backgroundColor = '#0A0A0C';
+      root.style.backgroundColor = '#18191A';
+      if (body) body.style.backgroundColor = '#18191A';
     } else {
       root.classList.remove('dark');
       if (body) body.classList.remove('dark');
       root.setAttribute('data-theme', 'light');
       root.style.colorScheme = 'light';
-      root.style.backgroundColor = '#F8F8FA';
-      if (body) body.style.backgroundColor = '#F8F8FA';
+      root.style.backgroundColor = '#FFFFFF';
+      if (body) body.style.backgroundColor = '#FFFFFF';
     }
 
     // Update browser theme-color meta tag so browser status bar matches navbar accent

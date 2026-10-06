@@ -16,7 +16,7 @@
 
   @media (min-width: 1024px) {
     :root {
-      --app-radius: 3px;
+      --app-radius: 8px;
     }
 
     /* Desktop UI Scaling options */
@@ -81,32 +81,20 @@
     outline: none !important;
   }
 
-  /* Round corner radius to 3px on desktop, and 10px on mobile */
-  [class*="rounded"],
-  button,
-  input,
-  select,
-  textarea,
-  aside,
-  dialog,
-  img {
-    border-radius: var(--app-radius) !important;
-  }
-
   /* Elements that must remain square */
   html, body, .rounded-none, .fixed.inset-0, dialog::backdrop {
     border-radius: 0px !important;
   }
 
   html.dark, html[data-theme="dark"], html.dark body, body.dark {
-    background-color: #0A0A0C !important;
-    color: #FFFFFF !important;
+    background-color: #18191A !important;
+    color: #E4E6EB !important;
     color-scheme: dark;
   }
 
   html:not(.dark), html[data-theme="light"], html:not(.dark) body, body:not(.dark) {
-    background-color: #F8F8FA !important;
-    color: #1C1C1E !important;
+    background-color: #FFFFFF !important;
+    color: #050505 !important;
     color-scheme: light;
   }
 
@@ -126,7 +114,7 @@
   }
   ::-webkit-scrollbar-thumb {
     background: #C7C7CC;
-    border-radius: var(--app-radius) !important;
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #8E8E93;
@@ -138,6 +126,15 @@
   html.dark ::-webkit-scrollbar-thumb:hover {
     background: #48484A;
   }
+
+  /* Hide scrollbar for horizontal scroll containers */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Apple HIG modal backdrop */
@@ -146,7 +143,7 @@ dialog::backdrop {
   backdrop-filter: blur(10px);
 }
 
-/* Apple-style Fluid Spring Animations */
+/* Fluid animations */
 @keyframes sidebarSlideIn {
   0% {
     transform: translateX(100%);
@@ -187,4 +184,3 @@ dialog::backdrop {
 .animate-tab-fade {
   animation: tabFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-

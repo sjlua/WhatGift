@@ -19,6 +19,10 @@ frontend/dist/
 # Logs & Environment
 *.log
 .env
+
+# Agentic tools
 .agent
 .agents
 .impeccable
+DESIGN.md
+PRODUCT.md

@@ -6,17 +6,6 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    borderRadius: {
-      none: '0px',
-      sm: 'var(--app-radius)',
-      DEFAULT: 'var(--app-radius)',
-      md: 'var(--app-radius)',
-      lg: 'var(--app-radius)',
-      xl: 'var(--app-radius)',
-      '2xl': 'var(--app-radius)',
-      '3xl': 'var(--app-radius)',
-      full: 'var(--app-radius)',
-    },
     extend: {
       colors: {
         theme: {

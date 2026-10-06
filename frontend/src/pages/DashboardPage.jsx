@@ -6,10 +6,9 @@ import { api, updateWebManifest } from '../api/client';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import Navbar from '../components/Navbar';
 import WishlistCard from '../components/WishlistCard';
-import ItemModal from '../components/ItemModal';
+import ItemFormView from '../components/ItemFormView';
+import AdminView from '../components/AdminView';
 import ClaimModal from '../components/ClaimModal';
-import AdminModal from '../components/AdminModal';
-import ProfileModal from '../components/ProfileModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SettingsView from '../components/SettingsView';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -17,14 +16,12 @@ import {
   GiftIcon,
   UserGroupIcon,
   Add01Icon,
-  ViewOffIcon,
-  Shield01Icon,
-  Cancel01Icon,
-  ArrowDown01Icon,
+  UserSettings01Icon,
   Settings02Icon,
   Link01Icon,
   Tick02Icon,
   Logout01Icon,
+  Search01Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function DashboardPage() {
@@ -46,8 +43,6 @@ export default function DashboardPage() {
       }
       updateWebManifest(family.code);
 
-      // Keep ?family=CODE in the browser address bar so iOS Safari "Add to Home Screen"
-      // automatically captures the family code into the homescreen web app launcher!
       try {
         const currentUrl = new URL(window.location.href);
         if (currentUrl.searchParams.get('family') !== family.code) {
@@ -58,23 +53,21 @@ export default function DashboardPage() {
     }
   }, [family?.code, user?.alias]);
 
-  const [activeTab, setActiveTab] = useState('my-wishes'); // 'my-wishes' | 'family-wishes'
+  // Navigation tab: 'my-wishes' | 'family-wishes' | 'add-gift' | 'edit-gift' | 'settings' | 'admin'
+  const [activeTab, setActiveTab] = useState('my-wishes');
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [familyFilter, setFamilyFilter] = useState('all'); // 'all' | 'available' | 'claimed'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Modals and tooltips state
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  // Item form state (for editing)
   const [itemToEdit, setItemToEdit] = useState(null);
+
+  // Claim modal & alerts
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [claimTargetItem, setClaimTargetItem] = useState(null);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [showMobileSecretTooltip, setShowMobileSecretTooltip] = useState(false);
-  const [showSecretTooltip, setShowSecretTooltip] = useState(false);
-  const [isMobileMembersOpen, setIsMobileMembersOpen] = useState(true);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -120,7 +113,7 @@ export default function DashboardPage() {
 
   // Load wishlist items whenever activeTab or selectedMemberId changes
   const loadItems = async () => {
-    if (activeTab === 'settings') {
+    if (activeTab === 'settings' || activeTab === 'admin' || activeTab === 'add-gift' || activeTab === 'edit-gift') {
       setLoading(false);
       return;
     }
@@ -159,15 +152,17 @@ export default function DashboardPage() {
     loadItems();
   }, [activeTab, selectedMemberId]);
 
-  // Item Handlers
+  // Item Handlers (Page based)
   const handleOpenAddItem = () => {
+    triggerSelection();
     setItemToEdit(null);
-    setIsItemModalOpen(true);
+    setActiveTab('add-gift');
   };
 
   const handleOpenEditItem = (item) => {
+    triggerSelection();
     setItemToEdit(item);
-    setIsItemModalOpen(true);
+    setActiveTab('edit-gift');
   };
 
   const handleSaveItem = async (payload) => {
@@ -178,6 +173,7 @@ export default function DashboardPage() {
     }
     triggerSuccess();
     await loadItems();
+    setActiveTab(itemToEdit && !itemToEdit.is_owner ? 'family-wishes' : 'my-wishes');
   };
 
   const handleDeleteItem = (itemId) => {
@@ -253,27 +249,40 @@ export default function DashboardPage() {
   const availableCount = items.filter((i) => !i.claim).length;
   const claimedCount = items.filter((i) => Boolean(i.claim)).length;
 
-  const displayedFamilyItems = items.filter((item) => {
+  // Apply search filter
+  const searchFiltered = items.filter((item) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      item.title?.toLowerCase().includes(q) ||
+      item.description?.toLowerCase().includes(q)
+    );
+  });
+
+  const displayedFamilyItems = searchFiltered.filter((item) => {
+    if (activeTab !== 'family-wishes') return true;
     if (familyFilter === 'available') return !item.claim;
     if (familyFilter === 'claimed') return Boolean(item.claim);
     return true;
   });
 
-  return (
-    <div className="min-h-screen bg-[#F8F8FA] dark:bg-[#0A0A0C] flex flex-col pb-24 lg:pb-12 transition-colors duration-200 relative overflow-x-hidden">
-      {/* Dynamic Ambient Holiday Aura */}
-      <div
-        className="absolute top-0 left-0 right-0 h-96 pointer-events-none transition-all duration-500 opacity-60 dark:opacity-30"
-        style={{
-          background: isDark
-            ? `radial-gradient(ellipse 80% 60% at 50% -20%, ${theme.tintDark || theme.tint}, transparent 70%)`
-            : `radial-gradient(ellipse 80% 60% at 50% -20%, ${theme.tint}, transparent 70%)`,
-        }}
-      />
+  const displayedItems = activeTab === 'family-wishes' ? displayedFamilyItems : searchFiltered;
 
-      {/* Top Navigation Bar */}
+  // Section header text
+  const sectionTitle = activeTab === 'my-wishes'
+    ? 'My Wishlist'
+    : activeSelectedMember
+    ? `${activeSelectedMember.alias}'s Wishlist`
+    : 'Family Wishlists';
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#18191A] flex flex-col transition-colors duration-200 relative">
+      {/* ========== MOBILE TOP NAVBAR (lg:hidden) ========== */}
       <Navbar
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
+        onOpenAdmin={() => {
+          setActiveTab('admin');
+          triggerSelection();
+        }}
         onOpenProfile={() => {
           setActiveTab('settings');
           triggerSelection();
@@ -286,221 +295,373 @@ export default function DashboardPage() {
         onSwitchUser={logout}
       />
 
-      {/* Main Container - Responsive width from mobile to large desktop displays */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-6 pt-[calc(max(0.5rem,env(safe-area-inset-top))+4.75rem)] sm:pt-[calc(max(0.5rem,env(safe-area-inset-top))+5.5rem)] lg:pt-4 flex-1 relative z-10">
-        {/* Mobile / Tablet Top Control Bar (Visible below lg, desktop uses persistent sidebar) */}
-        <div className="lg:hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          {/* Segmented Tabs with Clean Apple HIG Styling */}
-          <div className="flex gap-1.5 p-1.5 bg-[#E5E5EA]/70 dark:bg-[#1C1C1E] rounded-3xl shadow-inner w-full sm:w-auto border-0">
+      {/* ========== LAYOUT: Sidebar + Main ========== */}
+      <div className="flex flex-1 pt-[calc(max(0.5rem,env(safe-area-inset-top))+4rem)] lg:pt-0">
+
+        {/* ========== DESKTOP LEFT SIDEBAR ========== */}
+        <aside className="hidden lg:flex flex-col w-[340px] shrink-0 h-screen sticky top-0 border-r border-[#E4E6EB] dark:border-[#3A3B3C] bg-white dark:bg-[#242526] overflow-y-auto overscroll-contain pb-4">
+          {/* Sidebar Header */}
+          <div className="px-4 pt-4 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <h1 className="text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight">
+                WhatGift
+              </h1>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    triggerSelection();
+                  }}
+                  className={`w-9 h-9 flex items-center justify-center rounded-full transition border-0 ${
+                    activeTab === 'settings'
+                      ? 'bg-[var(--theme-primary)] text-white'
+                      : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
+                  }`}
+                  title="Settings"
+                >
+                  <HugeiconsIcon icon={Settings02Icon} size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="relative mb-3">
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65676B] dark:text-[#B0B3B8] pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="Search gifts"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] text-sm rounded-full border-0 focus:ring-0"
+              />
+            </div>
+          </div>
+
+          {/* Navigation Items (Add Gift and Top Secret buttons removed per user request) */}
+          <nav className="px-2 space-y-0.5">
+            {/* My Wishlist */}
             <button
               type="button"
               onClick={() => {
                 setActiveTab('my-wishes');
                 triggerSelection();
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
+              className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-lg text-left transition border-0 ${
                 activeTab === 'my-wishes'
-                  ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
-                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white font-semibold'
+                  ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]'
+                  : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
               }`}
             >
-              <HugeiconsIcon icon={GiftIcon} size={16} />
-              <span>My Wishlist</span>
-              <span
-                className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full border-0 transition ${
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                activeTab === 'my-wishes'
+                  ? 'bg-[var(--theme-primary)] text-white'
+                  : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
+              }`}>
+                <HugeiconsIcon icon={GiftIcon} size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className={`text-[15px] font-semibold block ${
                   activeTab === 'my-wishes'
-                    ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] font-bold'
-                    : 'bg-[#767680]/15 dark:bg-[#38383A] text-[#636366] dark:text-[#8E8E93] font-medium'
-                }`}
-              >
-                {activeTab === 'my-wishes' ? items.length : '•'}
+                    ? 'text-[var(--theme-primary)]'
+                    : 'text-[#050505] dark:text-[#E4E6EB]'
+                }`}>
+                  My Wishlist
+                </span>
+              </div>
+              <span className="text-xs font-medium text-[#65676B] dark:text-[#B0B3B8]">
+                {activeTab === 'my-wishes' ? items.length : ''}
               </span>
             </button>
+          </nav>
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('family-wishes');
-                triggerSelection();
-              }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-[18px] text-xs sm:text-sm transition-all duration-150 border-0 ${
-                activeTab === 'family-wishes'
-                  ? 'bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-tab font-bold ring-1 ring-black/[0.04]'
-                  : 'text-[#636366] dark:text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white font-semibold'
-              }`}
-            >
-              <HugeiconsIcon icon={UserGroupIcon} size={16} />
-              <span>Family</span>
-              <span
-                className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full border-0 transition ${
-                  activeTab === 'family-wishes'
-                    ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] font-bold'
-                    : 'bg-[#767680]/15 dark:bg-[#38383A] text-[#636366] dark:text-[#8E8E93] font-medium'
+          {/* Divider */}
+          <div className="mx-4 my-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C]" />
+
+          {/* Family section header */}
+          <div className="px-4 py-1 flex items-center justify-between">
+            <h3 className="text-[17px] font-bold text-[#050505] dark:text-[#E4E6EB]">
+              Family Members
+            </h3>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('admin');
+                  triggerSelection();
+                }}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold transition border-0 ${
+                  activeTab === 'admin'
+                    ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                    : 'text-[var(--theme-primary)] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
                 }`}
+                title="Manage Family Members"
               >
-                {otherMembers.length}
-              </span>
-            </button>
+                <HugeiconsIcon icon={UserSettings01Icon} size={14} />
+                <span>Manage</span>
+              </button>
+            )}
           </div>
 
-          {/* Tablet Action Area (Hidden on mobile where FAB is used) */}
-          <div className="hidden sm:flex lg:hidden items-center gap-2">
-            {activeTab === 'my-wishes' && (
-              <>
+          {/* Family member list */}
+          <nav className="px-2 space-y-0.5 flex-1">
+            {otherMembers.map((member) => {
+              const isSelected = activeTab === 'family-wishes' && selectedMemberId === member.id;
+              const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+              const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
+
+              return (
                 <button
+                  key={member.id}
                   type="button"
                   onClick={() => {
                     triggerSelection();
-                    setShowSecretTooltip((prev) => !prev);
+                    setActiveTab('family-wishes');
+                    setSelectedMemberId(member.id);
                   }}
-                  className="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl bg-white dark:bg-[#1C1C1E] hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm transition border-0 text-xs font-semibold"
-                  aria-label="Top Secret Information"
+                  className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left transition border-0 ${
+                    isSelected
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]'
+                      : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                  }`}
                 >
-                  <HugeiconsIcon icon={ViewOffIcon} size={15} className="text-[var(--theme-primary)]" />
-                  <span>Top Secret</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleOpenAddItem}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
-                >
-                  <HugeiconsIcon icon={Add01Icon} size={16} />
-                  <span>Add Gift</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Dual-Column Layout: Persistent Desktop Sidebar on Left, Dynamic Workspace on Right */}
-        <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-5 items-start">
-          {/* DESKTOP PERSISTENT SIDEBAR */}
-          <aside className="hidden lg:block w-[260px] shrink-0 sticky top-4 space-y-2.5">
-            {/* Unified Sidebar Container */}
-            <div className="bg-white dark:bg-[#161618] rounded-2xl border-0 shadow-apple-card p-3 space-y-3.5">
-              {/* Branding Header */}
-              <div className="flex items-center gap-2.5 px-1 pt-0.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-apple-sm shrink-0"
-                  style={{
-                    background: theme.gradient || theme.primary,
-                  }}
-                >
-                  <HugeiconsIcon icon={GiftIcon} size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-heading font-extrabold text-base text-[#1C1C1E] dark:text-white tracking-tight leading-tight">
-                    WhatGift
+                  <span className="text-xl leading-none shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C]">
+                    {member.avatar || '🎁'}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <span className={`text-[15px] font-semibold block truncate ${
+                      isSelected
+                        ? 'text-[var(--theme-primary)]'
+                        : 'text-[#050505] dark:text-[#E4E6EB]'
+                    }`}>
+                      {member.alias}
+                    </span>
+                    <span className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                      {count} {count === 1 ? 'gift' : 'gifts'}
+                    </span>
                   </div>
-                  <div className="text-[11px] font-semibold text-[#8E8E93] truncate" title={family?.name}>
+                  {claimStatus && (
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                        claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
+                      }`}
+                      title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
+                    />
+                  )}
+                </button>
+              );
+            })}
+
+            {otherMembers.length === 0 && (
+              <div className="px-3 py-4 text-center text-sm text-[#65676B] dark:text-[#B0B3B8]">
+                No other family members yet.
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('admin')}
+                    className="block mx-auto mt-2 text-[var(--theme-primary)] text-sm font-semibold border-0 bg-transparent hover:underline"
+                  >
+                    Add Members
+                  </button>
+                )}
+              </div>
+            )}
+          </nav>
+
+          {/* Sidebar footer */}
+          <div className="px-4 pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-auto">
+            {/* Invite link & User Account */}
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-lg leading-none shrink-0">{user?.avatar || '🎁'}</span>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] truncate">
+                    {user?.alias}
+                  </div>
+                  <div className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
                     {family?.name}
                   </div>
                 </div>
               </div>
-
-              {/* Group 1: WISHLISTS */}
-              <div className="space-y-1">
-                <div className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">
-                  Wishlists
-                </div>
-                {/* My Wishlist */}
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => {
-                    setActiveTab('my-wishes');
-                    triggerSelection();
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
-                    activeTab === 'my-wishes'
-                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
-                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
-                  }`}
+                  onClick={handleCopySidebarInvite}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 transition border-0"
+                  title="Copy invite link"
                 >
-                  <div className="flex items-center gap-2 text-xs">
+                  {copiedSidebarLink ? (
+                    <>
+                      <HugeiconsIcon icon={Tick02Icon} size={12} />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <HugeiconsIcon icon={Link01Icon} size={12} />
+                      Invite
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
+                  title="Sign Out"
+                >
+                  <HugeiconsIcon icon={Logout01Icon} size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* ========== MAIN CONTENT AREA ========== */}
+        <main className="flex-1 min-w-0 pb-28 lg:pb-8 px-4 lg:px-6 py-4 lg:py-5">
+          {/* VIEW: ADD OR EDIT GIFT AS FULL PAGE */}
+          {activeTab === 'add-gift' || activeTab === 'edit-gift' ? (
+            <ItemFormView
+              itemToEdit={activeTab === 'edit-gift' ? itemToEdit : null}
+              onSave={handleSaveItem}
+              onCancel={() => {
+                setActiveTab(itemToEdit && !itemToEdit.is_owner ? 'family-wishes' : 'my-wishes');
+                triggerSelection();
+              }}
+            />
+          ) : activeTab === 'settings' ? (
+            /* VIEW: SETTINGS AS ENTIRE PAGE */
+            <div className="w-full">
+              <SettingsView
+                onOpenAdmin={() => {
+                  setActiveTab('admin');
+                  triggerSelection();
+                }}
+                onBackToWishes={() => {
+                  setActiveTab('my-wishes');
+                  triggerSelection();
+                }}
+              />
+            </div>
+          ) : activeTab === 'admin' ? (
+            /* VIEW: FAMILY MANAGEMENT AS ENTIRE PAGE */
+            <div className="w-full">
+              <AdminView
+                onBackToWishes={() => {
+                  setActiveTab('my-wishes');
+                  triggerSelection();
+                }}
+                onWishlistReset={handleWishlistReset}
+              />
+            </div>
+          ) : (
+            /* VIEW: WISHLISTS (MY WISHES & FAMILY WISHES) */
+            <>
+              {/* ===== MOBILE: Search & Navigation Bar (Always Accessible on Mobile) ===== */}
+              <div className="lg:hidden mb-4 space-y-3 bg-white dark:bg-[#242526] p-3 rounded-xl border border-[#E4E6EB] dark:border-[#3A3B3C]">
+                {/* Search bar */}
+                <div className="relative">
+                  <HugeiconsIcon
+                    icon={Search01Icon}
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65676B] dark:text-[#B0B3B8] pointer-events-none"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search gifts"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] text-sm rounded-full border-0 focus:ring-0"
+                  />
+                </div>
+
+                {/* Mobile Tab Switcher */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('my-wishes');
+                      triggerSelection();
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs sm:text-sm font-semibold transition border-0 ${
+                      activeTab === 'my-wishes'
+                        ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                        : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
+                    }`}
+                  >
                     <HugeiconsIcon icon={GiftIcon} size={15} />
                     <span>My Wishlist</span>
-                  </div>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
-                      activeTab === 'my-wishes'
-                        ? 'bg-white/25 text-white'
-                        : 'bg-[#F0F0F3] dark:bg-[#222226] text-[#8E8E93]'
+                    <span
+                      className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ml-0.5 ${
+                        activeTab === 'my-wishes'
+                          ? 'bg-white/25 text-white'
+                          : 'bg-black/5 dark:bg-white/10 text-[#65676B] dark:text-[#B0B3B8]'
+                      }`}
+                    >
+                      {activeTab === 'my-wishes' ? items.length : '•'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('family-wishes');
+                      triggerSelection();
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs sm:text-sm font-semibold transition border-0 ${
+                      activeTab === 'family-wishes'
+                        ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                        : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                     }`}
                   >
-                    {items.length && activeTab === 'my-wishes' ? items.length : '•'}
-                  </span>
-                </button>
-
-                {/* Family Wishlists Header */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('family-wishes');
-                    triggerSelection();
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
-                    activeTab === 'family-wishes' && !selectedMemberId
-                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
-                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 text-xs">
                     <HugeiconsIcon icon={UserGroupIcon} size={15} />
-                    <span>Family Wishlists</span>
-                  </div>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
-                      activeTab === 'family-wishes' && !selectedMemberId
-                        ? 'bg-white/25 text-white'
-                        : 'bg-[#F0F0F3] dark:bg-[#222226] text-[#8E8E93]'
-                    }`}
-                  >
-                    {otherMembers.length}
-                  </span>
-                </button>
+                    <span>Family</span>
+                    <span
+                      className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ml-0.5 ${
+                        activeTab === 'family-wishes'
+                          ? 'bg-white/25 text-white'
+                          : 'bg-black/5 dark:bg-white/10 text-[#65676B] dark:text-[#B0B3B8]'
+                      }`}
+                    >
+                      {otherMembers.length}
+                    </span>
+                  </button>
+                </div>
 
-                {/* Nested Family Members list under Wishlists */}
-                {otherMembers.length > 0 && (
-                  <div className="pl-3 pr-0.5 pt-0.5 space-y-0.5 border-l border-[#E5E5EA] dark:border-[#2C2C2E] ml-3.5 my-1">
+                {/* Mobile Member Pills (Visible on Family tab) */}
+                {activeTab === 'family-wishes' && otherMembers.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-hide">
                     {otherMembers.map((member) => {
-                      const isSelected = activeTab === 'family-wishes' && selectedMemberId === member.id;
-                      const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                      const isSelected = selectedMemberId === member.id;
                       const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
+                      const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
                       return (
                         <button
                           key={member.id}
                           type="button"
                           onClick={() => {
                             triggerSelection();
-                            setActiveTab('family-wishes');
                             setSelectedMemberId(member.id);
                           }}
-                          className={`w-full flex items-center justify-between px-2 py-1 rounded-md text-left transition-all duration-150 border-0 ${
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border-0 shrink-0 ${
                             isSelected
-                              ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
-                              : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white'
+                              ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                              : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="text-sm leading-none shrink-0">{member.avatar || '🎁'}</span>
-                            <span className="text-xs truncate">{member.alias}</span>
-                          </div>
-                          {claimStatus ? (
+                          <span className="text-base leading-none">{member.avatar || '🎁'}</span>
+                          <span>{member.alias}</span>
+                          <span className={`text-[10px] px-1 rounded-full ${isSelected ? 'bg-white/20' : 'bg-black/5 dark:bg-white/10'}`}>
+                            {count}
+                          </span>
+                          {claimStatus && (
                             <span
-                              className={`w-2 h-2 rounded-full shrink-0 ${
+                              className={`w-2 h-2 rounded-full ${
                                 claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
                               }`}
-                              title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
                             />
-                          ) : (
-                            <span
-                              className={`text-[10px] font-semibold ${
-                                isSelected ? 'text-white/80' : 'text-[#8E8E93]'
-                              }`}
-                            >
-                              {count}
-                            </span>
                           )}
                         </button>
                       );
@@ -509,553 +670,247 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Group 2: SETTINGS */}
-              <div className="space-y-1 pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
-                <div className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8E8E93]">
-                  Settings
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('settings');
-                    triggerSelection();
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-all duration-150 border-0 ${
-                    activeTab === 'settings'
-                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-bold'
-                      : 'bg-transparent hover:bg-[#F0F0F3] dark:hover:bg-[#222226] text-[#1C1C1E] dark:text-white font-medium'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 text-xs">
-                    <HugeiconsIcon icon={Settings02Icon} size={15} />
-                    <span>Preferences & Themes</span>
-                  </div>
-                </button>
-
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setIsAdminModalOpen(true)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#1C1C1E] dark:text-white hover:bg-[#F0F0F3] dark:hover:bg-[#222226] transition border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <HugeiconsIcon icon={UserGroupIcon} size={15} />
-                      <span>Manage Family</span>
-                    </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                      Admin
-                    </span>
-                  </button>
-                )}
-
-                {/* Quick Family Invite code & button */}
-                <div className="p-2 rounded-lg bg-[#F0F0F3] dark:bg-[#222226] flex items-center justify-between gap-1 text-[11px] mt-1">
-                  <span className="font-mono font-bold text-[var(--theme-primary)] truncate">
-                    {family?.code}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopySidebarInvite}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-[#161618] hover:bg-white/80 text-[10px] font-bold text-[#1C1C1E] dark:text-white shadow-apple-sm border-0 transition"
-                  >
-                    {copiedSidebarLink ? (
-                      <span className="text-[#34C759]">Copied</span>
-                    ) : (
-                      <>
-                        <HugeiconsIcon icon={Link01Icon} size={11} />
-                        <span>Invite</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* User Account & Sign Out (Only option in sidebar) */}
-              <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E] space-y-2">
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xl leading-none shrink-0">{user?.avatar || '🎁'}</span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate">
-                        {user?.alias}
-                      </div>
-                      <div className="text-[10px] text-[#8E8E93] truncate">
-                        {isAdmin ? 'Family Admin' : 'Family Member'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={logout}
-                  title="Sign Out"
-                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg text-xs font-bold text-[#636366] dark:text-[#8E8E93] hover:text-[#FF3B30] dark:hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0 active:scale-95"
-                >
-                  <HugeiconsIcon icon={Logout01Icon} size={14} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          {/* MAIN WORKSPACE CONTENT AREA */}
-          <div className="min-w-0 w-full">
-            {/* VIEW 1: MY WISHLIST */}
-            {activeTab === 'my-wishes' && (
-              <div className="space-y-4 lg:space-y-3.5 animate-tab-fade">
-                {/* Wishlist Header Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 lg:p-3 rounded-2xl sm:rounded-3xl lg:rounded-xl bg-white dark:bg-[#161618] border-0 shadow-apple-card">
-                  <div className="flex items-center gap-3 sm:gap-4 lg:gap-2.5">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-9 lg:h-9 rounded-xl sm:rounded-2xl lg:rounded-lg bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0 shadow-apple-sm">
-                      <HugeiconsIcon icon={GiftIcon} size={20} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-heading font-extrabold text-lg sm:text-xl text-[#1C1C1E] dark:text-white leading-tight">
-                          My Wishlist
-                        </h3>
-                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                          {items.length} {items.length === 1 ? 'Gift' : 'Gifts'}
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-[#8E8E93] mt-0.5 font-sans">
-                        Gifts you would love to receive • Purchases remain secret from you to preserve the surprise
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2.5 self-end sm:self-center">
-                    {/* Top Secret Info Tooltip Button */}
-                    <div className="relative group">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          triggerSelection();
-                          setShowSecretTooltip((prev) => !prev);
-                        }}
-                        className="inline-flex items-center gap-1.5 py-2 px-3 lg:py-1.5 lg:px-2.5 rounded-xl lg:rounded-lg bg-[#F0F0F3] dark:bg-[#222226] hover:bg-[#E5E5EA] dark:hover:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white shadow-apple-sm transition border-0 text-xs font-semibold"
-                        aria-label="Top Secret Information"
-                        title="Top Secret info"
-                      >
-                        <HugeiconsIcon icon={ViewOffIcon} size={14} className="text-[var(--theme-primary)]" />
-                        <span className="hidden sm:inline">Top Secret</span>
-                      </button>
-
-                      {/* Tooltip Popover */}
-                      <div
-                        className={`absolute right-0 top-full mt-2 w-72 p-3.5 rounded-2xl bg-white/95 dark:bg-[#222226]/95 backdrop-blur-xl shadow-apple-lg border-0 text-xs z-50 transition-all duration-150 ${
-                          showSecretTooltip
-                            ? 'opacity-100 pointer-events-auto'
-                            : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1.5 mb-1 text-[var(--theme-primary)] font-bold">
-                          <div className="flex items-center gap-1.5">
-                            <HugeiconsIcon icon={ViewOffIcon} size={15} />
-                            <span>Top Secret</span>
-                          </div>
-                          {showSecretTooltip && (
-                            <button
-                              type="button"
-                              onClick={() => setShowSecretTooltip(false)}
-                              className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
-                              aria-label="Close tooltip"
-                            >
-                              <HugeiconsIcon icon={Cancel01Icon} size={13} />
-                            </button>
-                          )}
-                        </div>
-                        <p className="text-[#636366] dark:text-[#8E8E93] text-[11px] leading-relaxed">
-                          You won't know if your items have been claimed or bought! Status is kept hidden from you to preserve the surprise.
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleOpenAddItem}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 lg:px-3 lg:py-1.5 rounded-xl lg:rounded-lg text-xs sm:text-sm lg:text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
-                    >
-                      <HugeiconsIcon icon={Add01Icon} size={15} />
-                      <span>Add Gift</span>
-                    </button>
-                  </div>
-                </div>
-
-                {loading ? (
-                  <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
-                    <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                    <span>Loading your gifts...</span>
-                  </div>
-                ) : items.length === 0 ? (
-                  <div className="text-center py-16 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
-                    <div className="w-14 h-14 rounded-2xl bg-[#F0F0F3] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                      <HugeiconsIcon icon={GiftIcon} size={26} />
-                    </div>
-                    <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-base mb-1">
-                      Your wishlist is empty
-                    </h4>
-                    <p className="text-xs text-[#8E8E93] max-w-xs mx-auto mb-4 leading-relaxed font-sans">
-                      Add items you would love to receive, with links, sizes, or approximate prices.
+              {/* Section Header */}
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="min-w-0">
+                  <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
+                    {sectionTitle}
+                  </h2>
+                  {activeTab === 'my-wishes' && (
+                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      {family?.name} • Purchases remain secret from you to preserve the surprise
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleOpenAddItem}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl lg:rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95"
-                    >
-                      <HugeiconsIcon icon={Add01Icon} size={16} /> Add Your First Gift
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-3.5 items-start">
-                    {items.map((item) => (
-                      <WishlistCard
-                        key={item.id}
-                        item={item}
-                        onEdit={handleOpenEditItem}
-                        onClaim={handleOpenClaim}
-                        onEditClaim={handleOpenClaim}
-                        onReleaseClaim={handleReleaseClaim}
-                        onQuickMark={handleQuickMark}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* VIEW 2: FAMILY WISHLISTS */}
-            {activeTab === 'family-wishes' && (
-              <div className="animate-tab-fade">
-                {/* Mobile Member Selector (Visible only on mobile/tablet) */}
-                <div className="lg:hidden mb-4 sm:mb-6">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <p className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white">
-                        Select Member:
-                      </p>
-                      {!isMobileMembersOpen && activeSelectedMember && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-[#1C1C1E] shadow-apple-sm text-xs font-bold text-[#1C1C1E] dark:text-white border-0 animate-in fade-in duration-150">
-                          <span className="text-sm leading-none">{activeSelectedMember.avatar || '🎁'}</span>
-                          <span>{activeSelectedMember.alias}</span>
-                          {(memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) && (
-                            <span
-                              className={`w-2 h-2 rounded-full ml-0.5 ${
-                                (memberClaimStatuses[activeSelectedMember.id] ?? activeSelectedMember.viewer_claim_status) === 'bought'
-                                  ? 'bg-[#34C759]'
-                                  : 'bg-[#FF9500]'
-                              }`}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerSelection();
-                        setIsMobileMembersOpen(!isMobileMembersOpen);
-                      }}
-                      className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-[#1C1C1E] text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white shadow-apple-sm active:scale-95 transition-all border-0"
-                      aria-label={isMobileMembersOpen ? 'Collapse member list' : 'Expand member list'}
-                      title={isMobileMembersOpen ? 'Collapse' : 'Expand'}
-                    >
-                      <HugeiconsIcon
-                        icon={ArrowDown01Icon}
-                        size={14}
-                        className={`transition-transform duration-200 ${isMobileMembersOpen ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                  </div>
-
-                  {isMobileMembersOpen && (
-                    <div className="flex flex-wrap items-center gap-2 pt-0.5 animate-in fade-in duration-150">
-                      {otherMembers.map((member) => {
-                        const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
-                        const isSelected = selectedMemberId === member.id;
-                        const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
-                        return (
-                          <button
-                            key={member.id}
-                            type="button"
-                            onClick={() => {
-                              triggerSelection();
-                              setSelectedMemberId(member.id);
-                            }}
-                            className={`flex items-center gap-1.5 py-2 px-3.5 rounded-full text-xs font-bold transition-all border-0 shadow-apple-sm active:scale-95 ${
-                              isSelected
-                                ? 'bg-[#1C1C1E] dark:bg-white text-white dark:text-[#1C1C1E] shadow-apple-md ring-2 ring-black/10 dark:ring-white/10'
-                                : 'bg-white dark:bg-[#1C1C1E] text-[#1C1C1E] dark:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]'
-                            }`}
-                          >
-                            <span className="text-base leading-none">{member.avatar || '🎁'}</span>
-                            <span>{member.alias}</span>
-                            {claimStatus ? (
-                              <span
-                                title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy gift'}
-                                className={`inline-block w-2.5 h-2.5 rounded-full shadow-sm shrink-0 ml-0.5 ${
-                                  claimStatus === 'bought'
-                                    ? 'bg-[#34C759] ring-2 ring-[#34C759]/40'
-                                    : 'bg-[#FF9500] ring-2 ring-[#FF9500]/40'
-                                }`}
-                              />
-                            ) : (
-                              <span
-                                className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
-                                  isSelected
-                                    ? 'bg-white/20 dark:bg-black/20 text-white dark:text-[#1C1C1E]'
-                                    : 'bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#8E8E93]'
-                                }`}
-                              >
-                                {count}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                  )}
+                  {activeTab === 'family-wishes' && activeSelectedMember && (
+                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      Mark or buy items to coordinate with family and prevent duplicates
+                    </p>
                   )}
                 </div>
 
-                {otherMembers.length === 0 ? (
-                  <div className="text-center py-16 sm:py-20 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl lg:rounded-xl bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                      <HugeiconsIcon icon={UserGroupIcon} size={28} />
-                    </div>
-                    <h4 className="font-heading font-bold text-[#1C1C1E] dark:text-white text-base sm:text-lg mb-1">
-                      No other family members yet
-                    </h4>
-                    <p className="text-xs sm:text-sm text-[#8E8E93] max-w-xs mx-auto mb-4 sm:mb-5 leading-relaxed font-sans">
-                      {isAdmin
-                        ? 'Use the Manage Family panel to add members to your family.'
-                        : 'Ask your family admin to invite other family members.'}
-                    </p>
-                    {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => setIsAdminModalOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 rounded-xl lg:rounded-lg shadow-apple-md transition active:scale-95"
-                      >
-                        Manage Family & Add Members
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    {/* Active Member Header Card */}
-                    {activeSelectedMember && (
-                      <div className="flex items-center justify-between p-3.5 sm:p-5 lg:p-3 rounded-2xl sm:rounded-3xl lg:rounded-xl bg-white dark:bg-[#161618] border-0 shadow-apple-card mb-4 lg:mb-3">
-                        <div className="flex items-center gap-3 sm:gap-4 lg:gap-3">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-9 lg:h-9 rounded-xl sm:rounded-2xl lg:rounded-lg bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-xl sm:text-2xl lg:text-lg shadow-apple-sm border-0 shrink-0">
-                            {activeSelectedMember.avatar || '🎁'}
-                          </div>
-                          <div>
-                            <h3 className="text-base sm:text-xl lg:text-base font-bold text-[#1C1C1E] dark:text-white tracking-tight">
-                              {activeSelectedMember.alias}'s Wishlist
-                            </h3>
-                            <p className="text-xs lg:text-[11px] text-[#8E8E93] mt-0.5">
-                              Claim items to coordinate with family and prevent duplicate gifts.
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-xs sm:text-sm lg:text-xs font-bold text-[#636366] dark:text-[#E5E5EA] bg-[#F8F8FA] dark:bg-[#222226] px-2.5 sm:px-3 py-1 sm:py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-lg shadow-apple-sm border-0 shrink-0">
-                          {items.length} {items.length === 1 ? 'gift' : 'gifts'}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Segmented Filter Pills: All / Available / Claimed */}
-                    {items.length > 0 && (
-                      <div className="flex items-center gap-2 mb-4 lg:mb-3">
-                        <div className="flex gap-1 p-1 bg-[#E5E5EA]/70 dark:bg-[#222226] rounded-2xl lg:rounded-lg shadow-inner border-0">
-                          <button
-                            type="button"
-                            onClick={() => setFamilyFilter('all')}
-                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 ${
-                              familyFilter === 'all'
-                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                            }`}
-                          >
-                            All ({items.length})
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setFamilyFilter('available')}
-                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
-                              familyFilter === 'available'
-                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                            }`}
-                          >
-                            <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
-                            <span>Available ({availableCount})</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setFamilyFilter('claimed')}
-                            className={`px-3 py-1.5 lg:px-2.5 lg:py-1 rounded-xl lg:rounded-md text-xs lg:text-[11px] font-bold transition-all duration-150 border-0 flex items-center gap-1.5 ${
-                              familyFilter === 'claimed'
-                                ? 'bg-white dark:bg-[#161618] text-[#1C1C1E] dark:text-white shadow-apple-sm'
-                                : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
-                            }`}
-                          >
-                            <span className="w-2 h-2 rounded-full bg-[#34C759]" />
-                            <span>Claimed ({claimedCount})</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Grid of Wishlist Items */}
-                    {loading ? (
-                      <div className="py-24 text-center text-[#8E8E93] text-sm flex flex-col items-center gap-3">
-                        <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                        <span>Loading {activeSelectedMember?.alias}'s wishlist...</span>
-                      </div>
-                    ) : items.length === 0 ? (
-                      <div className="text-center py-16 sm:py-20 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl lg:rounded-xl bg-[#F8F8FA] dark:bg-[#222226] flex items-center justify-center text-[#8E8E93] mx-auto mb-3 shadow-apple-sm">
-                          <HugeiconsIcon icon={GiftIcon} size={26} />
-                        </div>
-                        <h4 className="font-bold text-[#1C1C1E] dark:text-white text-base sm:text-lg mb-1">
-                          {activeSelectedMember?.alias || 'This member'} hasn't added any wishes yet
-                        </h4>
-                        <p className="text-xs sm:text-sm text-[#8E8E93] max-w-sm mx-auto">
-                          Check back soon or remind them to add some ideas!
-                        </p>
-                      </div>
-                    ) : displayedFamilyItems.length === 0 ? (
-                      <div className="text-center py-14 sm:py-16 px-6 bg-white dark:bg-[#161618] rounded-3xl lg:rounded-xl border-0 shadow-apple-card w-full">
-                        <p className="text-sm font-semibold text-[#8E8E93]">
-                          {familyFilter === 'available'
-                            ? 'All items on this wishlist have been claimed or bought! 🎉'
-                            : 'No claimed items on this wishlist yet.'}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-3.5 items-start">
-                        {displayedFamilyItems.map((item) => (
-                          <WishlistCard
-                            key={item.id}
-                            item={item}
-                            onEdit={handleOpenEditItem}
-                            onClaim={handleOpenClaim}
-                            onEditClaim={handleOpenClaim}
-                            onReleaseClaim={handleReleaseClaim}
-                            onQuickMark={handleQuickMark}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* VIEW 3: SETTINGS VIEW (Dedicated page instead of modal) */}
-            {activeTab === 'settings' && (
-              <div className="animate-tab-fade">
-                <SettingsView
-                  onOpenAdmin={() => setIsAdminModalOpen(true)}
-                  onBackToWishes={() => {
-                    setActiveTab('my-wishes');
-                    triggerSelection();
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-
-      {/* Mobile Floating Action Controls */}
-      {activeTab === 'my-wishes' && (
-        <div className="sm:hidden fixed bottom-6 right-6 z-30 flex flex-col items-center gap-2.5">
-          {/* Top Secret Info Tooltip Button (Above Add Gift FAB) */}
-          <div className="relative">
-            {showMobileSecretTooltip && (
-              <div
-                className="absolute right-0 bottom-full mb-2 w-64 p-3.5 rounded-2xl bg-white/95 dark:bg-[#2C2C2E]/95 backdrop-blur-xl shadow-apple-lg border-0 text-xs z-50 animate-in fade-in slide-in-from-bottom-2 duration-150"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex items-center justify-between gap-1.5 mb-1 text-[var(--theme-primary)] font-bold">
-                  <div className="flex items-center gap-1.5">
-                    <HugeiconsIcon icon={ViewOffIcon} size={15} />
-                    <span>Top Secret</span>
-                  </div>
+                {/* Add Gift Button (Navigates to full page) */}
+                {activeTab === 'my-wishes' && (
                   <button
                     type="button"
-                    onClick={() => setShowMobileSecretTooltip(false)}
-                    className="w-5 h-5 flex items-center justify-center rounded-full text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
-                    aria-label="Close tooltip"
+                    onClick={handleOpenAddItem}
+                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition active:scale-[0.98] border-0 shrink-0 shadow-sm"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={13} />
+                    <HugeiconsIcon icon={Add01Icon} size={16} />
+                    <span>Add Gift</span>
                   </button>
-                </div>
-                <p className="text-[#636366] dark:text-[#8E8E93] text-[11px] leading-relaxed">
-                  You won't know if your items have been claimed or bought! Status is kept hidden from you to protect the surprise.
-                </p>
+                )}
               </div>
-            )}
 
+              {/* Family Filter Pills (All / Available / Claimed) */}
+              {activeTab === 'family-wishes' && items.length > 0 && (
+                <div className="flex gap-2 mb-4">
+                  {[
+                    { key: 'all', label: `All (${items.length})` },
+                    { key: 'available', label: `Available (${availableCount})` },
+                    { key: 'claimed', label: `Claimed (${claimedCount})` },
+                  ].map((f) => (
+                    <button
+                      key={f.key}
+                      type="button"
+                      onClick={() => setFamilyFilter(f.key)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition border-0 ${
+                        familyFilter === f.key
+                          ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                          : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Grid Content */}
+              {loading ? (
+                <div className="py-20 text-center text-[#65676B] dark:text-[#B0B3B8] text-sm flex flex-col items-center gap-3">
+                  <div className="w-6 h-6 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
+                  <span>Loading gifts...</span>
+                </div>
+              ) : items.length === 0 ? (
+                <div className="text-center py-16 px-6 bg-[#F0F2F5]/50 dark:bg-[#242526]/50 rounded-2xl border border-[#E4E6EB] dark:border-[#3A3B3C]">
+                  <div className="w-16 h-16 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] mx-auto mb-4">
+                    <HugeiconsIcon icon={GiftIcon} size={28} />
+                  </div>
+                  {activeTab === 'my-wishes' ? (
+                    <>
+                      <h4 className="font-bold text-[#050505] dark:text-[#E4E6EB] text-lg mb-1">
+                        Your wishlist is empty
+                      </h4>
+                      <p className="text-sm text-[#65676B] dark:text-[#B0B3B8] max-w-xs mx-auto mb-4 leading-relaxed">
+                        Add items you would love to receive, with links, sizes, or approximate prices.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleOpenAddItem}
+                        className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition active:scale-[0.98] border-0 shadow-sm"
+                      >
+                        <HugeiconsIcon icon={Add01Icon} size={16} />
+                        <span>Add Your First Gift</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="font-bold text-[#050505] dark:text-[#E4E6EB] text-lg mb-1">
+                        {activeSelectedMember?.alias || 'This member'} hasn't added any wishes yet
+                      </h4>
+                      <p className="text-sm text-[#65676B] dark:text-[#B0B3B8] max-w-sm mx-auto">
+                        Check back soon or remind them to add some gift ideas!
+                      </p>
+                    </>
+                  )}
+                </div>
+              ) : displayedItems.length === 0 && searchQuery ? (
+                <div className="text-center py-12 text-sm text-[#65676B] dark:text-[#B0B3B8]">
+                  No gifts matching "{searchQuery}"
+                </div>
+              ) : displayedItems.length === 0 ? (
+                <div className="text-center py-12 text-sm font-medium text-[#65676B] dark:text-[#B0B3B8]">
+                  {familyFilter === 'available'
+                    ? 'All items on this wishlist have been claimed or bought! 🎉'
+                    : 'No claimed items yet.'}
+                </div>
+              ) : (
+                /* ===== MARKETPLACE GRID ===== */
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
+                  {displayedItems.map((item) => (
+                    <WishlistCard
+                      key={item.id}
+                      item={item}
+                      onEdit={handleOpenEditItem}
+                      onClaim={handleOpenClaim}
+                      onEditClaim={handleOpenClaim}
+                      onReleaseClaim={handleReleaseClaim}
+                      onQuickMark={handleQuickMark}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* ========== MOBILE FIXED BOTTOM NAVIGATION BAR ========== */}
+      {/* Ensures wishlists, family, add gift, and settings are ALWAYS accessible anywhere on mobile */}
+      <nav
+        aria-label="Mobile Navigation"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#242526] border-t border-[#E4E6EB] dark:border-[#3A3B3C] px-2 py-1.5 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
+      >
+        <div className="flex items-center justify-around max-w-md mx-auto">
+          {/* 1. My Wishlist */}
+          <button
+            type="button"
+            onClick={() => {
+              triggerSelection();
+              setActiveTab('my-wishes');
+            }}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition border-0 ${
+              activeTab === 'my-wishes'
+                ? 'text-[var(--theme-primary)] font-bold'
+                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            }`}
+          >
+            <div className="relative">
+              <HugeiconsIcon icon={GiftIcon} size={20} />
+              {items.length > 0 && activeTab === 'my-wishes' && (
+                <span className="absolute -top-1 -right-2 px-1 text-[9px] font-bold rounded-full bg-[var(--theme-primary)] text-white leading-none py-0.5">
+                  {items.length}
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] leading-tight">My Wishlist</span>
+          </button>
+
+          {/* 2. Family Wishlists */}
+          <button
+            type="button"
+            onClick={() => {
+              triggerSelection();
+              setActiveTab('family-wishes');
+            }}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition border-0 ${
+              activeTab === 'family-wishes'
+                ? 'text-[var(--theme-primary)] font-bold'
+                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            }`}
+          >
+            <div className="relative">
+              <HugeiconsIcon icon={UserGroupIcon} size={20} />
+              {otherMembers.length > 0 && (
+                <span className="absolute -top-1 -right-2 px-1 text-[9px] font-bold rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] leading-none py-0.5">
+                  {otherMembers.length}
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] leading-tight">Family</span>
+          </button>
+
+          {/* 3. Add Gift Button (Page based) */}
+          <button
+            type="button"
+            onClick={handleOpenAddItem}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition border-0 ${
+              activeTab === 'add-gift'
+                ? 'text-[var(--theme-primary)] font-bold'
+                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            }`}
+          >
+            <div className="w-6 h-6 rounded-full bg-[var(--theme-primary)] text-white flex items-center justify-center shadow-sm">
+              <HugeiconsIcon icon={Add01Icon} size={16} />
+            </div>
+            <span className="text-[11px] leading-tight">Add Gift</span>
+          </button>
+
+          {/* 4. Family Admin (If Admin) */}
+          {isAdmin && (
             <button
               type="button"
               onClick={() => {
                 triggerSelection();
-                setShowMobileSecretTooltip((prev) => !prev);
+                setActiveTab('admin');
               }}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-[#2C2C2E] text-[var(--theme-primary)] border-0 shadow-apple-md active:scale-95 transition"
-              aria-label="Top Secret Information"
-              title="Top Secret"
+              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition border-0 ${
+                activeTab === 'admin'
+                  ? 'text-[var(--theme-primary)] font-bold'
+                  : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+              }`}
             >
-              <HugeiconsIcon icon={ViewOffIcon} size={18} />
+              <HugeiconsIcon icon={UserSettings01Icon} size={20} />
+              <span className="text-[11px] leading-tight">Admin</span>
             </button>
-          </div>
+          )}
 
-          {/* Add Gift FAB */}
+          {/* 5. Settings */}
           <button
             type="button"
-            onClick={handleOpenAddItem}
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-[var(--theme-primary)] text-white border-0 shadow-apple-lg active:scale-95 transition"
-            aria-label="Add Gift"
+            onClick={() => {
+              triggerSelection();
+              setActiveTab('settings');
+            }}
+            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-lg transition border-0 ${
+              activeTab === 'settings'
+                ? 'text-[var(--theme-primary)] font-bold'
+                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            }`}
           >
-            <HugeiconsIcon icon={Add01Icon} size={28} />
+            <HugeiconsIcon icon={Settings02Icon} size={20} />
+            <span className="text-[11px] leading-tight">Settings</span>
           </button>
         </div>
-      )}
+      </nav>
 
-      {/* Accessible Modals */}
-      <ItemModal
-        isOpen={isItemModalOpen}
-        onClose={() => setIsItemModalOpen(false)}
-        onSave={handleSaveItem}
-        itemToEdit={itemToEdit}
-      />
-
+      {/* Claim Modal (Kept for interactive claim marking) */}
       <ClaimModal
         isOpen={isClaimModalOpen}
         onClose={() => setIsClaimModalOpen(false)}
         item={claimTargetItem}
         onSaveClaim={handleSaveClaim}
         onReleaseClaim={handleReleaseClaim}
-      />
-
-      <AdminModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        onWishlistReset={handleWishlistReset}
-      />
-
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        onOpenAdmin={() => {
-          setIsProfileModalOpen(false);
-          setIsAdminModalOpen(true);
-        }}
       />
 
       {/* Delete Item Confirmation Dialog */}
