@@ -373,8 +373,14 @@ export default function DashboardPage() {
                   My Wishlist
                 </span>
               </div>
-              <span className="text-xs font-medium text-[#65676B] dark:text-[#B0B3B8]">
-                {activeTab === 'my-wishes' ? items.length : ''}
+              <span
+                className={`text-xs font-bold px-2 py-0.5 rounded-full transition ${
+                  activeTab === 'my-wishes'
+                    ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                    : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
+                }`}
+              >
+                {items.length}
               </span>
             </button>
           </nav>
@@ -440,18 +446,26 @@ export default function DashboardPage() {
                     }`}>
                       {member.alias}
                     </span>
-                    <span className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
-                      {count} {count === 1 ? 'gift' : 'gifts'}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {claimStatus && (
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                          claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
+                        }`}
+                        title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
+                      />
+                    )}
+                    <span
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full transition ${
+                        isSelected
+                          ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                          : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
+                      }`}
+                    >
+                      {count}
                     </span>
                   </div>
-                  {claimStatus && (
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                        claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
-                      }`}
-                      title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
-                    />
-                  )}
                 </button>
               );
             })}
@@ -653,7 +667,13 @@ export default function DashboardPage() {
                         >
                           <span className="text-base leading-none">{member.avatar || '🎁'}</span>
                           <span>{member.alias}</span>
-                          <span className={`text-[10px] px-1 rounded-full ${isSelected ? 'bg-white/20' : 'bg-black/5 dark:bg-white/10'}`}>
+                          <span
+                            className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition ${
+                              isSelected
+                                ? 'bg-white/25 text-white'
+                                : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
+                            }`}
+                          >
                             {count}
                           </span>
                           {claimStatus && (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useHaptics } from '../context/HapticsContext';
+import { useTheme } from '../context/ThemeContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -21,7 +22,17 @@ export default function WishlistCard({
   onQuickMark,
 }) {
   const { triggerLight } = useHaptics();
+  const { themeId, isDark } = useTheme();
   const [showLightbox, setShowLightbox] = useState(false);
+
+  // Festive Christmas & Birthday background ambient blurred circle accents
+  const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
+  const isBirthdayTheme = themeId === 'birthday';
+  const festiveGlowColors = isChristmasTheme
+    ? [isDark ? '#FF453A' : '#FF3B30', isDark ? '#30D158' : '#34C759']
+    : isBirthdayTheme
+    ? [isDark ? '#0A84FF' : '#007AFF', isDark ? '#FFD60A' : '#FFCC00']
+    : null;
 
   const isOwner = item.is_owner;
   const claim = item.claim;
@@ -77,8 +88,28 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="group rounded-xl p-2 sm:p-2.5 transition-colors duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] flex flex-col justify-between">
-        <div>
+      <div className="group relative overflow-hidden rounded-xl p-2 sm:p-2.5 transition-colors duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] flex flex-col justify-between">
+        {/* Festive blurred background accent circles for Christmas & Birthday themes */}
+        {festiveGlowColors && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl" aria-hidden="true">
+            <div
+              className="absolute -top-10 -right-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
+              style={{
+                backgroundColor: festiveGlowColors[0],
+                opacity: isDark ? 0.16 : 0.12,
+              }}
+            />
+            <div
+              className="absolute -bottom-10 -left-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
+              style={{
+                backgroundColor: festiveGlowColors[1],
+                opacity: isDark ? 0.16 : 0.12,
+              }}
+            />
+          </div>
+        )}
+
+        <div className="relative z-[1]">
           {/* Image container — square aspect ratio like FB Marketplace */}
           <div
             onClick={item.image_url ? handleOpenLightbox : undefined}
@@ -159,28 +190,25 @@ export default function WishlistCard({
                 ? 'Low priority'
                 : 'Medium priority'}
             </p>
-
-            {/* Store link button — generous size and easy to click */}
-            {item.url && (
-              <div className="pt-1.5">
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full min-h-[34px] py-1.5 px-2.5 rounded-lg text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border border-[var(--theme-primary)]/20 shadow-sm"
-                  title={`Open ${item.title} on ${getDomain(item.url)}`}
-                >
-                  <HugeiconsIcon icon={LinkSquare01Icon} size={15} className="shrink-0" />
-                  <span className="truncate">Open Link ({getDomain(item.url)})</span>
-                </a>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Action button — ALWAYS VISIBLE at all times (not hidden behind hover) */}
-        <div className="mt-2 pt-1">
+        {/* Action buttons group — tightly grouped together with decreased padding */}
+        <div className="relative z-[1] mt-2 space-y-1.5">
+          {item.url && (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="w-full min-h-[32px] py-1 px-2.5 rounded-md text-xs font-semibold text-[var(--theme-primary)] bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-1.5 border-0 shadow-sm"
+              title={`Open ${item.title} on ${getDomain(item.url)}`}
+            >
+              <HugeiconsIcon icon={LinkSquare01Icon} size={14} className="shrink-0" />
+              <span className="truncate">Open Link ({getDomain(item.url)})</span>
+            </a>
+          )}
+
           {isOwner ? (
             <button
               type="button"

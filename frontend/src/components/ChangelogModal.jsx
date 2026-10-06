@@ -19,6 +19,18 @@ export default function ChangelogModal({ isOpen, onClose }) {
       tagColor: 'bg-[var(--theme-primary)] text-white',
       highlights: [
         {
+          icon: PaintBoardIcon,
+          title: 'SwiftUI Accent Colors & Festive Card Ambiance',
+          description:
+            'Added the full suite of SwiftUI accent colors with exact Light and Dark mode hexes. Christmas and Birthday themes now feature subtle blurred accent circles behind items for festive holiday ambiance without replacing clean card backgrounds.',
+        },
+        {
+          icon: UserGroupIcon,
+          title: 'Dynamic Member Counters & Tight Button Grouping',
+          description:
+            'Member items and filter pills now use tactile dynamic badge designs instead of plain text, and wishlist card buttons are grouped tightly with reduced padding.',
+        },
+        {
           icon: GiftIcon,
           title: 'Facebook Marketplace-Style Layout',
           description:
@@ -35,18 +47,6 @@ export default function ChangelogModal({ isOpen, onClose }) {
           title: 'Persistent Mobile Navigation',
           description:
             'Added a dedicated mobile bottom navigation bar with 1-tap switching between My Wishlist, Family, Add Gift, and Settings, plus individual member chip counters.',
-        },
-        {
-          icon: PaintBoardIcon,
-          title: 'Harmonized Theme Highlights',
-          description:
-            'Active sidebar selections, pills, and navigation highlights now dynamically match your active holiday accent color instead of hardcoded blue.',
-        },
-        {
-          icon: Delete02Icon,
-          title: 'Desktop Sidebar & Danger Zone Refinements',
-          description:
-            'Moved family management directly into the Family Members sidebar section on desktop, and placed the wishlist reset Danger Zone at the bottom of the page.',
         },
       ],
     },

@@ -1,17 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="115" fill="#007AFF"/>
-  <!-- Gift Lid -->
-  <rect x="106" y="170" width="300" height="64" rx="16" fill="#FFFFFF"/>
-  <!-- Gift Box Body -->
-  <rect x="130" y="244" width="252" height="178" rx="20" fill="#FFFFFF"/>
-  <!-- Vertical Ribbon -->
-  <rect x="236" y="170" width="40" height="252" fill="#007AFF"/>
-  <!-- Ribbon Bow Left Loop -->
-  <path d="M 246 170 C 246 170 190 150 160 115 C 130 80 160 50 195 70 C 235 90 250 150 256 170 Z" fill="#FFFFFF"/>
-  <path d="M 235 155 C 230 140 215 105 195 90 C 180 80 168 90 178 105 C 192 125 225 145 235 155 Z" fill="#007AFF"/>
-  <!-- Ribbon Bow Right Loop -->
-  <path d="M 266 170 C 266 170 322 150 352 115 C 382 80 352 50 317 70 C 277 90 262 150 256 170 Z" fill="#FFFFFF"/>
-  <path d="M 277 155 C 282 140 297 105 317 90 C 332 80 344 90 334 105 C 320 125 287 145 277 155 Z" fill="#007AFF"/>
-  <!-- Ribbon Center Knot -->
-  <circle cx="256" cy="170" r="22" fill="#FFFFFF"/>
+  <defs>
+    <!-- Soft iOS tactile drop shadow for transparent canvas -->
+    <filter id="icon-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#icon-shadow)">
+    <!-- Gift Lid -->
+    <rect x="106" y="170" width="300" height="64" rx="16" fill="#007AFF"/>
+    <!-- Gift Box Body -->
+    <rect x="130" y="244" width="252" height="178" rx="20" fill="#007AFF"/>
+    
+    <!-- Vertical Ribbon -->
+    <rect x="236" y="170" width="40" height="252" fill="#FFFFFF"/>
+
+    <!-- Ribbon Bow Left Loop with true transparent cutout -->
+    <path d="M 246 170 C 246 170 190 150 160 115 C 130 80 160 50 195 70 C 235 90 250 150 256 170 Z M 235 155 C 230 140 215 105 195 90 C 180 80 168 90 178 105 C 192 125 225 145 235 155 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+    
+    <!-- Ribbon Bow Right Loop with true transparent cutout -->
+    <path d="M 266 170 C 266 170 322 150 352 115 C 382 80 352 50 317 70 C 277 90 262 150 256 170 Z M 277 155 C 282 140 297 105 317 90 C 332 80 344 90 334 105 C 320 125 287 145 277 155 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+    
+    <!-- Ribbon Center Knot -->
+    <circle cx="256" cy="170" r="22" fill="#FFFFFF"/>
+  </g>
 </svg>

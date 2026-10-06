@@ -451,8 +451,10 @@ export default function AdminView({ onWishlistReset }) {
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
-                          {m.item_count ?? 0} {m.item_count === 1 ? 'wishlist item' : 'wishlist items'}
+                        <div className="mt-1">
+                          <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]">
+                            {m.item_count ?? 0} {m.item_count === 1 ? 'gift' : 'gifts'}
+                          </span>
                         </div>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AlertCircleIcon,
@@ -19,6 +20,16 @@ const PRIORITIES = [
 ];
 
 export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
+  const { themeId, isDark } = useTheme();
+
+  // Festive Christmas & Birthday background ambient blurred circle accents
+  const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
+  const isBirthdayTheme = themeId === 'birthday';
+  const festiveGlowColors = isChristmasTheme
+    ? [isDark ? '#FF453A' : '#FF3B30', isDark ? '#30D158' : '#34C759']
+    : isBirthdayTheme
+    ? [isDark ? '#0A84FF' : '#007AFF', isDark ? '#FFD60A' : '#FFCC00']
+    : null;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -437,8 +448,28 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             Marketplace Preview
           </div>
 
-          <div className="p-3 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C]">
-            <div className="w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg overflow-hidden flex items-center justify-center relative">
+          <div className="p-3 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] relative overflow-hidden">
+            {/* Festive blurred background accent circles for Christmas & Birthday themes */}
+            {festiveGlowColors && (
+              <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl" aria-hidden="true">
+                <div
+                  className="absolute -top-10 -right-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
+                  style={{
+                    backgroundColor: festiveGlowColors[0],
+                    opacity: isDark ? 0.16 : 0.12,
+                  }}
+                />
+                <div
+                  className="absolute -bottom-10 -left-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
+                  style={{
+                    backgroundColor: festiveGlowColors[1],
+                    opacity: isDark ? 0.16 : 0.12,
+                  }}
+                />
+              </div>
+            )}
+            <div className="relative z-[1]">
+              <div className="w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg overflow-hidden flex items-center justify-center relative">
               {imageUrl ? (
                 <img
                   src={imageUrl}
@@ -484,6 +515,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                   {description}
                 </p>
               )}
+            </div>
             </div>
           </div>
         </div>
