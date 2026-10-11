@@ -335,7 +335,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
               What's New & Changelog
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white">
-              v1.1
+              v0.2.1
             </span>
           </div>
           <p className="text-xs text-[#636366] dark:text-[#8E8E93] leading-relaxed mb-3 font-sans">

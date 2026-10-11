@@ -13,7 +13,7 @@ import {
 export default function ChangelogModal({ isOpen, onClose }) {
   const releases = [
     {
-      version: 'v2.1.0',
+      version: 'v0.2.1',
       title: 'Marketplace Redesign, Full-Page Views & Mobile Navigation',
       tag: 'Latest',
       tagColor: 'bg-[var(--theme-primary)] text-white',
@@ -51,7 +51,7 @@ export default function ChangelogModal({ isOpen, onClose }) {
       ],
     },
     {
-      version: 'v2.0.0',
+      version: 'v0.2.0',
       title: 'Smart Link Auto-Fill & Modern Floating Island UI',
       tag: 'Previous',
       tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
@@ -89,7 +89,7 @@ export default function ChangelogModal({ isOpen, onClose }) {
       ],
     },
     {
-      version: 'v1.1.0',
+      version: 'v0.1.1',
       title: 'Design Refinements & Admin Enhancements',
       tag: 'Previous',
       tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
@@ -127,8 +127,8 @@ export default function ChangelogModal({ isOpen, onClose }) {
       ],
     },
     {
-      version: 'v1.0.0',
-      title: 'Initial Release — Version 1 of WhatGift',
+      version: 'v0.1.0',
+      title: 'Initial Release — Version 0.1.0 of WhatGift',
       tag: 'Initial Launch',
       tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
       highlights: [

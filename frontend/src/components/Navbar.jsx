@@ -16,9 +16,10 @@ import {
   PaintBoardIcon,
   UserSettings01Icon,
   Add01Icon,
+  CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
-export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelectTab }) {
+export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, activeTab, onSelectTab }) {
   const { user, family, isAdmin, logout } = useAuth();
   const { theme, isDark } = useTheme();
   const { triggerSuccess, triggerLight } = useHaptics();
@@ -100,6 +101,21 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
                 </>
               )}
             </button>
+
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerLight();
+                  onOpenSetupHelp?.();
+                }}
+                title="How to Set Up (Admin Guide)"
+                aria-label="How to Set Up"
+                className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition flex items-center justify-center border-0 active:scale-95"
+              >
+                <HugeiconsIcon icon={CircleQuestionMarkIcon} size={17} />
+              </button>
+            )}
 
             <button
               type="button"
@@ -228,18 +244,29 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
               {/* Secondary Actions */}
               <div className="space-y-1">
                 {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => handleMobileAction(() => onSelectTab?.('admin'))}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
-                      activeTab === 'admin'
-                        ? 'bg-[var(--theme-primary)] text-white'
-                        : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={UserSettings01Icon} size={18} />
-                    <span>Manage Family</span>
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleMobileAction(() => onSelectTab?.('admin'))}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                        activeTab === 'admin'
+                          ? 'bg-[var(--theme-primary)] text-white'
+                          : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                      }`}
+                    >
+                      <HugeiconsIcon icon={UserSettings01Icon} size={18} />
+                      <span>Manage Family</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMobileAction(() => onOpenSetupHelp?.())}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
+                    >
+                      <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} className="text-[var(--theme-primary)]" />
+                      <span>How to Setup Guide</span>
+                    </button>
+                  </>
                 )}
 
                 <button

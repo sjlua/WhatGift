@@ -182,7 +182,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               disabled={submitting || isScraping}
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
             >
-              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add Gift'}
+              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}
             </button>
           </div>
         }

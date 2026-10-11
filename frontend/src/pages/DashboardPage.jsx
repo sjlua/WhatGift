@@ -11,6 +11,7 @@ import AdminView from '../components/AdminView';
 import ClaimModal from '../components/ClaimModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SettingsView from '../components/SettingsView';
+import SetupHelpModal from '../components/SetupHelpModal';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -22,6 +23,7 @@ import {
   Tick02Icon,
   Logout01Icon,
   Search01Icon,
+  CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
 export default function DashboardPage() {
@@ -71,6 +73,7 @@ export default function DashboardPage() {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
+  const [showSetupHelp, setShowSetupHelp] = useState(false);
 
   // Other members in family (excluding the current user)
   const otherMembers = family?.members?.filter((m) => m.id !== user.id) || [];
@@ -287,6 +290,9 @@ export default function DashboardPage() {
           setActiveTab('settings');
           triggerSelection();
         }}
+        onOpenSetupHelp={() => {
+          setShowSetupHelp(true);
+        }}
         activeTab={activeTab}
         onSelectTab={(tab) => {
           setActiveTab(tab);
@@ -307,6 +313,20 @@ export default function DashboardPage() {
                 WhatGift
               </h1>
               <div className="flex items-center gap-1">
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerSelection();
+                      setShowSetupHelp(true);
+                    }}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition border-0 active:scale-95"
+                    title="How to Set Up (Admin Guide)"
+                    aria-label="How to Set Up"
+                  >
+                    <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -568,6 +588,7 @@ export default function DashboardPage() {
                   triggerSelection();
                 }}
                 onWishlistReset={handleWishlistReset}
+                onOpenSetupHelp={() => setShowSetupHelp(true)}
               />
             </div>
           ) : (
@@ -956,6 +977,16 @@ export default function DashboardPage() {
         isDestructive={false}
         onConfirm={() => setAlertMessage(null)}
         onCancel={() => setAlertMessage(null)}
+      />
+
+      {/* How to Setup Modal for Family Admins */}
+      <SetupHelpModal
+        isOpen={showSetupHelp}
+        onClose={() => setShowSetupHelp(false)}
+        onNavigateToAdmin={() => {
+          setActiveTab('admin');
+          triggerSelection();
+        }}
       />
     </div>
   );

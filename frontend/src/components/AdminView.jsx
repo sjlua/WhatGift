@@ -15,9 +15,10 @@ import {
   Edit02Icon,
   Copy01Icon,
   UserSettings01Icon,
+  CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
-export default function AdminView({ onWishlistReset }) {
+export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
   const { family, refreshFamily, updateFamilyDetails, logout } = useAuth();
   const { triggerSuccess, triggerWarning } = useHaptics();
 
@@ -226,6 +227,18 @@ export default function AdminView({ onWishlistReset }) {
             </span>
           </h1>
         </div>
+
+        {onOpenSetupHelp && (
+          <button
+            type="button"
+            onClick={onOpenSetupHelp}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] text-xs font-bold text-[#050505] dark:text-[#E4E6EB] transition border-0 active:scale-95 shrink-0"
+            title="How to Setup Guide"
+          >
+            <HugeiconsIcon icon={CircleQuestionMarkIcon} size={16} className="text-[var(--theme-primary)]" />
+            <span>How to Setup</span>
+          </button>
+        )}
       </div>
 
       {error && (

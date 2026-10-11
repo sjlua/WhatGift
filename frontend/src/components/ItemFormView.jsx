@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   Tick02Icon,
   GiftIcon,
+  Add01Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl } from '../utils/url';
 
@@ -193,9 +194,10 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             type="submit"
             form="item-page-form"
             disabled={submitting || isScraping}
-            className="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 disabled:opacity-50 shrink-0"
+            className="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 disabled:opacity-50 shrink-0 inline-flex items-center gap-1.5 shadow-sm active:scale-95"
           >
-            {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Gift'}
+            {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={15} />}
+            <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>
           </button>
         </div>
       </div>
@@ -446,6 +448,25 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
               </div>
             )}
           </div>
+
+          {/* Bottom Action Area (at the end of input fields) */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-lg transition border-0 active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || isScraping}
+              className="px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 disabled:opacity-50 shadow-sm inline-flex items-center gap-2 active:scale-95"
+            >
+              {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={16} />}
+              <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Right Column (4 cols): Live Marketplace Preview Card */}
@@ -523,6 +544,25 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
               )}
             </div>
             </div>
+          </div>
+
+          {/* Mobile Bottom Action: visible below preview when scrolling to the bottom of the page */}
+          <div className="lg:hidden flex items-center justify-end gap-3 pt-2 pb-6">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 py-2.5 text-xs sm:text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-lg transition border-0 text-center active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || isScraping}
+              className="flex-1 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 disabled:opacity-50 shadow-sm inline-flex items-center justify-center gap-2 text-center active:scale-95"
+            >
+              {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={16} />}
+              <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>
+            </button>
           </div>
         </div>
       </form>
