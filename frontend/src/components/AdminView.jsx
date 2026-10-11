@@ -14,7 +14,6 @@ import {
   Link01Icon,
   Edit02Icon,
   Copy01Icon,
-  UserSettings01Icon,
   CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
@@ -216,10 +215,6 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
       {/* Page Header */}
       <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
         <div>
-          <div className="text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8] mb-0.5 flex items-center gap-1.5">
-            <HugeiconsIcon icon={UserSettings01Icon} size={14} className="text-[var(--theme-primary)]" />
-            <span>Family Administration</span>
-          </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight flex items-center gap-2">
             <span>Manage Family & Members</span>
             <span className="text-xs font-bold px-2 py-0.5 rounded bg-[var(--theme-tint)] text-[var(--theme-primary)]">
@@ -260,7 +255,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
         {/* Left Column (5 cols): Family Info & Direct Invite Link */}
         <div className="lg:col-span-5 space-y-6">
           {/* Direct Invite Link Card */}
-          <div className="p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-3">
+          <div className="p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={Link01Icon} size={18} className="text-[var(--theme-primary)]" />
@@ -295,7 +290,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
           </div>
 
           {/* Family Name & Code Settings */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={Edit02Icon} size={18} className="text-[var(--theme-primary)]" />
@@ -373,7 +368,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
         {/* Right Column (7 cols): Add Member & Existing Member List */}
         <div className="lg:col-span-7 space-y-6">
           {/* Add Family Member Form */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={Add01Icon} size={18} className="text-[var(--theme-primary)]" />
@@ -431,7 +426,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
           </div>
 
           {/* Existing Members Roster */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-3">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={UserGroupIcon} size={18} className="text-[var(--theme-primary)]" />
@@ -491,7 +486,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
       </div>
 
       {/* Danger Zone: Located at the bottom of the page */}
-      <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#FF3B30]/30 space-y-3">
+      <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-base text-[#FF3B30] flex items-center gap-2">
             <HugeiconsIcon icon={AlertCircleIcon} size={18} />

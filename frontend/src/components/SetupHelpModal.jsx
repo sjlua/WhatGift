@@ -122,7 +122,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
     >
       <div className="space-y-4">
         {/* Intro banner */}
-        <div className="p-3.5 rounded-xl bg-[var(--theme-tint)]/60 text-[#1C1C1E] dark:text-white border border-[var(--theme-primary)]/20">
+        <div className="p-3.5 rounded-xl bg-[var(--theme-tint)]/60 text-[#1C1C1E] dark:text-white border-0">
           <div className="flex items-start gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0 mt-0.5">
               <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
@@ -143,7 +143,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
           {steps.map((item) => (
             <div
               key={item.step}
-              className="p-3.5 sm:p-4 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-1.5 transition"
+              className="p-3.5 sm:p-4 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 space-y-1.5 transition"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">

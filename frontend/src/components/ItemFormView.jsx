@@ -215,7 +215,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
         <div className="lg:col-span-8 space-y-5">
           {/* Notice for new gifts */}
           {!itemToEdit && (
-            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] text-xs text-[#65676B] dark:text-[#B0B3B8]">
+            <div className="flex items-start gap-3 p-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm text-xs text-[#65676B] dark:text-[#B0B3B8]">
               <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5 text-[var(--theme-primary)]" />
               <span className="leading-relaxed">
                 <strong>Wishlist Coordination:</strong> Items you add remain visible to family members so they can coordinate claims secretly without spoiling the surprise for you.
@@ -224,7 +224,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           )}
 
           {/* 1. STORE LINK WITH SMART AUTO-FILL */}
-          <div className="p-4 sm:p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-3">
+          <div className="p-4 sm:p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0">
@@ -307,7 +307,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           </div>
 
           {/* 2. CORE DETAILS: TITLE & PRICE */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <h3 className="font-bold text-base text-[#050505] dark:text-[#E4E6EB]">
               Listing Information
             </h3>
@@ -381,7 +381,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           </div>
 
           {/* 3. ADDITIONAL DETAILS */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
@@ -475,7 +475,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             Marketplace Preview
           </div>
 
-          <div className="p-3 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] relative overflow-hidden">
+          <div className="p-3 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm relative overflow-hidden">
             {/* Festive blurred background accent circles for Christmas & Birthday themes */}
             {festiveGlowColors && (
               <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl" aria-hidden="true">

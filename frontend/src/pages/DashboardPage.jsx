@@ -390,7 +390,7 @@ export default function DashboardPage() {
                     ? 'text-[var(--theme-primary)]'
                     : 'text-[#050505] dark:text-[#E4E6EB]'
                 }`}>
-                  My Wishlist
+                  Wishlist
                 </span>
               </div>
               <span
@@ -594,8 +594,8 @@ export default function DashboardPage() {
           ) : (
             /* VIEW: WISHLISTS (MY WISHES & FAMILY WISHES) */
             <>
-              {/* ===== MOBILE: Search & Navigation Bar (Always Accessible on Mobile) ===== */}
-              <div className="lg:hidden mb-4 space-y-3 bg-white dark:bg-[#242526] p-3 rounded-xl border border-[#E4E6EB] dark:border-[#3A3B3C]">
+              {/* ===== MOBILE: Search & Member Navigation Bar ===== */}
+              <div className="lg:hidden mb-4 space-y-2.5 bg-white dark:bg-[#242526] p-3 rounded-xl border-0 shadow-apple-sm">
                 {/* Search bar */}
                 <div className="relative">
                   <HugeiconsIcon
@@ -612,62 +612,9 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                {/* Mobile Tab Switcher */}
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('my-wishes');
-                      triggerSelection();
-                    }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs sm:text-sm font-semibold transition border-0 ${
-                      activeTab === 'my-wishes'
-                        ? 'bg-[var(--theme-primary)] text-white shadow-sm'
-                        : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={GiftIcon} size={15} />
-                    <span>My Wishlist</span>
-                    <span
-                      className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ml-0.5 ${
-                        activeTab === 'my-wishes'
-                          ? 'bg-white/25 text-white'
-                          : 'bg-black/5 dark:bg-white/10 text-[#65676B] dark:text-[#B0B3B8]'
-                      }`}
-                    >
-                      {activeTab === 'my-wishes' ? items.length : '•'}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('family-wishes');
-                      triggerSelection();
-                    }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs sm:text-sm font-semibold transition border-0 ${
-                      activeTab === 'family-wishes'
-                        ? 'bg-[var(--theme-primary)] text-white shadow-sm'
-                        : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={UserGroupIcon} size={15} />
-                    <span>Family</span>
-                    <span
-                      className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full ml-0.5 ${
-                        activeTab === 'family-wishes'
-                          ? 'bg-white/25 text-white'
-                          : 'bg-black/5 dark:bg-white/10 text-[#65676B] dark:text-[#B0B3B8]'
-                      }`}
-                    >
-                      {otherMembers.length}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Mobile Member Pills (Visible on Family tab) */}
+                {/* Mobile Member Tabs (Visible on Family tab only) */}
                 {activeTab === 'family-wishes' && otherMembers.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-hide">
+                  <div className="flex gap-2 overflow-x-auto pb-0.5 pt-0.5 scrollbar-hide">
                     {otherMembers.map((member) => {
                       const isSelected = selectedMemberId === member.id;
                       const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
@@ -773,7 +720,7 @@ export default function DashboardPage() {
                   <span>Loading gifts...</span>
                 </div>
               ) : items.length === 0 ? (
-                <div className="text-center py-16 px-6 bg-[#F0F2F5]/50 dark:bg-[#242526]/50 rounded-2xl border border-[#E4E6EB] dark:border-[#3A3B3C]">
+                <div className="text-center py-16 px-6 bg-[#F0F2F5]/50 dark:bg-[#242526]/50 rounded-2xl border-0 shadow-apple-sm">
                   <div className="w-16 h-16 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] mx-auto mb-4">
                     <HugeiconsIcon icon={GiftIcon} size={28} />
                   </div>
@@ -864,7 +811,7 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            <span className="text-[11px] leading-tight">My Wishlist</span>
+            <span className="text-[11px] leading-tight">Wishlist</span>
           </button>
 
           {/* 2. Family Wishlists */}

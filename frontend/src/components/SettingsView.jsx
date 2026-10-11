@@ -119,7 +119,7 @@ export default function SettingsView({ onOpenAdmin }) {
         {/* Left Column (5 cols on lg): User Profile & Family Identity */}
         <div className="lg:col-span-5 space-y-6">
           {/* Card 1: User Profile & Login Details */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={UserIcon} size={18} className="text-[var(--theme-primary)]" />
@@ -204,7 +204,7 @@ export default function SettingsView({ onOpenAdmin }) {
           </div>
 
           {/* Card 2: Family Circle Coordination */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={UserGroupIcon} size={18} className="text-[var(--theme-primary)]" />
@@ -226,7 +226,7 @@ export default function SettingsView({ onOpenAdmin }) {
                 <button
                   type="button"
                   onClick={copyFamilyCode}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#242526] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition border border-[#E4E6EB] dark:border-[#3A3B3C]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-[#242526] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition border-0 shadow-apple-xs"
                 >
                   <HugeiconsIcon icon={copiedCode ? Tick02Icon : Copy01Icon} size={14} />
                   <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
@@ -258,7 +258,7 @@ export default function SettingsView({ onOpenAdmin }) {
           </div>
 
           {/* Danger Zone: Leave Family (Matching card design) */}
-          <div className="rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] overflow-hidden">
+          <div className="rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm overflow-hidden">
             <button
               type="button"
               onClick={() => {
@@ -329,7 +329,7 @@ export default function SettingsView({ onOpenAdmin }) {
         {/* Right Column (7 cols on lg): Appearance, Themes, and App Preferences */}
         <div className="lg:col-span-7 space-y-6">
           {/* Card 3: Festive & Everyday Themes Palette Picker */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={PaintBoardIcon} size={18} className="text-[var(--theme-primary)]" />
@@ -395,7 +395,7 @@ export default function SettingsView({ onOpenAdmin }) {
           </div>
 
           {/* Card 4: Dark Mode & Tactile Haptics */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] space-y-4">
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={Moon02Icon} size={18} className="text-[var(--theme-primary)]" />
@@ -517,7 +517,7 @@ export default function SettingsView({ onOpenAdmin }) {
           </div>
 
           {/* Card 5: App Information & Changelog (Matching card styling) */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#E4E6EB] dark:border-[#3A3B3C] flex items-center justify-between">
+          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0">
                 <HugeiconsIcon icon={SparklesIcon} size={18} />

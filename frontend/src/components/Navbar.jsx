@@ -211,7 +211,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                   }`}
                 >
                   <HugeiconsIcon icon={GiftIcon} size={18} />
-                  <span>My Wishlist</span>
+                  <span>Wishlist</span>
                 </button>
 
                 <button
