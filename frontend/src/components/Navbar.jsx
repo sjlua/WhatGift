@@ -119,23 +119,6 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
 
             <button
               type="button"
-              onClick={() => {
-                triggerLight();
-                onSelectTab?.('settings');
-              }}
-              title="Settings & Appearance"
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition border-0 ${
-                activeTab === 'settings'
-                  ? 'bg-[var(--theme-primary)] text-white'
-                  : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
-              }`}
-              aria-label="Settings"
-            >
-              <HugeiconsIcon icon={Settings02Icon} size={16} />
-            </button>
-
-            <button
-              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition flex items-center justify-center border-0"
               aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
@@ -185,7 +168,12 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
               </div>
 
               {/* User Profile Card */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+              <button
+                type="button"
+                onClick={() => handleMobileAction(() => onSelectTab?.('settings'))}
+                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] text-left border-0 transition hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]"
+                title="Account Settings"
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl leading-none">{user?.avatar || '🎁'}</span>
                   <div>
@@ -197,7 +185,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
 
               {/* Primary Wishlist Navigation Links */}
               <div className="space-y-1 pt-1 border-b border-[#E4E6EB] dark:border-[#3A3B3C] pb-3">

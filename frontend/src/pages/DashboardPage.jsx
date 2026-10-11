@@ -390,7 +390,7 @@ export default function DashboardPage() {
                     ? 'text-[var(--theme-primary)]'
                     : 'text-[#050505] dark:text-[#E4E6EB]'
                 }`}>
-                  Wishlist
+                  My Wishlist
                 </span>
               </div>
               <span
@@ -510,17 +510,33 @@ export default function DashboardPage() {
           <div className="px-4 pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-auto">
             {/* Invite link & User Account */}
             <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-2 min-w-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('settings');
+                  triggerSelection();
+                }}
+                className={`flex items-center gap-2 min-w-0 p-1.5 -ml-1.5 rounded-lg text-left transition border-0 ${
+                  activeTab === 'settings'
+                    ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]'
+                    : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                }`}
+                title="Account Settings"
+              >
                 <span className="text-lg leading-none shrink-0">{user?.avatar || '🎁'}</span>
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] truncate">
+                  <div className={`text-sm font-semibold truncate ${
+                    activeTab === 'settings'
+                      ? 'text-[var(--theme-primary)]'
+                      : 'text-[#050505] dark:text-[#E4E6EB]'
+                  }`}>
                     {user?.alias}
                   </div>
                   <div className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
                     {family?.name}
                   </div>
                 </div>
-              </div>
+              </button>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -594,6 +610,37 @@ export default function DashboardPage() {
           ) : (
             /* VIEW: WISHLISTS (MY WISHES & FAMILY WISHES) */
             <>
+              {/* Section Header */}
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="min-w-0">
+                  <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
+                    {sectionTitle}
+                  </h2>
+                  {activeTab === 'my-wishes' && (
+                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      {family?.name} • Purchases remain secret from you to preserve the surprise
+                    </p>
+                  )}
+                  {activeTab === 'family-wishes' && activeSelectedMember && (
+                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      Mark or buy items to coordinate with family and prevent duplicates
+                    </p>
+                  )}
+                </div>
+
+                {/* Add Gift Button (Navigates to full page) */}
+                {activeTab === 'my-wishes' && (
+                  <button
+                    type="button"
+                    onClick={handleOpenAddItem}
+                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition active:scale-[0.98] border-0 shrink-0 shadow-sm"
+                  >
+                    <HugeiconsIcon icon={Add01Icon} size={16} />
+                    <span>Add Gift</span>
+                  </button>
+                )}
+              </div>
+
               {/* ===== MOBILE: Search & Member Navigation Bar ===== */}
               <div className="lg:hidden mb-4 space-y-2.5 bg-white dark:bg-[#242526] p-3 rounded-xl border-0 shadow-apple-sm">
                 {/* Search bar */}
@@ -655,37 +702,6 @@ export default function DashboardPage() {
                       );
                     })}
                   </div>
-                )}
-              </div>
-
-              {/* Section Header */}
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="min-w-0">
-                  <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
-                    {sectionTitle}
-                  </h2>
-                  {activeTab === 'my-wishes' && (
-                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
-                      {family?.name} • Purchases remain secret from you to preserve the surprise
-                    </p>
-                  )}
-                  {activeTab === 'family-wishes' && activeSelectedMember && (
-                    <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
-                      Mark or buy items to coordinate with family and prevent duplicates
-                    </p>
-                  )}
-                </div>
-
-                {/* Add Gift Button (Navigates to full page) */}
-                {activeTab === 'my-wishes' && (
-                  <button
-                    type="button"
-                    onClick={handleOpenAddItem}
-                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition active:scale-[0.98] border-0 shrink-0 shadow-sm"
-                  >
-                    <HugeiconsIcon icon={Add01Icon} size={16} />
-                    <span>Add Gift</span>
-                  </button>
                 )}
               </div>
 
