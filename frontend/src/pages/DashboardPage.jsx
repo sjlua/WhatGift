@@ -618,7 +618,7 @@ export default function DashboardPage() {
                   </h2>
                   {activeTab === 'my-wishes' && (
                     <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
-                      {family?.name} • Purchases remain secret from you to preserve the surprise
+                      {family?.name}
                     </p>
                   )}
                   {activeTab === 'family-wishes' && activeSelectedMember && (
@@ -746,7 +746,7 @@ export default function DashboardPage() {
                         Your wishlist is empty
                       </h4>
                       <p className="text-sm text-[#65676B] dark:text-[#B0B3B8] max-w-xs mx-auto mb-4 leading-relaxed">
-                        Add items you would love to receive, with links, sizes, or approximate prices.
+                        Add items you would love to receive, with links, sizes and prices.
                       </p>
                       <button
                         type="button"

@@ -131,7 +131,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
     }
 
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-      setError('Please provide a valid approximate price (e.g. 29.99)');
+      setError('Please provide a valid price (e.g. 29.99)');
       return;
     }
 
@@ -376,11 +376,11 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
           </div>
 
           {/* ======================================================== */}
-          {/* 3. Approx. Price (Required) */}
+          {/* 3. Price (Required) */}
           {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-              <span>Approx. Price ($)</span>
+              <span>Price ($)</span>
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
                 Required
               </span>

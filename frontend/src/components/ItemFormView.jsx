@@ -145,7 +145,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
     }
 
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-      setError('Please provide a valid approximate price (e.g. 29.99)');
+      setError('Please provide a valid price (e.g. 29.99)');
       return;
     }
 
@@ -329,7 +329,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                  Approximate Price ($) <span className="text-[#FF3B30]">*</span>
+                  Price ($) <span className="text-[#FF3B30]">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#65676B] dark:text-[#B0B3B8]">
@@ -449,30 +449,10 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             )}
           </div>
 
-          {/* Bottom Action Area (at the end of input fields) */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-lg transition border-0 active:scale-95"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || isScraping}
-              className="px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 disabled:opacity-50 shadow-sm inline-flex items-center gap-2 active:scale-95"
-            >
-              {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={16} />}
-              <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>
-            </button>
-          </div>
-        </div>
-
         {/* Right Column (4 cols): Live Marketplace Preview Card */}
         <div className="lg:col-span-4 sticky top-6 space-y-3">
           <div className="text-xs font-bold uppercase tracking-wider text-[#65676B] dark:text-[#B0B3B8] px-1">
-            Marketplace Preview
+            Item Preview
           </div>
 
           <div className="p-3 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm relative overflow-hidden">

@@ -134,7 +134,7 @@ export default function SettingsView({ onOpenAdmin }) {
               {/* Avatar Preview & Selection */}
               <div>
                 <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-2">
-                  Profile Avatar (1-Tap Selection)
+                  Profile Picture
                 </label>
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] mb-3">
                   <div className="w-12 h-12 rounded-lg bg-white dark:bg-[#242526] shadow-sm flex items-center justify-center text-2xl shrink-0">
@@ -142,7 +142,7 @@ export default function SettingsView({ onOpenAdmin }) {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
-                      Active Avatar: {avatar}
+                      Active Profile Picture: {avatar}
                     </span>
                     <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
                       Used by family members to identify your wishlist.
