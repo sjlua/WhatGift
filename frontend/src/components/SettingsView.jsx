@@ -524,7 +524,7 @@ export default function SettingsView({ onOpenAdmin }) {
               </div>
               <div>
                 <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
-                  WhatGift v0.2.1
+                  WhatGift v0.3.0
                 </span>
                 <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
                   Secret family gift exchange & anti-spoiler wishlist coordination.

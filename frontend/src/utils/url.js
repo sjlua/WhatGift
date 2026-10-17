@@ -1,5 +1,5 @@
 /**
- * Utility functions for URL sanitization and display.
+ * Utility functions for URL sanitization, domain extraction, and image loading.
  */
 
 /**
@@ -58,5 +58,38 @@ export function getDomain(url) {
     return new URL(clean).hostname.replace('www.', '');
   } catch {
     return 'Store Link';
+  }
+}
+
+/**
+ * Returns a fallback proxy URL using wsrv.nl for images blocked by hotlinking / AWS WAF.
+ *
+ * @param {string} url - The image URL to proxy.
+ * @returns {string} The proxied image URL.
+ */
+export function getProxiedImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  const clean = url.trim();
+  if (!clean.startsWith('http://') && !clean.startsWith('https://')) return clean;
+  if (clean.includes('wsrv.nl/?url=')) return clean;
+  return `https://wsrv.nl/?url=${encodeURIComponent(clean)}`;
+}
+
+/**
+ * Image error handler that attempts a fallback through a CORS/WAF proxy before failing.
+ *
+ * @param {Event} e - The image error event.
+ * @param {string} originalUrl - The original image URL.
+ * @param {Function} [onFinalError] - Callback if both direct and proxied loading fail.
+ */
+export function handleImageFallbackError(e, originalUrl, onFinalError) {
+  const target = e?.currentTarget;
+  if (!target) return;
+  if (!target.dataset.proxied && originalUrl) {
+    target.dataset.proxied = 'true';
+    target.src = getProxiedImageUrl(originalUrl);
+  } else {
+    target.style.display = 'none';
+    if (onFinalError) onFinalError();
   }
 }

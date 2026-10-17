@@ -1,16 +1,16 @@
-# WhatGift 🎁
+# WhatGift
 ### Mobile-Friendly Family Wishlist & Secret Gift Coordination
 
-WhatGift is a modern, responsive web application designed for families to share wishlists and coordinate holiday/birthday gifts in secret. Built following Apple Human Interface Guidelines (HIG) with vector Hugeicons, haptic feedback, and multi-theme customization.
+WhatGift is a modern, responsive web application designed for families to share wishlists and coordinate holiday and birthday gifts in secret. Built following Apple Human Interface Guidelines (HIG) with vector Hugeicons, haptic feedback, and multi-theme customization.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 1. **Direct Invite Links with Auto-Launch**:
    - Share a direct invite link with family members: `http://<host>:5173/?family=MELBY-2026`
    - When opened, WhatGift **automatically launches directly into the family portal**.
-   - No manual family code entry required!
+   - No manual family code entry required.
 2. **Simplified Login (No PIN Required)**:
    - Family members log in simply by typing their first name (e.g. "Sean", "Jia").
    - Quick-tap avatar chips allow instant 1-tap login on mobile devices.
@@ -23,10 +23,13 @@ WhatGift is a modern, responsive web application designed for families to share 
 5. **Themes & Haptics**:
    - Dynamic holiday themes (Classic Blue, Christmas Red & Green, Birthday Gold & Blue, Emerald, Purple).
    - Integrated Web Haptics for native mobile tactile response (toggleable in Settings).
+6. **Smart Auto-Fill & Cross-Origin Previews**:
+   - Paste links from Australian and international retailers (Amazon, JB Hi-Fi, Target, Kmart, Spotlight, etc.) to automatically extract titles, approximate prices, and product imagery.
+   - Resilient image fallback caching ensures thumbnails load reliably across all devices.
 
 ---
 
-## 🐧 Installation Guide for Ubuntu & Linux
+## Installation Guide for Ubuntu & Linux
 
 This guide covers installing and running WhatGift on **Ubuntu** (20.04 LTS, 22.04 LTS, 24.04 LTS), **Debian**, and other Debian-based Linux distributions.
 
@@ -48,7 +51,7 @@ sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential
 
 Ubuntu's default `apt` repository may contain an outdated version of Node.js. It is recommended to install Node.js LTS (v20.x) using the official NodeSource repository or NVM:
 
-#### Option A: Via NodeSource (Recommended for servers/desktops)
+#### Option A: Via NodeSource (Recommended for servers and desktops)
 ```bash
 # Add NodeSource repository for Node.js 20 LTS
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -71,7 +74,7 @@ nvm use 20
 
 ---
 
-### 3. Clone / Navigate to the Repository
+### 3. Clone and Navigate to the Repository
 
 ```bash
 cd /path/to/WhatGift
@@ -106,10 +109,10 @@ cd /path/to/WhatGift
    ```bash
    pytest tests
    ```
-Or use this command if it is not in the usual directory (and running in the virtual environmentcd ../frontend):
+   Or run pytest directly with the virtual environment interpreter:
    ```bash
    .venv/bin/python -m pytest tests
-   ``` 
+   ```
 
 ---
 
@@ -127,7 +130,7 @@ Or use this command if it is not in the usual directory (and running in the virt
 
 ---
 
-## 🚀 Running the Application (Development Mode)
+## Running the Application (Development Mode)
 
 ### Step 1: Start the Backend (Port 8100)
 
@@ -155,7 +158,7 @@ npm run dev -- --host
 
 ---
 
-## 🌐 Production Deployment Guide (Ubuntu / Linux)
+## Production Deployment Guide (Ubuntu / Linux)
 
 If deploying on an Ubuntu server (e.g. VPS, home server, Raspberry Pi):
 
@@ -218,7 +221,7 @@ Choose between **Apache** (for side-by-side subdomain hosting alongside an exist
 
 ---
 
-#### 🟢 Option A: Apache Web Server (Side-by-Side at `whatgift.<root-domain.dev>`)
+#### Option A: Apache Web Server (Side-by-Side at `whatgift.<root-domain.dev>`)
 
 If you already have an Apache website serving your root domain (e.g. `yourdomain.dev`), you can run WhatGift alongside it as an independent **VirtualHost** on the subdomain `whatgift.yourdomain.dev`.
 
@@ -301,7 +304,7 @@ sudo certbot --apache -d whatgift.yourdomain.dev
 
 ---
 
-#### ⚪ Option B: Nginx Reverse Proxy
+#### Option B: Nginx Reverse Proxy
 
 If using Nginx as your web server, create `/etc/nginx/sites-available/whatgift`:
 ```nginx
@@ -356,7 +359,7 @@ sudo ufw enable
 
 ---
 
-## 🔄 Updating & Pulling New Changes on the Server
+## Updating and Pulling New Changes on the Server
 
 When you push code updates or bug fixes to GitHub and want to pull them onto your production server:
 
@@ -401,7 +404,7 @@ curl http://127.0.0.1:8100/api/health
 
 ---
 
-### 🚀 All-in-One Quick Update Script
+### All-in-One Quick Update Script
 If you want to pull and apply all updates in one shot, run this single block from the repository root:
 
 ```bash
@@ -413,7 +416,7 @@ sudo systemctl restart whatgift
 
 ---
 
-## 🔗 Direct Family Invite Links
+## Direct Family Invite Links
 
 Once deployed on your domain, invite links automatically adapt to your live URL:
 

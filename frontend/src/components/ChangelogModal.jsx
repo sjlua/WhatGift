@@ -8,15 +8,48 @@ import {
   PaintBoardIcon,
   Tick02Icon,
   Delete02Icon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons';
 
 export default function ChangelogModal({ isOpen, onClose }) {
   const releases = [
     {
-      version: 'v0.2.1',
-      title: 'Marketplace Redesign, Full-Page Views & Mobile Navigation',
+      version: 'v0.3.0',
+      title: 'Permanent Wish Safeguards, Resilient Imagery & Mobile Ergonomics',
       tag: 'Latest',
       tagColor: 'bg-[var(--theme-primary)] text-white',
+      highlights: [
+        {
+          icon: Shield01Icon,
+          title: 'Permanent Item Safeguards & Anti-Spoiler Protection',
+          description:
+            'Introduced an in-app confirmation safeguard informing users that new wishlist items are permanent and cannot be deleted once added (protecting surprise gift claims), while allowing flexible editing of prices, notes, and store links anytime.',
+        },
+        {
+          icon: SparklesIcon,
+          title: 'Resilient Cross-Origin Image Preview Proxy',
+          description:
+            'Integrated automatic Cloudflare-backed proxy fallback for retailer images with strict hotlink protection or AWS WAF bot challenges (such as Spotlight Stores), ensuring product photos render reliably in previews, wishlist cards, and lightboxes.',
+        },
+        {
+          icon: PaintBoardIcon,
+          title: 'Refined Mobile Sidebar & Decoupled Sign Out',
+          description:
+            'All mobile sidebar icons now use uniform monochrome styling rather than accent colors. The Sign Out button has been detached from viewport bottom-anchoring to sit ergonomically below the controls with a dedicated separator.',
+        },
+        {
+          icon: Tick02Icon,
+          title: "Restored What's New & Release Highlights",
+          description:
+            'Fixed the changelog modal module dependencies, allowing family members to view new feature updates directly inside App Settings.',
+        },
+      ],
+    },
+    {
+      version: 'v0.2.1',
+      title: 'Marketplace Redesign, Full-Page Views & Mobile Navigation',
+      tag: 'Previous',
+      tagColor: 'bg-[#8E8E93]/20 text-[#636366] dark:text-[#E5E5EA]',
       highlights: [
         {
           icon: PaintBoardIcon,

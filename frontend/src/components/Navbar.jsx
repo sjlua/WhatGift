@@ -140,12 +140,12 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
           />
 
           {/* Drawer */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#242526] shadow-2xl flex flex-col justify-between p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-0 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#242526] shadow-2xl flex flex-col p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-0 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
             <div className="space-y-4">
               {/* Sidebar Header */}
               <div className="flex items-center justify-between pb-3.5 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center justify-center text-[#050505] dark:text-[#E4E6EB] shrink-0">
                     <HugeiconsIcon icon={GiftIcon} size={17} />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                       onClick={() => handleMobileAction(() => onOpenSetupHelp?.())}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
                     >
-                      <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} className="text-[var(--theme-primary)]" />
+                      <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
                       <span>How to Setup Guide</span>
                     </button>
                   </>
@@ -276,7 +276,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
                 >
                   <div className="flex items-center gap-3">
-                    <HugeiconsIcon icon={Link01Icon} size={18} className="text-[var(--theme-primary)]" />
+                    <HugeiconsIcon icon={Link01Icon} size={18} />
                     <span>Copy Invite Link</span>
                   </div>
                   {copiedLink && (
@@ -286,8 +286,8 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
               </div>
             </div>
 
-            {/* Sidebar Footer: Sign Out */}
-            <div className="pt-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-auto shrink-0">
+            {/* Sidebar Footer: Sign Out - not bottom anchored, but still at bottom separate to other controls */}
+            <div className="mt-6 pt-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C] shrink-0">
               <button
                 type="button"
                 onClick={() => handleMobileAction(logout)}

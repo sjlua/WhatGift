@@ -9,7 +9,8 @@ import {
   Link01Icon,
   SparklesIcon,
 } from '@hugeicons/core-free-icons';
-import { sanitizeUrl } from '../utils/url';
+import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
+import ConfirmDialog from './ConfirmDialog';
 
 const PRIORITIES = [
   { value: 'low', label: 'Low' },
@@ -35,6 +36,10 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
   const [scrapeSuccess, setScrapeSuccess] = useState(null);
   const [scrapeNotice, setScrapeNotice] = useState('');
   const [lastScrapedTitle, setLastScrapedTitle] = useState('');
+
+  // Confirmation dialog for adding a new permanent item
+  const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState(null);
 
   useEffect(() => {
     if (itemToEdit) {
@@ -135,23 +140,30 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
       return;
     }
 
-    executeSave();
+    const payload = {
+      title: title.trim(),
+      description: description.trim() || null,
+      url: sanitizeUrl(url) || null,
+      alt_url: sanitizeUrl(altUrl) || null,
+      image_url: sanitizeUrl(imageUrl) || null,
+      price: parseFloat(price),
+      priority,
+      is_on_sale: isOnSale,
+    };
+
+    if (itemToEdit) {
+      executeSave(payload);
+    } else {
+      setPendingPayload(payload);
+      setShowConfirmAddDialog(true);
+    }
   };
 
-  const executeSave = async () => {
+  const executeSave = async (payload) => {
     setSubmitting(true);
     setError('');
     try {
-      await onSave({
-        title: title.trim(),
-        description: description.trim() || null,
-        url: sanitizeUrl(url) || null,
-        alt_url: sanitizeUrl(altUrl) || null,
-        image_url: sanitizeUrl(imageUrl) || null,
-        price: parseFloat(price),
-        priority,
-        is_on_sale: isOnSale,
-      });
+      await onSave(payload);
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to save gift item');
@@ -160,9 +172,16 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
     }
   };
 
+  const handleConfirmAdd = async () => {
+    if (!pendingPayload) return;
+    setShowConfirmAddDialog(false);
+    await executeSave(pendingPayload);
+  };
+
   return (
-    <Modal
-      isOpen={isOpen}
+    <>
+      <Modal
+        isOpen={isOpen}
         onClose={onClose}
         title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
         accentHeader
@@ -318,9 +337,10 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 <img
                   src={imageUrl}
                   alt="Product preview"
+                  referrerPolicy="no-referrer"
                   className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border-0"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
+                    handleImageFallbackError(e, imageUrl);
                   }}
                 />
                 <div className="flex-1 min-w-0">
@@ -367,11 +387,11 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </label>
             <input
               type="text"
-              required
-              placeholder="e.g. Wireless Headphones"
+              placeholder="e.g. Sony WH-1000XM5 Noise Canceling Headphones"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              required
             />
           </div>
 
@@ -385,28 +405,64 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 Required
               </span>
             </label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              placeholder="e.g. 49.99"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-bold text-[#8E8E93]">
+                $
+              </span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="29.99"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full h-12 pl-9 pr-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm font-bold text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                required
+              />
+            </div>
+            <p className="text-[11px] text-[#8E8E93] mt-1 pl-1">
+              Used for approximate budget estimation by family members. Enter 0 for free/DIY wishes.
+            </p>
           </div>
 
           {/* ======================================================== */}
-          {/* 4. Notes / Sizes / Colors */}
+          {/* 4. Priority Level Segmented Control */}
           {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-              Notes / Sizes / Colors (Optional)
+              Priority
+            </label>
+            <div className="grid grid-cols-3 gap-2 p-1.5 bg-[#F2F2F7] dark:bg-[#2C2C2E] rounded-xl shadow-inner">
+              {PRIORITIES.map((p) => {
+                const isSelected = priority === p.value;
+                return (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => setPriority(p.value)}
+                    className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                      isSelected
+                        ? 'bg-white dark:bg-[#1C1C1E] text-[var(--theme-primary)] shadow-apple-sm font-bold'
+                        : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* 5. Notes / Sizes / Preferences */}
+          {/* ======================================================== */}
+          <div>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+              Notes & Preferences (Optional)
             </label>
             <textarea
-              rows="2"
-              placeholder="e.g. Size M, navy blue or charcoal"
+              rows={3}
+              placeholder="e.g. Size M, Navy Blue, or any alternative store links..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full p-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition resize-none shadow-apple-sm"
@@ -414,20 +470,15 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
           </div>
 
           {/* ======================================================== */}
-          {/* 5. Progressive Disclosure: Additional Options           */}
+          {/* 6. ADVANCED ACCORDION (Sale, Alt Link, Image URL)        */}
           {/* ======================================================== */}
           <div className="pt-1">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] text-xs font-bold text-[#636366] dark:text-[#A1A1A6] transition group"
+              className="flex items-center justify-between w-full text-left font-sans font-bold text-xs text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white py-2 transition"
             >
-              <div className="flex items-center gap-2">
-                <span>{showAdvanced ? 'Hide additional options' : 'More options (Priority, Sale, Alt link, Image)'}</span>
-                {!showAdvanced && (isOnSale || altUrl || imageUrl || priority !== 'medium') && (
-                  <span className="w-2 h-2 rounded-full bg-[var(--theme-primary)]" />
-                )}
-              </div>
+              <span>Advanced Options (On Sale, Alternative Store Link, Photo)</span>
               <HugeiconsIcon
                 icon={ArrowDown01Icon}
                 size={16}
@@ -436,64 +487,29 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </button>
 
             {showAdvanced && (
-              <div className="space-y-3.5 pt-3 animate-in fade-in duration-150">
-                {/* Priority */}
-                <div>
-                  <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-                    Priority
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value)}
-                      className="w-full h-11 pl-4 pr-10 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white focus:outline-none transition shadow-apple-sm cursor-pointer appearance-none"
-                    >
-                      {PRIORITIES.map((p) => (
-                        <option key={p.value} value={p.value} className="bg-white dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white">
-                          {p.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93]">
-                      <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
-                    </div>
+              <div className="pt-3 pb-1 space-y-3 animate-in fade-in duration-200 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-1">
+                {/* On Sale Toggle */}
+                <label className="flex items-center justify-between p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition">
+                  <div>
+                    <span className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white">
+                      Item is Currently on Sale
+                    </span>
+                    <span className="text-[11px] text-[#8E8E93] block">
+                      Shows a prominent Sale badge to help family catch discounts
+                    </span>
                   </div>
-                </div>
-
-                {/* Sale Checkbox */}
-                <label className="flex items-center gap-3 p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer select-none transition hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] group">
                   <input
                     type="checkbox"
                     checked={isOnSale}
                     onChange={(e) => setIsOnSale(e.target.checked)}
                     className="w-4 h-4 rounded text-[var(--theme-primary)] focus:ring-[var(--theme-primary)] accent-[var(--theme-primary)] border-0 transition cursor-pointer"
                   />
-                  <div className="flex-1 flex items-center justify-between gap-2">
-                    <div>
-                      <span className="text-xs font-semibold text-[#1C1C1E] dark:text-white flex items-center gap-1.5">
-                        <HugeiconsIcon
-                          icon={DiscountTag01Icon}
-                          size={14}
-                          className={isOnSale ? 'text-[var(--theme-primary)]' : 'text-[#8E8E93]'}
-                        />
-                        <span>On Sale</span>
-                      </span>
-                      <p className="text-[11px] text-[#8E8E93] leading-tight">
-                        Highlight price to let everyone know this gift is on sale.
-                      </p>
-                    </div>
-                    {isOnSale && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white shadow-apple-sm shrink-0 font-sans">
-                        Sale
-                      </span>
-                    )}
-                  </div>
                 </label>
 
-                {/* Alternative Store Link */}
+                {/* Alternative URL (Optional) */}
                 <div>
                   <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
-                    Alternative Store or Link (Optional)
+                    Alternative Store Link (Optional)
                   </label>
                   <input
                     type="text"
@@ -522,5 +538,19 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Dialog: Adding item is permanent and cannot be deleted */}
+      <ConfirmDialog
+        isOpen={showConfirmAddDialog}
+        title="Add Gift to Wishlist"
+        message="Adding an item to your wishlist is permanent and cannot be deleted once added (though you can always modify details like price, links, or notes)."
+        confirmText="Add Gift"
+        cancelText="Cancel"
+        isDestructive={false}
+        loading={submitting}
+        onConfirm={handleConfirmAdd}
+        onCancel={() => !submitting && setShowConfirmAddDialog(false)}
+      />
+    </>
   );
 }

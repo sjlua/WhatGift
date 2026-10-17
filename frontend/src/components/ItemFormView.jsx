@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+import { useHaptics } from '../context/HapticsContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AlertCircleIcon,
@@ -13,7 +14,8 @@ import {
   GiftIcon,
   Add01Icon,
 } from '@hugeicons/core-free-icons';
-import { sanitizeUrl } from '../utils/url';
+import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
+import ConfirmDialog from './ConfirmDialog';
 
 const PRIORITIES = [
   { value: 'low', label: 'Low Priority' },
@@ -23,6 +25,7 @@ const PRIORITIES = [
 
 export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
   const { themeId, isDark } = useTheme();
+  const { triggerSuccess, triggerWarning } = useHaptics();
 
   // Festive Christmas & Birthday background ambient blurred circle accents
   const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
@@ -32,6 +35,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
     : isBirthdayTheme
     ? [isDark ? '#0A84FF' : '#007AFF', isDark ? '#FFD60A' : '#FFCC00']
     : null;
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -49,6 +53,17 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
   const [scrapeSuccess, setScrapeSuccess] = useState(null);
   const [scrapeNotice, setScrapeNotice] = useState('');
   const [lastScrapedTitle, setLastScrapedTitle] = useState('');
+
+  // Confirmation dialog for adding a new permanent item
+  const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState(null);
+
+  // Image load state
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
+  useEffect(() => {
+    setImageLoadFailed(false);
+  }, [imageUrl]);
 
   useEffect(() => {
     if (itemToEdit) {
@@ -137,7 +152,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) {
       setError('Please provide a gift title');
@@ -149,24 +164,43 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
       return;
     }
 
+    setError('');
+
+    const payload = {
+      title: title.trim(),
+      description: description.trim() || null,
+      url: sanitizeUrl(url) || null,
+      alt_url: sanitizeUrl(altUrl) || null,
+      image_url: sanitizeUrl(imageUrl) || null,
+      price: parseFloat(price),
+      priority,
+      is_on_sale: isOnSale,
+    };
+
+    if (itemToEdit) {
+      executeSave(payload);
+    } else {
+      setPendingPayload(payload);
+      setShowConfirmAddDialog(true);
+    }
+  };
+
+  const executeSave = async (payload) => {
     setSubmitting(true);
     setError('');
     try {
-      await onSave({
-        title: title.trim(),
-        description: description.trim() || null,
-        url: sanitizeUrl(url) || null,
-        alt_url: sanitizeUrl(altUrl) || null,
-        image_url: sanitizeUrl(imageUrl) || null,
-        price: parseFloat(price),
-        priority,
-        is_on_sale: isOnSale,
-      });
+      await onSave(payload);
     } catch (err) {
       setError(err.message || 'Failed to save gift item');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleConfirmAdd = async () => {
+    if (!pendingPayload) return;
+    setShowConfirmAddDialog(false);
+    await executeSave(pendingPayload);
   };
 
   return (
@@ -178,7 +212,9 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             {itemToEdit ? `Edit "${itemToEdit.title}"` : 'Add New Gift'}
           </h1>
           <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
-            {itemToEdit ? 'Update details for this gift' : 'Add an item you would love to receive'}
+            {itemToEdit
+              ? 'Update the price, store links, notes, or priority of this gift'
+              : 'Add an item to your wishlist with store links, photos, and approximate prices'}
           </p>
         </div>
 
@@ -186,7 +222,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-lg transition border-0"
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] rounded-lg transition border-0 active:scale-95"
           >
             Cancel
           </button>
@@ -240,7 +276,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     </span>
                   </div>
                   <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
-                    Paste a link from Amazon, JB Hi-Fi, Target, Kmart, etc. to auto-fill details
+                    Paste a link from Amazon, JB Hi-Fi, Target, Kmart, Spotlight, etc. to auto-fill details
                   </p>
                 </div>
               </div>
@@ -259,70 +295,52 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                 value={url}
                 onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
                 onPaste={handleUrlPaste}
-                disabled={isScraping}
-                className="w-full h-11 pl-3.5 pr-24 rounded-lg bg-white dark:bg-[#3A3B3C] border border-[#CCD0D5] dark:border-[#4E4F50] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] transition"
+                onBlur={() => {
+                  if (url && !title) handleAutoFillFromUrl(url);
+                }}
+                className="w-full h-11 pl-10 pr-28 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
               />
-              <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
-                {url.trim() && !isScraping && (
-                  <button
-                    type="button"
-                    onClick={() => handleAutoFillFromUrl(url)}
-                    className="px-3 py-1.5 rounded-md text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition flex items-center gap-1 border-0"
-                  >
-                    <HugeiconsIcon icon={SparklesIcon} size={13} />
-                    <span>Auto-fill</span>
-                  </button>
-                )}
-              </div>
+              <span className="absolute left-3 text-[#65676B] dark:text-[#B0B3B8]">
+                <HugeiconsIcon icon={Link01Icon} size={18} />
+              </span>
+              <button
+                type="button"
+                onClick={() => handleAutoFillFromUrl(url)}
+                disabled={isScraping || !url}
+                className="absolute right-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-md transition disabled:opacity-40 border-0"
+              >
+                Auto-Fill
+              </button>
             </div>
 
             {scrapeSuccess && (
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] text-xs font-medium border border-[#34C759]/20">
-                <div className="flex items-center gap-2">
-                  <HugeiconsIcon icon={Tick02Icon} size={15} />
-                  <span>Details auto-filled from {scrapeSuccess.site_name}!</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setScrapeSuccess(null)}
-                  className="text-xs font-bold px-1 text-[#65676B] dark:text-[#B0B3B8]"
-                >
-                  ✕
-                </button>
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#34C759] pt-1">
+                <HugeiconsIcon icon={Tick02Icon} size={15} />
+                <span>
+                  Auto-filled details from {scrapeSuccess.site_name}!
+                </span>
               </div>
             )}
-
             {scrapeNotice && (
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#FF9500]/10 text-[#A66200] dark:text-[#FFB340] text-xs font-medium">
-                <span>{scrapeNotice}</span>
-                <button
-                  type="button"
-                  onClick={() => setScrapeNotice('')}
-                  className="text-xs font-bold px-1"
-                >
-                  ✕
-                </button>
-              </div>
+              <p className="text-xs text-[#FF9500] dark:text-[#FF9F0A] pt-1">
+                {scrapeNotice}
+              </p>
             )}
           </div>
 
-          {/* 2. CORE DETAILS: TITLE & PRICE */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
-            <h3 className="font-bold text-base text-[#050505] dark:text-[#E4E6EB]">
-              Listing Information
-            </h3>
-
+          {/* 2. PRIMARY ITEM DETAILS */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div>
               <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
                 Gift Title <span className="text-[#FF3B30]">*</span>
               </label>
               <input
                 type="text"
-                required
-                placeholder="What is this item called?"
+                placeholder="e.g. Sony WH-1000XM5 Headphones"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
+                className="w-full h-11 px-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
+                required
               />
             </div>
 
@@ -339,11 +357,11 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     type="number"
                     step="0.01"
                     min="0"
-                    required
-                    placeholder="0.00"
+                    placeholder="29.99"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-11 pl-8 pr-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
+                    className="w-full h-11 pl-8 pr-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm font-bold text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
+                    required
                   />
                 </div>
               </div>
@@ -355,7 +373,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition cursor-pointer"
+                  className="w-full h-11 px-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition shadow-inner"
                 >
                   {PRIORITIES.map((p) => (
                     <option key={p.value} value={p.value}>
@@ -368,55 +386,65 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
 
             <div>
               <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                Description / Sizes / Color Preferences
+                Notes & Preferences (Size, Colour, Specs)
               </label>
               <textarea
-                rows="3"
-                placeholder="Specific size, color, specifications, or notes..."
+                rows={3}
+                placeholder="e.g. Size M, Midnight Blue colourway, or alternate suggestions..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition resize-y"
+                className="w-full p-3 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition resize-none shadow-inner"
               />
             </div>
           </div>
 
-          {/* 3. ADDITIONAL DETAILS */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
+          {/* 3. OPTIONAL ADVANCED SETTINGS (Image, Sale, Alt URL) */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="w-full flex items-center justify-between text-left border-0 bg-transparent"
+              className="flex items-center justify-between w-full text-left text-xs font-bold text-[#050505] dark:text-[#E4E6EB] border-0 bg-transparent p-0"
             >
-              <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB]">
-                Optional Details (Sale, Image URL, Alt Link)
+              <span className="flex items-center gap-2">
+                <span>Advanced Details (Photo, Alternative Link, Sale Highlight)</span>
+                {imageUrl && (
+                  <span className="inline-block w-2 h-2 rounded-full bg-[#34C759]" />
+                )}
               </span>
               <HugeiconsIcon
                 icon={ArrowDown01Icon}
-                size={18}
-                className={`text-[#65676B] dark:text-[#B0B3B8] transition-transform duration-200 ${
+                size={16}
+                className={`transition-transform duration-200 text-[#65676B] dark:text-[#B0B3B8] ${
                   showAdvanced ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
             {showAdvanced && (
-              <div className="space-y-4 pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
-                {/* On sale toggle */}
-                <label className="flex items-center gap-3 p-3 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={isOnSale}
-                    onChange={(e) => setIsOnSale(e.target.checked)}
-                    className="w-4 h-4 rounded text-[var(--theme-primary)] focus:ring-[var(--theme-primary)]"
-                  />
-                  <div>
-                    <span className="text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] flex items-center gap-1.5">
-                      <HugeiconsIcon icon={DiscountTag01Icon} size={15} className="text-[var(--theme-primary)]" />
-                      Mark as On Sale
-                    </span>
-                    <p className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
-                      Highlights this item with a sale tag in your wishlist
-                    </p>
+              <div className="pt-2 space-y-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
+                {/* On Sale Switch */}
+                <label className="flex items-center justify-between cursor-pointer p-3 rounded-lg bg-white dark:bg-[#3A3B3C] transition">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-md bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0">
+                      <HugeiconsIcon icon={DiscountTag01Icon} size={15} />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                        Mark as "On Sale"
+                      </span>
+                      <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
+                        Highlights item with a special badge for your family
+                      </span>
+                    </div>
+                  </div>
+                  <div className="relative inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={isOnSale}
+                      onChange={(e) => setIsOnSale(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
                   </div>
                 </label>
 
@@ -429,7 +457,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     placeholder="https://...image.jpg"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
+                    className="w-full h-11 px-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
                   />
                 </div>
 
@@ -442,12 +470,13 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
                     placeholder="e.g. Target or secondary link"
                     value={altUrl}
                     onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition"
+                    className="w-full h-11 px-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
                   />
                 </div>
               </div>
             )}
           </div>
+        </div>
 
         {/* Right Column (4 cols): Live Marketplace Preview Card */}
         <div className="lg:col-span-4 sticky top-6 space-y-3">
@@ -477,52 +506,56 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
             )}
             <div className="relative z-[1]">
               <div className="w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg overflow-hidden flex items-center justify-center relative">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={title || 'Preview'}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="text-[#65676B] dark:text-[#B0B3B8] flex flex-col items-center gap-2">
-                  <HugeiconsIcon icon={GiftIcon} size={44} />
-                  <span className="text-xs">No image provided</span>
-                </div>
-              )}
+                {imageUrl && !imageLoadFailed ? (
+                  <img
+                    key={imageUrl}
+                    src={imageUrl}
+                    alt={title || 'Preview'}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
+                    }}
+                  />
+                ) : (
+                  <div className="text-[#65676B] dark:text-[#B0B3B8] flex flex-col items-center gap-2 p-4 text-center">
+                    <HugeiconsIcon icon={GiftIcon} size={44} />
+                    <span className="text-xs">
+                      {imageUrl && imageLoadFailed ? 'Image preview unavailable' : 'No image provided'}
+                    </span>
+                  </div>
+                )}
 
-              {isOnSale && (
-                <div className="absolute top-2 left-2">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded">
-                    <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
-                    Sale
-                  </span>
-                </div>
-              )}
-            </div>
+                {isOnSale && (
+                  <div className="absolute top-2 left-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded">
+                      <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
+                      Sale
+                    </span>
+                  </div>
+                )}
+              </div>
 
-            <div className="pt-2.5 pb-1 space-y-0.5">
-              <div className="text-[16px] font-bold text-[#050505] dark:text-[#E4E6EB]">
-                {price && !isNaN(parseFloat(price))
-                  ? parseFloat(price) === 0
-                    ? 'FREE'
-                    : `$${parseFloat(price).toFixed(2)}`
-                  : '$0.00'}
+              <div className="pt-2.5 pb-1 space-y-0.5">
+                <div className="text-[16px] font-bold text-[#050505] dark:text-[#E4E6EB]">
+                  {price && !isNaN(parseFloat(price))
+                    ? parseFloat(price) === 0
+                      ? 'FREE'
+                      : `$${parseFloat(price).toFixed(2)}`
+                    : '$0.00'}
+                </div>
+                <div className="text-[14px] text-[#050505] dark:text-[#E4E6EB] line-clamp-2">
+                  {title || 'Gift Title Preview'}
+                </div>
+                <div className="text-[12px] text-[#65676B] dark:text-[#B0B3B8]">
+                  {priority === 'high' ? 'High priority' : priority === 'low' ? 'Low priority' : 'Medium priority'}
+                </div>
+                {description && (
+                  <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] line-clamp-2 pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
+                    {description}
+                  </p>
+                )}
               </div>
-              <div className="text-[14px] text-[#050505] dark:text-[#E4E6EB] line-clamp-2">
-                {title || 'Gift Title Preview'}
-              </div>
-              <div className="text-[12px] text-[#65676B] dark:text-[#B0B3B8]">
-                {priority === 'high' ? 'High priority' : priority === 'low' ? 'Low priority' : 'Medium priority'}
-              </div>
-              {description && (
-                <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] line-clamp-2 pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
-                  {description}
-                </p>
-              )}
-            </div>
             </div>
           </div>
 
@@ -546,6 +579,19 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           </div>
         </div>
       </form>
+
+      {/* Confirmation Dialog: Adding item is permanent and cannot be deleted */}
+      <ConfirmDialog
+        isOpen={showConfirmAddDialog}
+        title="Add Gift to Wishlist"
+        message="Adding an item to your wishlist is permanent and cannot be deleted once added (though you can always modify details like price, links, or notes)."
+        confirmText="Add Gift"
+        cancelText="Cancel"
+        isDestructive={false}
+        loading={submitting}
+        onConfirm={handleConfirmAdd}
+        onCancel={() => !submitting && setShowConfirmAddDialog(false)}
+      />
     </div>
   );
 }

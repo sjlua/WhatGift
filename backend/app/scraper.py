@@ -42,6 +42,7 @@ RETAILER_DOMAINS = {
     "bcf.com.au": "BCF",
     "danmurphys.com.au": "Dan Murphy's",
     "firstchoiceliquor.com.au": "First Choice Liquor",
+    "spotlightstores.com": "Spotlight",
 }
 
 DEFAULT_HEADERS = {
