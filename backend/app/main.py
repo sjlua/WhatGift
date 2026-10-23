@@ -11,15 +11,19 @@ from app.routers import admin, auth, families, items
 async def lifespan(app: FastAPI):
     # Ensure database schema is created on startup
     Base.metadata.create_all(bind=engine)
-    # Check if alt_url and is_on_sale columns exist in items table (for existing SQLite databases)
+    # Check if columns exist in existing SQLite databases
     with engine.connect() as conn:
         try:
-            columns = [row[1] for row in conn.exec_driver_sql("PRAGMA table_info(items)").fetchall()]
-            if columns and "alt_url" not in columns:
+            item_cols = [row[1] for row in conn.exec_driver_sql("PRAGMA table_info(items)").fetchall()]
+            if item_cols and "alt_url" not in item_cols:
                 conn.exec_driver_sql("ALTER TABLE items ADD COLUMN alt_url VARCHAR(1024)")
                 conn.commit()
-            if columns and "is_on_sale" not in columns:
+            if item_cols and "is_on_sale" not in item_cols:
                 conn.exec_driver_sql("ALTER TABLE items ADD COLUMN is_on_sale BOOLEAN DEFAULT 0")
+                conn.commit()
+            fam_cols = [row[1] for row in conn.exec_driver_sql("PRAGMA table_info(families)").fetchall()]
+            if fam_cols and "allow_item_deletion" not in fam_cols:
+                conn.exec_driver_sql("ALTER TABLE families ADD COLUMN allow_item_deletion BOOLEAN DEFAULT 1")
                 conn.commit()
         except Exception:
             pass

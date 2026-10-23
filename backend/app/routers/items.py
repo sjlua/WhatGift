@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models import Item, ItemClaim, User, ClaimStatus
+from app.models import Item, ItemClaim, User, Family, ClaimStatus
 from app.schemas import (
     ItemCreate,
     ItemUpdate,
@@ -155,6 +155,7 @@ def delete_wishlist_item(
 ):
     """
     Delete a wishlist item. Only the owner (or family admin) can delete it.
+    If item deletion is disabled in the family settings, non-admins cannot delete items.
     """
     item = db.query(Item).filter(Item.id == item_id).first()
     if not item:
@@ -164,6 +165,14 @@ def delete_wishlist_item(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete your own items",
+        )
+
+    # Check if item deletion is enabled in family settings
+    family = db.query(Family).filter(Family.id == current_user.family_id).first()
+    if family and not family.allow_item_deletion and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Item deletion has been disabled for this family.",
         )
 
     db.delete(item)
@@ -209,20 +218,20 @@ def claim_item(
         claimer_name = item.claim.claimed_by.alias if item.claim.claimed_by else "another member"
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"This item was already claimed by {claimer_name}.",
+            detail=f"This gift has already been claimed or purchased by {claimer_name}.",
         )
 
-    new_claim = ItemClaim(
+    claim = ItemClaim(
         item_id=item.id,
         user_id=current_user.id,
         status=payload.status,
         notes=payload.notes.strip() if payload.notes else None,
     )
-    db.add(new_claim)
+    db.add(claim)
     db.commit()
-    db.refresh(new_claim)
+    db.refresh(claim)
 
-    return new_claim.to_dict(viewer_user_id=current_user.id)
+    return claim.to_dict(viewer_user_id=current_user.id)
 
 
 @router.patch("/items/{item_id}/claim", response_model=ItemClaimResponse)
@@ -233,22 +242,28 @@ def update_item_claim(
     db: Session = Depends(get_db),
 ):
     """
-    Update status (e.g. from 'claimed' to 'purchased') or secret notes.
-    Only the claiming member can update their claim.
+    Update status or secret note on an item claimed by the current user.
     """
-    claim = db.query(ItemClaim).filter(ItemClaim.item_id == item_id).first()
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    claim = item.claim
     if not claim:
-        raise HTTPException(status_code=404, detail="Claim not found for this item")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This item is not claimed yet",
+        )
 
     if claim.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the person who claimed this item can update the claim",
+            detail="You can only modify claims you created",
         )
 
-    if "status" in payload.model_fields_set and payload.status is not None:
+    if payload.status is not None:
         claim.status = payload.status
-    if "notes" in payload.model_fields_set:
+    if payload.notes is not None:
         claim.notes = payload.notes.strip() if payload.notes else None
 
     db.commit()
@@ -264,17 +279,23 @@ def unclaim_item(
     db: Session = Depends(get_db),
 ):
     """
-    Release a claim so another family member can purchase it.
-    Only the claimer (or family admin) can release the claim.
+    Release a claim on an item. Only the user who claimed it (or admin) can unclaim.
     """
-    claim = db.query(ItemClaim).filter(ItemClaim.item_id == item_id).first()
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    claim = item.claim
     if not claim:
-        raise HTTPException(status_code=404, detail="Claim not found")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Item is not claimed",
+        )
 
     if claim.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only release your own claims",
+            detail="You can only release your own claim",
         )
 
     db.delete(claim)

@@ -13,6 +13,7 @@ import {
   Tick02Icon,
   GiftIcon,
   Add01Icon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
@@ -23,7 +24,7 @@ const PRIORITIES = [
   { value: 'high', label: 'High Priority' },
 ];
 
-export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
+export default function ItemFormView({ itemToEdit, onSave, onCancel, onDelete, canDelete = true }) {
   const { themeId, isDark } = useTheme();
   const { triggerSuccess, triggerWarning } = useHaptics();
 
@@ -54,7 +55,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
   const [scrapeNotice, setScrapeNotice] = useState('');
   const [lastScrapedTitle, setLastScrapedTitle] = useState('');
 
-  // Confirmation dialog for adding a new permanent item
+  // Confirmation dialog for adding a new item
   const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
   const [pendingPayload, setPendingPayload] = useState(null);
 
@@ -219,6 +220,20 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {itemToEdit && canDelete && onDelete && (
+            <button
+              type="button"
+              onClick={() => {
+                triggerWarning?.();
+                onDelete(itemToEdit.id);
+              }}
+              className="px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#FF3B30] hover:text-white bg-[#FF3B30]/10 hover:bg-[#FF3B30] rounded-lg transition border-0 active:scale-95 inline-flex items-center gap-1.5"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={15} />
+              <span className="hidden sm:inline">Delete Gift</span>
+              <span className="sm:hidden">Delete</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={onCancel}
@@ -255,6 +270,7 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
               <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5 text-[var(--theme-primary)]" />
               <span className="leading-relaxed">
                 <strong>Wishlist Coordination:</strong> Items you add remain visible to family members so they can coordinate claims secretly without spoiling the surprise for you.
+                {!canDelete && ' (Note: Item deletion is turned off in your family settings)'}
               </span>
             </div>
           )}
@@ -283,60 +299,64 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
               {isScraping && (
                 <span className="inline-flex items-center gap-1.5 text-xs text-[var(--theme-primary)] font-bold animate-pulse shrink-0">
                   <div className="w-3.5 h-3.5 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                  <span className="hidden sm:inline">Fetching info...</span>
+                  <span className="hidden sm:inline">Auto-filling...</span>
                 </span>
               )}
             </div>
 
             <div className="relative flex items-center">
               <input
-                type="url"
-                placeholder="https://www.amazon.com/dp/..."
+                type="text"
+                placeholder="https://www.amazon.com/dp/... or paste store link"
                 value={url}
-                onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
+                onChange={(e) => setUrl(e.target.value)}
                 onPaste={handleUrlPaste}
-                onBlur={() => {
-                  if (url && !title) handleAutoFillFromUrl(url);
-                }}
-                className="w-full h-11 pl-10 pr-28 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
+                className="w-full h-11 pl-10 pr-24 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
               />
-              <span className="absolute left-3 text-[#65676B] dark:text-[#B0B3B8]">
+              <div className="absolute left-3 text-[#65676B] dark:text-[#B0B3B8]">
                 <HugeiconsIcon icon={Link01Icon} size={18} />
-              </span>
-              <button
-                type="button"
-                onClick={() => handleAutoFillFromUrl(url)}
-                disabled={isScraping || !url}
-                className="absolute right-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-md transition disabled:opacity-40 border-0"
-              >
-                Auto-Fill
-              </button>
+              </div>
+              {url.trim() && (
+                <button
+                  type="button"
+                  onClick={() => handleAutoFillFromUrl(url)}
+                  disabled={isScraping}
+                  className="absolute right-2 px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-md transition border-0 disabled:opacity-50"
+                >
+                  {isScraping ? 'Filling...' : 'Auto-fill'}
+                </button>
+              )}
             </div>
 
-            {scrapeSuccess && (
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#34C759] pt-1">
-                <HugeiconsIcon icon={Tick02Icon} size={15} />
-                <span>
-                  Auto-filled details from {scrapeSuccess.site_name}!
-                </span>
-              </div>
-            )}
             {scrapeNotice && (
-              <p className="text-xs text-[#FF9500] dark:text-[#FF9F0A] pt-1">
+              <p className="text-xs text-[#FF9500] dark:text-[#FFB340] leading-relaxed">
                 {scrapeNotice}
               </p>
             )}
+
+            {scrapeSuccess && (
+              <div className="flex items-center gap-1.5 text-xs text-[#34C759] font-medium animate-tab-fade">
+                <HugeiconsIcon icon={Tick02Icon} size={14} />
+                <span>
+                  Auto-filled details from {scrapeSuccess.site_name}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* 2. PRIMARY ITEM DETAILS */}
+          {/* 2. ITEM DETAILS */}
           <div className="p-4 sm:p-5 rounded-xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
+            <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB] pb-2 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
+              Item Information
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                Gift Title <span className="text-[#FF3B30]">*</span>
+                Gift Name / Title <span className="text-[#FF3B30]">*</span>
               </label>
               <input
                 type="text"
-                placeholder="e.g. Sony WH-1000XM5 Headphones"
+                placeholder="e.g. Sony WH-1000XM5 Wireless Headphones"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full h-11 px-3.5 rounded-lg bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner"
@@ -560,7 +580,20 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
           </div>
 
           {/* Mobile Bottom Action: visible below preview when scrolling to the bottom of the page */}
-          <div className="lg:hidden flex items-center justify-end gap-3 pt-2 pb-6">
+          <div className="lg:hidden flex items-center justify-end gap-2 pt-2 pb-6">
+            {itemToEdit && canDelete && onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerWarning?.();
+                  onDelete(itemToEdit.id);
+                }}
+                className="py-2.5 px-3.5 text-xs font-semibold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 rounded-lg transition border-0 text-center active:scale-95 shrink-0 inline-flex items-center justify-center gap-1"
+              >
+                <HugeiconsIcon icon={Delete02Icon} size={15} />
+                <span>Delete</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={onCancel}
@@ -580,11 +613,15 @@ export default function ItemFormView({ itemToEdit, onSave, onCancel }) {
         </div>
       </form>
 
-      {/* Confirmation Dialog: Adding item is permanent and cannot be deleted */}
+      {/* Confirmation Dialog: Adding item */}
       <ConfirmDialog
         isOpen={showConfirmAddDialog}
         title="Add Gift to Wishlist"
-        message="Adding an item to your wishlist is permanent and cannot be deleted once added (though you can always modify details like price, links, or notes)."
+        message={
+          canDelete
+            ? 'Add this gift to your wishlist for family members to view and coordinate claims?'
+            : 'Adding an item to your wishlist cannot be deleted once added because item deletion is turned off in your family settings.'
+        }
         confirmText="Add Gift"
         cancelText="Cancel"
         isDestructive={false}

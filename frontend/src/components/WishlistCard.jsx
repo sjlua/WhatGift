@@ -11,18 +11,21 @@ import {
   ShoppingBag01Icon,
   Cancel01Icon,
   DiscountTag01Icon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, getDomain, handleImageFallbackError } from '../utils/url';
 
 export default function WishlistCard({
   item,
   onEdit,
+  onDelete,
+  canDelete = true,
   onClaim,
   onEditClaim,
   onReleaseClaim,
   onQuickMark,
 }) {
-  const { triggerLight } = useHaptics();
+  const { triggerLight, triggerWarning } = useHaptics();
   const { themeId, isDark } = useTheme();
   const [showLightbox, setShowLightbox] = useState(false);
 
@@ -189,7 +192,7 @@ export default function WishlistCard({
         {/* Card Footer: Action Buttons (FB Marketplace Style) */}
         <div className="pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-2 relative z-[1]">
           {isOwner ? (
-            /* OWNER CONTROLS: Edit button */
+            /* OWNER CONTROLS: Edit button and optional Delete button */
             <div className="flex items-center gap-1.5 w-full">
               <button
                 type="button"
@@ -197,11 +200,28 @@ export default function WishlistCard({
                   triggerLight();
                   onEdit(item);
                 }}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition active:scale-95 border-0"
+                className={`${canDelete && onDelete ? 'flex-1' : 'w-full'} inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition active:scale-95 border-0`}
               >
                 <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
                 <span>Edit Gift</span>
               </button>
+
+              {canDelete && onDelete && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerWarning?.();
+                    onDelete(item.id);
+                  }}
+                  className="p-1.5 rounded-lg text-[#65676B] hover:text-[#FF3B30] dark:text-[#B0B3B8] dark:hover:text-[#FF453A] hover:bg-[#FF3B30]/10 dark:hover:bg-[#FF453A]/15 transition active:scale-95 shrink-0 border-0"
+                  title="Delete gift from wishlist"
+                  aria-label="Delete gift from wishlist"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={16} />
+                </button>
+              )}
+
               {cleanUrl && (
                 <a
                   href={cleanUrl}
@@ -278,53 +298,62 @@ export default function WishlistCard({
       {/* FULL IMAGE LIGHTBOX MODAL */}
       {showLightbox && typeof document !== 'undefined' && createPortal(
         <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in"
           onClick={() => setShowLightbox(false)}
         >
           <div
-            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center"
+            className="relative max-w-2xl max-h-[90vh] bg-white dark:bg-[#242526] rounded-2xl overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setShowLightbox(false)}
-              className="absolute -top-12 right-0 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition active:scale-95 shadow-md border-0"
-              aria-label="Close full image view"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
-            </button>
-
-            {/* Uncropped Image */}
-            <img
-              src={item.image_url}
-              alt={item.title}
-              referrerPolicy="no-referrer"
-              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-black/40"
-              onError={(e) => {
-                handleImageFallbackError(e, item.image_url);
-              }}
-            />
-
-            {/* Title & Price Caption */}
-            <div className="mt-3.5 text-center text-white max-w-lg">
-              <h4 className="font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
+            {/* Lightbox Header */}
+            <div className="flex items-center justify-between p-3.5 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
+              <span className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB] truncate pr-4">
                 {item.title}
-              </h4>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowLightbox(false)}
+                className="w-8 h-8 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition shrink-0 border-0"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+              </button>
+            </div>
+
+            {/* Image viewport */}
+            <div className="flex-1 overflow-auto bg-black flex items-center justify-center min-h-[300px]">
+              <img
+                src={item.image_url}
+                alt={item.title}
+                referrerPolicy="no-referrer"
+                className="max-w-full max-h-[70vh] object-contain"
+                onError={(e) => handleImageFallbackError(e, item.image_url)}
+              />
+            </div>
+
+            {/* Lightbox Footer with price and store link */}
+            <div className="p-3.5 border-t border-[#E4E6EB] dark:border-[#3A3B3C] flex items-center justify-between gap-3">
+              <div>
+                {priceDisplay && (
+                  <span className="text-base font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                    {priceDisplay}
+                  </span>
+                )}
+                {item.description && (
+                  <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] line-clamp-2 mt-0.5">
+                    {item.description}
+                  </p>
+                )}
+              </div>
               {cleanUrl && (
-                <div className="pt-2">
-                  <a
-                    href={cleanUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-md border-0"
-                  >
-                    <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
-                    <span>Open in Store ({getDomain(cleanUrl)})</span>
-                  </a>
-                </div>
+                <a
+                  href={cleanUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--theme-primary)] text-white hover:bg-[var(--theme-hover)] transition shrink-0"
+                >
+                  <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+                  <span>Visit Store</span>
+                </a>
               )}
             </div>
           </div>

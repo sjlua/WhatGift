@@ -25,13 +25,14 @@ import {
 } from '@hugeicons/core-free-icons';
 
 export default function SettingsView({ onOpenAdmin }) {
-  const { user, family, isAdmin, updateUserProfile, logout } = useAuth();
+  const { user, family, isAdmin, updateUserProfile, updateFamilyDetails, logout } = useAuth();
   const { theme, themeId, setThemeId, themes, darkMode, setDarkMode, uiScale, setUiScale } = useTheme();
   const { hapticsEnabled, toggleHaptics, triggerSelection, triggerSuccess, triggerWarning } = useHaptics();
 
   const [alias, setAlias] = useState('');
   const [avatar, setAvatar] = useState('🎁');
   const [submitting, setSubmitting] = useState(false);
+  const [savingDeletion, setSavingDeletion] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
@@ -66,6 +67,28 @@ export default function SettingsView({ onOpenAdmin }) {
       setError(err.message || 'Failed to update profile');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleToggleDeletion = async (e) => {
+    const nextVal = e.target.checked;
+    setSavingDeletion(true);
+    setError('');
+    setSuccess('');
+    try {
+      await updateFamilyDetails({ allow_item_deletion: nextVal });
+      triggerSuccess?.();
+      setSuccess(
+        nextVal
+          ? 'Wishlist item deletion is now enabled for all family members.'
+          : 'Wishlist item deletion has been turned off for the family.'
+      );
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      triggerWarning?.();
+      setError(err.message || 'Failed to update item deletion setting');
+    } finally {
+      setSavingDeletion(false);
     }
   };
 
@@ -233,7 +256,55 @@ export default function SettingsView({ onOpenAdmin }) {
                 </button>
               </div>
 
-              <div className="flex gap-2">
+              {/* Family Deletion Setting */}
+              <div className="pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
+                {isAdmin ? (
+                  <label className="flex items-center justify-between cursor-pointer py-1">
+                    <div>
+                      <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                        Allow Wishlist Item Deletion
+                      </span>
+                      <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] leading-tight block mt-0.5">
+                        Allow members to delete items from their wishlists
+                      </span>
+                    </div>
+                    <div className="relative inline-flex items-center ml-3 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={family?.allow_item_deletion !== false}
+                        onChange={handleToggleDeletion}
+                        disabled={savingDeletion}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-6 bg-[#CCD0D5] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                    </div>
+                  </label>
+                ) : (
+                  <div className="flex items-center justify-between py-1">
+                    <div>
+                      <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                        Wishlist Item Deletion
+                      </span>
+                      <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] block mt-0.5">
+                        {family?.allow_item_deletion !== false
+                          ? 'Enabled for this family'
+                          : 'Disabled in family settings'}
+                      </span>
+                    </div>
+                    <span
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                        family?.allow_item_deletion !== false
+                          ? 'bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158]'
+                          : 'bg-[#FF9500]/10 text-[#FF9500]'
+                      }`}
+                    >
+                      {family?.allow_item_deletion !== false ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={copyInviteLink}
@@ -362,31 +433,36 @@ export default function SettingsView({ onOpenAdmin }) {
                     }`}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-bold text-xs text-[#050505] dark:text-[#E4E6EB]">
-                        {t.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{t.emoji}</span>
+                        <div>
+                          <span className="font-bold text-xs text-[#050505] dark:text-[#E4E6EB] block">
+                            {t.name}
+                          </span>
+                          <span className="text-[10px] text-[#65676B] dark:text-[#B0B3B8]">
+                            {t.subtitle}
+                          </span>
+                        </div>
+                      </div>
                       {isSelected && (
-                        <span className="w-4 h-4 rounded-full bg-[var(--theme-primary)] text-white flex items-center justify-center">
-                          <HugeiconsIcon icon={Tick02Icon} size={11} />
-                        </span>
+                        <HugeiconsIcon icon={Tick02Icon} size={14} className="text-[var(--theme-primary)] shrink-0" />
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] truncate">{t.holiday}</span>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {t.gradient ? (
-                          <span
-                            className="w-3.5 h-3.5 rounded-full shadow-sm"
-                            style={{ background: t.gradient }}
-                          />
-                        ) : (
-                          <span
-                            className="w-3.5 h-3.5 rounded-full shadow-sm"
-                            style={{ backgroundColor: t.primary }}
-                          />
-                        )}
-                      </div>
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <div
+                        className="w-4 h-4 rounded-full border border-black/10 dark:border-white/10 shrink-0"
+                        style={{ backgroundColor: t.primary }}
+                      />
+                      {t.secondary && (
+                        <div
+                          className="w-4 h-4 rounded-full border border-black/10 dark:border-white/10 shrink-0"
+                          style={{ backgroundColor: t.secondary }}
+                        />
+                      )}
+                      <span className="text-[10px] text-[#65676B] dark:text-[#B0B3B8] ml-1">
+                        {t.isFestive ? 'Special occasion' : 'Year-round'}
+                      </span>
                     </div>
                   </button>
                 );
@@ -394,158 +470,147 @@ export default function SettingsView({ onOpenAdmin }) {
             </div>
           </div>
 
-          {/* Card 4: Dark Mode & Tactile Haptics */}
+          {/* Card 4: Dark Mode & Appearance Preferences */}
           <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
-                <HugeiconsIcon icon={Moon02Icon} size={18} className="text-[var(--theme-primary)]" />
-                Display & Tactile Feel
+                <HugeiconsIcon icon={Sun01Icon} size={18} className="text-[var(--theme-primary)]" />
+                Display & Night Mode
               </span>
             </div>
 
-            {/* Dark Mode Segmented Controls */}
-            <div>
-              <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-2">
-                Appearance Mode
-              </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg">
-                {[
-                  { id: 'light', label: 'Light', icon: Sun01Icon },
-                  { id: 'dark', label: 'Dark', icon: Moon02Icon },
-                  { id: 'system', label: 'System', icon: ComputerIcon },
-                ].map(({ id, label, icon: IconComponent }) => {
-                  const isSelected = darkMode === id;
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => {
-                        setDarkMode(id);
-                        triggerSelection();
-                      }}
-                      className={`py-2 rounded-md border-0 flex flex-col items-center gap-1 transition text-xs font-bold ${
-                        isSelected
-                          ? 'bg-white dark:bg-[#242526] text-[var(--theme-primary)] shadow-sm'
-                          : 'text-[#65676B] dark:text-[#B0B3B8] hover:text-[#050505] dark:hover:text-white'
-                      }`}
-                    >
-                      <HugeiconsIcon icon={IconComponent} size={16} />
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDarkMode('light');
+                  triggerSelection();
+                }}
+                className={`py-3 px-3 rounded-lg text-xs font-semibold border-0 transition flex flex-col items-center gap-2 ${
+                  darkMode === 'light'
+                    ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] ring-2 ring-[var(--theme-primary)] font-bold'
+                    : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]'
+                }`}
+              >
+                <HugeiconsIcon icon={Sun01Icon} size={18} />
+                <span>Light</span>
+              </button>
 
-            {/* Desktop UI Scaling Control */}
-            <div className="pt-2">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] flex items-center gap-1.5">
-                  <HugeiconsIcon icon={ALargeSmallIcon} size={16} className="text-[var(--theme-primary)]" />
-                  <span>Desktop Interface Scaling</span>
-                </label>
-                <span className="text-[11px] font-semibold text-[#65676B] dark:text-[#B0B3B8] hidden lg:inline">
-                  {uiScale === 'compact' ? 'Compact (88%)' : uiScale === 'default' ? 'Default (100%)' : uiScale === 'spacious' ? 'Spacious (110%)' : 'Large (120%)'}
-                </span>
-              </div>
-              <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mb-2">
-                Adjust the size and spacing of text, cards, and navigation on desktop monitors.
-              </p>
-              <div className="grid grid-cols-4 gap-1 p-1 bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg">
-                {[
-                  { id: 'compact', label: 'Compact', desc: '88%' },
-                  { id: 'default', label: 'Default', desc: '100%' },
-                  { id: 'spacious', label: 'Spacious', desc: '110%' },
-                  { id: 'large', label: 'Large', desc: '120%' },
-                ].map(({ id, label, desc }) => {
-                  const isSelected = uiScale === id;
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => {
-                        setUiScale(id);
-                        triggerSelection();
-                      }}
-                      className={`py-1.5 px-1 rounded-md border-0 flex flex-col items-center justify-center transition ${
-                        isSelected
-                          ? 'bg-white dark:bg-[#242526] text-[var(--theme-primary)] shadow-sm font-bold'
-                          : 'text-[#65676B] dark:text-[#B0B3B8] hover:text-[#050505] dark:hover:text-white font-medium'
-                      }`}
-                    >
-                      <span className="text-xs">{label}</span>
-                      <span className="text-[10px] opacity-75">{desc}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDarkMode('dark');
+                  triggerSelection();
+                }}
+                className={`py-3 px-3 rounded-lg text-xs font-semibold border-0 transition flex flex-col items-center gap-2 ${
+                  darkMode === 'dark'
+                    ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] ring-2 ring-[var(--theme-primary)] font-bold'
+                    : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]'
+                }`}
+              >
+                <HugeiconsIcon icon={Moon02Icon} size={18} />
+                <span>Dark</span>
+              </button>
 
-            {/* Tactile Haptic Feedback Toggle (Matching card styling) */}
-            <div className="pt-2">
-              <div className="flex items-center justify-between p-3.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C]">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0">
-                    <HugeiconsIcon icon={SmartPhone01Icon} size={18} />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
-                      Web Haptic Vibrations
-                    </span>
-                    <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
-                      Native tactile vibration clicks on taps, claims, and actions.
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={toggleHaptics}
-                  className={`w-11 h-6 rounded-full transition-colors relative border-0 p-0.5 shrink-0 ${
-                    hapticsEnabled ? 'bg-[#34C759]' : 'bg-[#CCD0D5] dark:bg-[#4E4F50]'
-                  }`}
-                  aria-label="Toggle haptic feedback"
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                      hapticsEnabled ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDarkMode('system');
+                  triggerSelection();
+                }}
+                className={`py-3 px-3 rounded-lg text-xs font-semibold border-0 transition flex flex-col items-center gap-2 ${
+                  darkMode === 'system'
+                    ? 'bg-[var(--theme-tint)] text-[var(--theme-primary)] ring-2 ring-[var(--theme-primary)] font-bold'
+                    : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]'
+                }`}
+              >
+                <HugeiconsIcon icon={ComputerIcon} size={18} />
+                <span>System</span>
+              </button>
             </div>
           </div>
 
-          {/* Card 5: App Information & Changelog (Matching card styling) */}
-          <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[var(--theme-tint)] text-[var(--theme-primary)] flex items-center justify-center shrink-0">
-                <HugeiconsIcon icon={SparklesIcon} size={18} />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
-                  WhatGift v0.3.0
-                </span>
-                <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
-                  Secret family gift exchange & anti-spoiler wishlist coordination.
-                </span>
-              </div>
+          {/* Card 5: Accessibility Scaling */}
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
+              <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
+                <HugeiconsIcon icon={ALargeSmallIcon} size={18} className="text-[var(--theme-primary)]" />
+                Text Size & Scaling
+              </span>
+              <span className="text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8] capitalize">
+                {uiScale} Scale
+              </span>
             </div>
 
+            <p className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
+              Adjust text and card sizing for maximum readability on your screen.
+            </p>
+
+            <div className="grid grid-cols-3 gap-2">
+              {['compact', 'default', 'large'].map((scale) => (
+                <button
+                  key={scale}
+                  type="button"
+                  onClick={() => {
+                    setUiScale(scale);
+                    triggerSelection();
+                  }}
+                  className={`py-2.5 px-3 rounded-lg text-xs font-semibold border-0 transition capitalize ${
+                    uiScale === scale
+                      ? 'bg-[var(--theme-primary)] text-white shadow-sm font-bold'
+                      : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]'
+                  }`}
+                >
+                  {scale}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Card 6: Haptic Feedback Switch */}
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
+                <HugeiconsIcon icon={SmartPhone01Icon} size={18} className="text-[var(--theme-primary)]" />
+                Vibration & Haptic Clicks
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hapticsEnabled}
+                  onChange={toggleHaptics}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-[#CCD0D5] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+              </label>
+            </div>
+            <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] leading-relaxed">
+              Provides subtle physical tactile feedback when tapping items, claiming gifts, or switching themes on supported mobile devices.
+            </p>
+          </div>
+
+          {/* Card 7: Version Info & Changelog */}
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                WhatGift v0.3.0
+              </span>
+              <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8]">
+                Made with care for multi-generational families
+              </span>
+            </div>
             <button
               type="button"
               onClick={() => setIsChangelogOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition border-0"
+              className="text-xs font-semibold text-[var(--theme-primary)] hover:underline border-0 bg-transparent"
             >
-              <span>What's New</span>
+              What's New
             </button>
           </div>
         </div>
       </div>
 
-      {isChangelogOpen && (
-        <ChangelogModal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
-      )}
+      <ChangelogModal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
     </div>
   );
 }

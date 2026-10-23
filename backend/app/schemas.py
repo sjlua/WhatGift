@@ -14,6 +14,7 @@ class FamilySetupRequest(BaseModel):
     admin_password: Optional[str] = Field(None, max_length=100, description="Optional admin password")
     admin_avatar: Optional[str] = Field("⭐", max_length=50)
     family_code: Optional[str] = Field(None, min_length=2, max_length=32, description="Custom code (letters, numbers, hyphens)")
+    allow_item_deletion: Optional[bool] = Field(True, description="Allow members to delete wishlist items")
 
     @field_validator("family_code")
     @classmethod
@@ -44,6 +45,7 @@ class FamilyResponse(BaseModel):
     id: int
     name: str
     code: str
+    allow_item_deletion: bool = True
     created_at: datetime
     members: Optional[List[FamilyMemberSummary]] = None
 
@@ -54,12 +56,14 @@ class FamilyLookupResponse(BaseModel):
     id: int
     name: str
     code: str
+    allow_item_deletion: bool = True
     members: List[FamilyMemberSummary]
 
 
 class FamilyUpdateRequest(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100, description="Family or household name")
     code: Optional[str] = Field(None, min_length=2, max_length=32, description="Family identifier code")
+    allow_item_deletion: Optional[bool] = Field(None, description="Allow members to delete wishlist items")
 
     @field_validator("code")
     @classmethod
@@ -78,6 +82,7 @@ class FamilyUpdateResponse(BaseModel):
     id: int
     name: str
     code: str
+    allow_item_deletion: bool = True
     code_changed: bool = False
     members: Optional[List[FamilyMemberSummary]] = None
 
@@ -217,4 +222,3 @@ class ScrapeLinkResponse(BaseModel):
     price: Optional[float] = None
     site_name: Optional[str] = None
     currency: Optional[str] = "AUD"
-

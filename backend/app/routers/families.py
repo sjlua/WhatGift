@@ -81,6 +81,7 @@ def create_family(payload: FamilySetupRequest, db: Session = Depends(get_db)):
     family = Family(
         name=payload.name.strip(),
         code=family_code,
+        allow_item_deletion=payload.allow_item_deletion if payload.allow_item_deletion is not None else True,
     )
     db.add(family)
     db.flush()  # populate family.id
@@ -123,6 +124,7 @@ def create_family(payload: FamilySetupRequest, db: Session = Depends(get_db)):
             id=family.id,
             name=family.name,
             code=family.code,
+            allow_item_deletion=family.allow_item_deletion,
             created_at=family.created_at,
             members=[build_member_summary(admin_user)],
         ),
@@ -149,6 +151,7 @@ def lookup_family_by_code(code: str = Query(..., min_length=1), db: Session = De
         id=family.id,
         name=family.name,
         code=family.code,
+        allow_item_deletion=family.allow_item_deletion,
         members=members_data,
     )
 
@@ -171,6 +174,7 @@ def get_current_family(
         id=family.id,
         name=family.name,
         code=family.code,
+        allow_item_deletion=family.allow_item_deletion,
         members=members_data,
     )
 
@@ -182,7 +186,7 @@ def update_current_family(
     db: Session = Depends(get_db),
 ):
     """
-    Admin only: Updates the family name and/or family code.
+    Admin only: Updates the family name, family code, and/or deletion settings.
     If family code is updated, verifies uniqueness across all families.
     """
     family = db.query(Family).filter(Family.id == admin.family_id).first()
@@ -217,6 +221,9 @@ def update_current_family(
             family.code = clean_code
             code_changed = True
 
+    if payload.allow_item_deletion is not None:
+        family.allow_item_deletion = payload.allow_item_deletion
+
     db.commit()
     db.refresh(family)
 
@@ -226,6 +233,7 @@ def update_current_family(
         id=family.id,
         name=family.name,
         code=family.code,
+        allow_item_deletion=family.allow_item_deletion,
         code_changed=code_changed,
         members=members_data,
     )

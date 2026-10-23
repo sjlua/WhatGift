@@ -34,6 +34,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
   // Family details form
   const [familyName, setFamilyName] = useState('');
   const [familyCode, setFamilyCode] = useState('');
+  const [allowItemDeletion, setAllowItemDeletion] = useState(true);
   const [savingFamily, setSavingFamily] = useState(false);
   const [familySuccess, setFamilySuccess] = useState('');
   const [familyError, setFamilyError] = useState('');
@@ -82,6 +83,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
     if (family) {
       setFamilyName(family.name || '');
       setFamilyCode(family.code || '');
+      setAllowItemDeletion(family.allow_item_deletion !== false);
       setFamilyError('');
       setFamilySuccess('');
     }
@@ -108,7 +110,8 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
   // Track if admin modified family details
   const isCodeModified = familyCode.trim().toUpperCase() !== (family?.code || '').toUpperCase();
   const isNameModified = familyName.trim() !== (family?.name || '');
-  const hasFamilyChanges = isCodeModified || isNameModified;
+  const isDeletionModified = allowItemDeletion !== (family?.allow_item_deletion !== false);
+  const hasFamilyChanges = isCodeModified || isNameModified || isDeletionModified;
 
   const handleSaveFamily = async (e) => {
     e.preventDefault();
@@ -135,6 +138,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
       const res = await updateFamilyDetails({
         name: cleanName,
         code: cleanCode,
+        allow_item_deletion: allowItemDeletion,
       });
 
       if (codeWillChange || res.code_changed) {
@@ -147,7 +151,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
         }, 1200);
       } else {
         triggerSuccess?.();
-        setFamilySuccess(`Family name updated to "${cleanName}"!`);
+        setFamilySuccess('Family settings updated successfully!');
         await refreshFamily();
         setTimeout(() => setFamilySuccess(''), 3000);
       }
@@ -289,7 +293,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
             </div>
           </div>
 
-          {/* Family Name & Code Settings */}
+          {/* Family Name, Code & Permissions Settings */}
           <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
@@ -345,6 +349,29 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                 </p>
               </div>
 
+              {/* Wishlist Item Deletion Toggle */}
+              <div className="pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
+                <label className="flex items-center justify-between cursor-pointer py-1">
+                  <div>
+                    <span className="text-xs font-bold text-[#050505] dark:text-[#E4E6EB] block">
+                      Allow Wishlist Item Deletion
+                    </span>
+                    <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] leading-tight block mt-0.5">
+                      Allow family members to delete items from their wishlists. Turn off to prevent deletions.
+                    </span>
+                  </div>
+                  <div className="relative inline-flex items-center ml-3 shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={allowItemDeletion}
+                      onChange={(e) => setAllowItemDeletion(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-6 bg-[#CCD0D5] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                  </div>
+                </label>
+              </div>
+
               {isCodeModified && (
                 <div className="p-3 rounded-lg bg-[#FF9500]/10 text-[#FF9500] text-xs flex items-start gap-2 leading-relaxed">
                   <HugeiconsIcon icon={AlertCircleIcon} size={15} className="shrink-0 mt-0.5" />
@@ -378,24 +405,28 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
 
             <form onSubmit={handleCreateMember} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                  First Name / Member Alias <span className="text-[#FF3B30]">*</span>
+                <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5 flex items-center">
+                  <span>First Name / Nickname</span>
+                  <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#FF3B30]/10 text-[#FF3B30] ml-1.5">
+                    Required
+                  </span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Grandma, Uncle Joe, Sophia"
                   value={alias}
                   onChange={(e) => setAlias(e.target.value)}
+                  placeholder="e.g. Sean, Chloe, Dad, Grandma"
                   className="w-full px-3.5 py-2.5 rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition"
                 />
               </div>
 
+              {/* Avatar Selector */}
               <div>
                 <label className="block text-xs font-bold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                  Member Avatar
+                  Choose Profile Picture
                 </label>
-                <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-2 bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg">
+                <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5 p-2 bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-lg max-h-36 overflow-y-auto">
                   {AVATAR_OPTIONS.map((emoji) => (
                     <button
                       key={emoji}
@@ -403,7 +434,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                       onClick={() => setAvatar(emoji)}
                       className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition border-0 ${
                         avatar === emoji
-                          ? 'bg-white dark:bg-[#242526] ring-2 ring-[var(--theme-primary)] shadow-sm scale-105'
+                          ? 'bg-white dark:bg-[#242526] ring-2 ring-[var(--theme-primary)] shadow-sm'
                           : 'hover:bg-white/60 dark:hover:bg-white/10'
                       }`}
                     >
@@ -413,57 +444,55 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-1">
                 <button
                   type="submit"
                   disabled={submitting || !alias.trim()}
-                  className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50"
+                  className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition disabled:opacity-50 border-0"
                 >
-                  {submitting ? 'Adding...' : 'Add Member to Family'}
+                  {submitting ? 'Adding...' : 'Add Family Member'}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Existing Members Roster */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
+          {/* Existing Members Directory */}
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
               <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                 <HugeiconsIcon icon={UserGroupIcon} size={18} className="text-[var(--theme-primary)]" />
-                Family Roster ({members.length})
+                Current Family Members ({members.length})
               </span>
             </div>
 
-            <div className="divide-y divide-[#E4E6EB] dark:divide-[#3A3B3C]">
-              {loading ? (
-                <div className="py-6 text-center text-sm text-[#65676B] dark:text-[#B0B3B8]">
-                  Loading members...
-                </div>
-              ) : members.length === 0 ? (
-                <div className="py-6 text-center text-sm text-[#65676B] dark:text-[#B0B3B8]">
-                  No members yet.
-                </div>
-              ) : (
-                members.map((m) => (
-                  <div key={m.id} className="py-3 flex items-center justify-between">
+            {loading ? (
+              <div className="py-8 text-center text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                Loading members...
+              </div>
+            ) : members.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                No members registered yet.
+              </div>
+            ) : (
+              <div className="divide-y divide-[#E4E6EB] dark:divide-[#3A3B3C]">
+                {members.map((m) => (
+                  <div key={m.id} className="py-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+                      <div className="w-10 h-10 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center justify-center text-xl shrink-0">
                         {m.avatar || '🎁'}
-                      </span>
+                      </div>
                       <div>
-                        <div className="font-semibold text-sm text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
+                        <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                           <span>{m.alias}</span>
                           {m.is_admin && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
                               Admin
                             </span>
                           )}
                         </div>
-                        <div className="mt-1">
-                          <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]">
-                            {m.item_count ?? 0} {m.item_count === 1 ? 'gift' : 'gifts'}
-                          </span>
-                        </div>
+                        <span className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                          {m.is_admin ? 'Family Organizer' : 'Member'}
+                        </span>
                       </div>
                     </div>
 
@@ -471,66 +500,59 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                       <button
                         type="button"
                         onClick={() => handleDeleteMember(m.id, m.alias)}
-                        className="p-2 text-[#65676B] dark:text-[#B0B3B8] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 rounded-lg transition border-0"
-                        title="Remove member"
+                        className="p-2 rounded-lg text-[#65676B] hover:text-[#FF3B30] dark:text-[#B0B3B8] dark:hover:text-[#FF453A] hover:bg-[#FF3B30]/10 transition border-0"
+                        title={`Remove ${m.alias}`}
                       >
                         <HugeiconsIcon icon={Delete02Icon} size={16} />
                       </button>
                     )}
                   </div>
-                ))
-              )}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Reset All Family Wishlists (Destructive admin action) */}
+          <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border border-[#FF3B30]/20 shadow-apple-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-sm text-[#FF3B30] flex items-center gap-2">
+                <HugeiconsIcon icon={Delete02Icon} size={16} />
+                Reset Family Wishlists
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(true)}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#FF3B30] hover:bg-[#D32F2F] transition border-0"
+              >
+                Reset All Wishlists
+              </button>
             </div>
+            <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] leading-relaxed">
+              Permanently wipes all wishlist items and claims across the family. Useful when starting fresh for a new holiday or birthday season. Member aliases are preserved.
+            </p>
+
+            {resetSuccess && (
+              <div className="p-3 text-xs rounded-lg bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] flex items-center gap-2">
+                <HugeiconsIcon icon={Tick02Icon} size={14} className="shrink-0" />
+                <span>{resetSuccess}</span>
+              </div>
+            )}
+
+            {resetError && (
+              <div className="p-3 text-xs rounded-lg bg-[#FF3B30]/10 text-[#FF3B30] flex items-center gap-2">
+                <HugeiconsIcon icon={AlertCircleIcon} size={14} className="shrink-0" />
+                <span>{resetError}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Danger Zone: Located at the bottom of the page */}
-      <div className="p-5 rounded-xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-base text-[#FF3B30] flex items-center gap-2">
-            <HugeiconsIcon icon={AlertCircleIcon} size={18} />
-            <span>Danger Zone</span>
-          </h3>
-          <span className="text-xs text-[#FF3B30] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FF3B30]/10">
-            Irreversible
-          </span>
-        </div>
-        <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] leading-relaxed max-w-2xl">
-          Permanently delete all wishlist items, links, prices, and marks across all family members in {family?.name} to start fresh for a new holiday or season.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            triggerWarning?.();
-            setResetError('');
-            setShowResetConfirm(true);
-          }}
-          className="py-2.5 px-4 rounded-lg text-xs font-bold text-white bg-[#FF3B30] hover:bg-[#D70015] transition border-0 inline-flex items-center gap-2"
-        >
-          <HugeiconsIcon icon={Delete02Icon} size={15} />
-          <span>Reset Entire Family Wishlist</span>
-        </button>
-
-        {resetSuccess && (
-          <div className="p-2.5 rounded-lg bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] text-xs font-medium flex items-center gap-2">
-            <HugeiconsIcon icon={Tick02Icon} size={15} />
-            <span>{resetSuccess}</span>
-          </div>
-        )}
-        {resetError && (
-          <div className="p-2.5 rounded-lg bg-[#FF3B30]/10 text-[#FF3B30] text-xs font-medium flex items-center gap-2">
-            <HugeiconsIcon icon={AlertCircleIcon} size={15} />
-            <span>{resetError}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Member Delete Destructive Warning Dialog */}
+      {/* Delete Member Confirmation Dialog */}
       <ConfirmDialog
         isOpen={!!memberToDelete}
-        title="Remove Family Member?"
-        message={`Are you sure you want to remove "${memberToDelete?.alias}"? This will permanently remove their profile and wishlist.`}
+        title={`Remove ${memberToDelete?.alias}?`}
+        message={`Are you sure you want to remove ${memberToDelete?.alias} from the family circle? Their wishlist items will be permanently deleted.`}
         confirmText="Remove Member"
         cancelText="Cancel"
         isDestructive={true}
@@ -539,12 +561,12 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
         onCancel={() => !deletingMember && setMemberToDelete(null)}
       />
 
-      {/* Reset Wishlist Destructive Warning Dialog */}
+      {/* Reset Wishlist Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showResetConfirm}
-        title="Reset Entire Family Wishlist?"
-        message={`This will permanently delete ALL items, links, prices, and marks across every family member in ${family?.name}. This action cannot be undone.`}
-        confirmText="Yes, Delete All"
+        title="Reset All Family Wishlists?"
+        message="This will permanently delete ALL wishlist items and secret claims across every family member. Member profiles and family settings will remain intact. This cannot be undone."
+        confirmText="Delete All Items"
         cancelText="Cancel"
         isDestructive={true}
         loading={resetting}

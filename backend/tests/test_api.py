@@ -312,6 +312,118 @@ def test_full_family_lifecycle_and_privacy(client):
     assert len(empty_items) == 0
 
 
+def test_item_deletion_and_family_setting(client):
+    # 1. Register a family and members
+    setup_resp = client.post(
+        "/api/families",
+        json={
+            "name": "Delete Test Family",
+            "family_code": "DEL-2026",
+            "admin_alias": "Parent",
+        },
+    )
+    assert setup_resp.status_code == 201
+    parent_token = setup_resp.json()["access_token"]
+    parent_headers = {"Authorization": f"Bearer {parent_token}"}
+    assert setup_resp.json()["family"]["allow_item_deletion"] is True
+
+    # Check current family endpoint
+    cur_fam = client.get("/api/families/current", headers=parent_headers).json()
+    assert cur_fam["allow_item_deletion"] is True
+
+    # Add child member
+    child_resp = client.post(
+        "/api/admin/members",
+        headers=parent_headers,
+        json={"alias": "Kid", "avatar": "🧒"},
+    )
+    assert child_resp.status_code == 201
+    kid_id = child_resp.json()["id"]
+
+    # Child logs in
+    kid_login = client.post(
+        "/api/auth/login",
+        json={"family_code": "DEL-2026", "alias": "Kid"},
+    )
+    assert kid_login.status_code == 200
+    kid_token = kid_login.json()["access_token"]
+    kid_headers = {"Authorization": f"Bearer {kid_token}"}
+    assert kid_login.json()["family"]["allow_item_deletion"] is True
+
+    # Kid creates a wishlist item
+    item1_resp = client.post(
+        "/api/items",
+        headers=kid_headers,
+        json={"title": "Toy Car", "price": 15.0},
+    )
+    assert item1_resp.status_code == 201
+    item1_id = item1_resp.json()["id"]
+
+    # Since allow_item_deletion is True by default, Kid can delete their own item
+    del_resp = client.delete(f"/api/items/{item1_id}", headers=kid_headers)
+    assert del_resp.status_code == 204
+
+    # Verify item is deleted
+    kid_items = client.get(f"/api/users/{kid_id}/items", headers=kid_headers).json()
+    assert len(kid_items) == 0
+
+    # Kid creates another item
+    item2_resp = client.post(
+        "/api/items",
+        headers=kid_headers,
+        json={"title": "Comic Book", "price": 10.0},
+    )
+    assert item2_resp.status_code == 201
+    item2_id = item2_resp.json()["id"]
+
+    # Admin turns OFF allow_item_deletion in family settings
+    update_fam = client.put(
+        "/api/families/current",
+        headers=parent_headers,
+        json={"allow_item_deletion": False},
+    )
+    assert update_fam.status_code == 200
+    assert update_fam.json()["allow_item_deletion"] is False
+
+    # Check GET /api/families/current for kid
+    kid_fam = client.get("/api/families/current", headers=kid_headers).json()
+    assert kid_fam["allow_item_deletion"] is False
+
+    # Kid attempts to delete item -> must fail with 403 Forbidden
+    forbidden_del = client.delete(f"/api/items/{item2_id}", headers=kid_headers)
+    assert forbidden_del.status_code == 403
+    assert "disabled" in forbidden_del.json()["detail"].lower()
+
+    # Verify item is still present
+    kid_items_still = client.get(f"/api/users/{kid_id}/items", headers=kid_headers).json()
+    assert len(kid_items_still) == 1
+
+    # Non-admin Kid attempts to turn allow_item_deletion back on -> must fail with 403
+    kid_fam_update = client.put(
+        "/api/families/current",
+        headers=kid_headers,
+        json={"allow_item_deletion": True},
+    )
+    assert kid_fam_update.status_code == 403
+
+    # Admin turns allow_item_deletion back ON
+    turn_on_resp = client.put(
+        "/api/families/current",
+        headers=parent_headers,
+        json={"allow_item_deletion": True},
+    )
+    assert turn_on_resp.status_code == 200
+    assert turn_on_resp.json()["allow_item_deletion"] is True
+
+    # Kid can now successfully delete their item
+    kid_del_again = client.delete(f"/api/items/{item2_id}", headers=kid_headers)
+    assert kid_del_again.status_code == 204
+
+    # Verify item is deleted
+    kid_items_final = client.get(f"/api/users/{kid_id}/items", headers=kid_headers).json()
+    assert len(kid_items_final) == 0
+
+
 def test_scrape_product_link_endpoint(client):
     setup_resp = client.post(
         "/api/families",
@@ -459,5 +571,3 @@ def test_url_sanitization_and_item_deduplication(client):
     )
     assert update_resp.status_code == 200
     assert update_resp.json()["url"] == "https://www.jbhifi.com.au/products/case"
-
-

@@ -53,6 +53,11 @@ class Family(Base):
     # Optional shared passcode hash for joining or accessing the family portal
     passcode_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    # Permission setting: Whether family members are allowed to delete items from their wishlists
+    allow_item_deletion: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False, server_default=text("1")
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -73,6 +78,7 @@ class Family(Base):
             "id": self.id,
             "name": self.name,
             "code": self.code,
+            "allow_item_deletion": self.allow_item_deletion,
             "member_count": len(self.members) if self.members else 0,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
@@ -259,16 +265,15 @@ class ItemClaim(Base):
     claimed_by: Mapped["User"] = relationship("User", back_populates="claimed_items")
 
     def to_dict(self, viewer_user_id: Optional[int] = None) -> Dict[str, Any]:
-        raw_status = self.status.value if isinstance(self.status, ClaimStatus) else self.status
         return {
             "id": self.id,
             "item_id": self.item_id,
             "claimed_by_id": self.user_id,
-            "claimed_by_alias": self.claimed_by.alias if self.claimed_by else None,
-            "claimed_by_avatar": self.claimed_by.avatar if (self.claimed_by and self.claimed_by.avatar) else "🎁",
-            "status": raw_status,
+            "claimed_by_alias": self.claimed_by.alias if self.claimed_by else "Family Member",
+            "claimed_by_avatar": self.claimed_by.avatar if self.claimed_by else "🎁",
+            "status": self.status.value if isinstance(self.status, ClaimStatus) else self.status,
             "notes": self.notes,
-            "is_claimed_by_viewer": (viewer_user_id == self.user_id) if viewer_user_id is not None else False,
+            "is_claimed_by_viewer": (viewer_user_id == self.user_id) if viewer_user_id else False,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

@@ -8,6 +8,7 @@ import {
   DiscountTag01Icon,
   Link01Icon,
   SparklesIcon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
@@ -18,7 +19,7 @@ const PRIORITIES = [
   { value: 'high', label: 'High' },
 ];
 
-export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
+export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete = true, itemToEdit }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -37,7 +38,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
   const [scrapeNotice, setScrapeNotice] = useState('');
   const [lastScrapedTitle, setLastScrapedTitle] = useState('');
 
-  // Confirmation dialog for adding a new permanent item
+  // Confirmation dialog for adding a new item
   const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
   const [pendingPayload, setPendingPayload] = useState(null);
 
@@ -186,23 +187,40 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
         title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
         accentHeader
         footer={
-          <div className="flex items-center justify-end gap-2.5 w-full">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="item-modal-form"
-              onClick={handleSubmit}
-              disabled={submitting || isScraping}
-              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
-            >
-              {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}
-            </button>
+          <div className="flex items-center justify-between gap-2.5 w-full">
+            <div>
+              {itemToEdit && canDelete && onDelete && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onDelete(itemToEdit.id);
+                    onClose();
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition active:scale-95 inline-flex items-center gap-1.5 border-0"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={15} />
+                  <span>Delete</span>
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="item-modal-form"
+                onClick={handleSubmit}
+                disabled={submitting || isScraping}
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
+              >
+                {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}
+              </button>
+            </div>
           </div>
         }
       >
@@ -214,12 +232,12 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </div>
           )}
 
-          {/* Cannot be removed notice when adding a new gift */}
-          {!itemToEdit && (
+          {/* Deletion notice when adding a new gift if disabled */}
+          {!itemToEdit && !canDelete && (
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FF9500]/10 dark:bg-[#FF9500]/20 text-[#A66200] dark:text-[#FFB340] text-xs">
               <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5 text-[#FF9500]" />
               <span className="leading-snug">
-                <strong className="font-sans font-bold">Notice:</strong> Once you add a gift, it cannot be removed from your wishlist.
+                <strong className="font-sans font-bold">Notice:</strong> Item deletion is currently turned off in your family settings.
               </span>
             </div>
           )}
@@ -258,35 +276,30 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             <div className="relative flex items-center">
               <input
                 type="url"
-                placeholder="Paste link (Amazon, JB Hi-Fi, Target, Kmart...)"
+                placeholder="https://www.amazon.com/dp/... or paste link"
                 value={url}
-                onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
+                onChange={(e) => setUrl(e.target.value)}
                 onPaste={handleUrlPaste}
-                disabled={isScraping}
-                className={`w-full h-12 pl-4 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 text-sm sm:text-base text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm ${
-                  isScraping
-                    ? 'ring-2 ring-[var(--theme-primary)] bg-[var(--theme-tint)]/40 animate-pulse'
-                    : 'focus:ring-2 focus:ring-[var(--theme-primary)]'
-                }`}
+                className="w-full h-11 pl-10 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
               />
-              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                {url.trim() && !isScraping && (
-                  <button
-                    type="button"
-                    onClick={() => handleAutoFillFromUrl(url)}
-                    title="Auto-fill product details from webpage metadata"
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition active:scale-95 flex items-center gap-1"
-                  >
-                    <HugeiconsIcon icon={SparklesIcon} size={13} />
-                    <span>Auto-fill</span>
-                  </button>
-                )}
+              <div className="absolute left-3.5 text-[#8E8E93]">
+                <HugeiconsIcon icon={Link01Icon} size={18} />
               </div>
+              {url.trim() && (
+                <button
+                  type="button"
+                  onClick={() => handleAutoFillFromUrl(url)}
+                  disabled={isScraping}
+                  className="absolute right-2 px-3 py-1.5 rounded-lg bg-[var(--theme-primary)] text-white font-sans font-bold text-xs hover:bg-[var(--theme-hover)] transition disabled:opacity-50"
+                >
+                  {isScraping ? 'Filling...' : 'Auto-fill'}
+                </button>
+              )}
             </div>
 
-            {/* Link Understanding Active Loading Status */}
+            {/* In-flight feedback shimmer banner */}
             {isScraping && (
-              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--theme-tint)] text-[var(--theme-primary)] text-xs font-semibold animate-pulse border border-[var(--theme-primary)]/20">
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-sm text-xs text-[var(--theme-primary)] font-semibold shadow-apple-sm animate-pulse">
                 <div className="w-4 h-4 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="font-bold">Understanding link & fetching product details...</div>
@@ -338,75 +351,47 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                   src={imageUrl}
                   alt="Product preview"
                   referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border-0"
-                  onError={(e) => {
-                    handleImageFallbackError(e, imageUrl);
-                  }}
+                  className="w-12 h-12 rounded-lg object-cover bg-[#F2F2F7] dark:bg-[#2C2C2E] shrink-0"
+                  onError={(e) => handleImageFallbackError(e, imageUrl)}
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[11px] font-bold text-[#1C1C1E] dark:text-white block truncate">
-                    Product Image Detected
-                  </span>
-                  <span className="text-[10px] text-[#8E8E93] truncate block font-mono">
-                    {imageUrl}
-                  </span>
+                  <div className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate">
+                    {title || 'Image Preview'}
+                  </div>
+                  <div className="text-[11px] text-[#8E8E93] truncate">
+                    Photo extracted from product link
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setImageUrl('')}
-                  className="p-1 rounded-lg text-[#8E8E93] hover:text-[#FF3B30] text-xs font-bold transition"
-                  title="Remove image"
-                >
-                  ✕
-                </button>
               </div>
             )}
           </div>
 
           {/* ======================================================== */}
-          {/* Divider: Separating Step 1 Auto-Fill from Manual Fields  */}
-          {/* ======================================================== */}
-          <div className="relative py-1.5 flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#E5E5EA] dark:border-[#2C2C2E]" />
-            </div>
-            <div className="relative bg-white dark:bg-[#1C1C1E] px-3 text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider font-sans">
-              Gift Details
-            </div>
-          </div>
-
-          {/* ======================================================== */}
-          {/* 2. Gift Name (Required) */}
+          {/* 2. Gift Title / Name                                      */}
           {/* ======================================================== */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-              <span>Gift Name</span>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
-                Required
-              </span>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+              Gift Name <span className="text-[#FF3B30]">*</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. Sony WH-1000XM5 Noise Canceling Headphones"
+              placeholder="e.g. Sony WH-1000XM5 Headphones"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+              className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
               required
             />
           </div>
 
           {/* ======================================================== */}
-          {/* 3. Price (Required) */}
+          {/* 3. Price Field (AUD $)                                    */}
           {/* ======================================================== */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5 flex items-center">
-              <span>Price ($)</span>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[#FF3B30]/10 text-[#FF3B30] dark:bg-[#FF453A]/20 dark:text-[#FF453A] ml-1.5">
-                Required
-              </span>
+            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+              Approx. Price ($) <span className="text-[#FF3B30]">*</span>
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base font-bold text-[#8E8E93]">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8E8E93]">
                 $
               </span>
               <input
@@ -416,23 +401,20 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
                 placeholder="29.99"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full h-12 pl-9 pr-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm font-bold text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                className="w-full h-11 pl-8 pr-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm font-bold text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
                 required
               />
             </div>
-            <p className="text-[11px] text-[#8E8E93] mt-1 pl-1">
-              Used for approximate budget estimation by family members. Enter 0 for free/DIY wishes.
-            </p>
           </div>
 
           {/* ======================================================== */}
-          {/* 4. Priority Level Segmented Control */}
+          {/* 4. Priority Segmented Control                             */}
           {/* ======================================================== */}
           <div>
             <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
               Priority
             </label>
-            <div className="grid grid-cols-3 gap-2 p-1.5 bg-[#F2F2F7] dark:bg-[#2C2C2E] rounded-xl shadow-inner">
+            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E]">
               {PRIORITIES.map((p) => {
                 const isSelected = priority === p.value;
                 return (
@@ -478,7 +460,12 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center justify-between w-full text-left font-sans font-bold text-xs text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white py-2 transition"
             >
-              <span>Advanced Options (On Sale, Alternative Store Link, Photo)</span>
+              <span className="flex items-center gap-1.5">
+                <span>Advanced details (Photo, Alternative Link, Sale Highlight)</span>
+                {imageUrl && (
+                  <span className="inline-block w-2 h-2 rounded-full bg-[#34C759]" />
+                )}
+              </span>
               <HugeiconsIcon
                 icon={ArrowDown01Icon}
                 size={16}
@@ -487,33 +474,39 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
             </button>
 
             {showAdvanced && (
-              <div className="pt-3 pb-1 space-y-3 animate-in fade-in duration-200 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-1">
-                {/* On Sale Toggle */}
-                <label className="flex items-center justify-between p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] cursor-pointer hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition">
-                  <div>
-                    <span className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white">
-                      Item is Currently on Sale
-                    </span>
-                    <span className="text-[11px] text-[#8E8E93] block">
-                      Shows a prominent Sale badge to help family catch discounts
-                    </span>
+              <div className="pt-3 space-y-3 animate-in fade-in duration-200">
+                {/* On Sale Switch */}
+                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] transition">
+                  <div className="flex items-center gap-2">
+                    <HugeiconsIcon icon={DiscountTag01Icon} size={16} className="text-[var(--theme-primary)]" />
+                    <div>
+                      <span className="font-sans font-bold text-xs text-[#1C1C1E] dark:text-white block">
+                        Mark as "On Sale"
+                      </span>
+                      <span className="text-[11px] text-[#8E8E93] block">
+                        Highlights item with a special badge for your family
+                      </span>
+                    </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={isOnSale}
-                    onChange={(e) => setIsOnSale(e.target.checked)}
-                    className="w-4 h-4 rounded text-[var(--theme-primary)] focus:ring-[var(--theme-primary)] accent-[var(--theme-primary)] border-0 transition cursor-pointer"
-                  />
+                  <div className="relative inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={isOnSale}
+                      onChange={(e) => setIsOnSale(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-[#E5E5EA] dark:bg-[#38383A] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                  </div>
                 </label>
 
-                {/* Alternative URL (Optional) */}
+                {/* Alternative Store Link (Optional) */}
                 <div>
                   <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
                     Alternative Store Link (Optional)
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Target, JB Hi-Fi, or https://..."
+                    placeholder="e.g. Target, Kmart, or secondary retailer URL"
                     value={altUrl}
                     onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
@@ -539,11 +532,15 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit }) {
         </form>
       </Modal>
 
-      {/* Confirmation Dialog: Adding item is permanent and cannot be deleted */}
+      {/* Confirmation Dialog: Adding item */}
       <ConfirmDialog
         isOpen={showConfirmAddDialog}
         title="Add Gift to Wishlist"
-        message="Adding an item to your wishlist is permanent and cannot be deleted once added (though you can always modify details like price, links, or notes)."
+        message={
+          canDelete
+            ? 'Add this gift to your wishlist for family members to view and coordinate claims?'
+            : 'Adding an item to your wishlist cannot be deleted once added because item deletion is turned off in your family settings.'
+        }
         confirmText="Add Gift"
         cancelText="Cancel"
         isDestructive={false}
