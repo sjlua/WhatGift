@@ -21,7 +21,7 @@ import {
 
 export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, activeTab, onSelectTab }) {
   const { user, family, isAdmin, logout } = useAuth();
-  const { theme, isDark } = useTheme();
+  const { theme, isDark, isChristmasTheme, seasonalAtmosphere, christmasDays } = useTheme();
   const { triggerSuccess, triggerLight } = useHaptics();
   const [copiedLink, setCopiedLink] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,8 +55,8 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
 
   return (
     <>
-      {/* Mobile Sticky Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-white dark:bg-[#242526] border-b border-[#E4E6EB] dark:border-[#3A3B3C] pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 px-4 transition-colors">
+      {/* Mobile Sticky Header with Theme Tint (no gradient!) */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-[var(--theme-header-bg)] backdrop-blur-md border-b border-[var(--theme-header-border)] pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 px-4 transition-colors">
         <div className="flex items-center justify-between h-12">
           {/* Brand & Family Info */}
           <button
@@ -67,14 +67,21 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
             }}
             className="flex items-center gap-2.5 text-left border-0 bg-transparent"
           >
-            <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white shrink-0 shadow-apple-sm">
               <HugeiconsIcon icon={GiftIcon} size={18} />
             </div>
             <div className="flex flex-col justify-center">
-              <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] leading-tight">
-                WhatGift
-              </span>
-              <span className="text-[11px] font-medium text-[#65676B] dark:text-[#B0B3B8] truncate max-w-[150px]">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-base text-[#050505] dark:text-[#E4E6EB] leading-tight">
+                  WhatGift
+                </span>
+                {isChristmasTheme && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-white/70 dark:bg-[#3A3B3C]/80 border border-[var(--theme-header-border)] text-[#050505] dark:text-[#E4E6EB]">
+                    {seasonalAtmosphere === 'sun' ? '☀️' : '🎄'} {christmasDays} days
+                  </span>
+                )}
+              </div>
+              <span className="text-[11px] font-medium text-[#65676B] dark:text-[#B0B3B8] truncate max-w-[140px]">
                 {family?.name}
               </span>
             </div>
@@ -139,165 +146,114 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Drawer */}
-          <aside className="relative z-10 w-80 max-w-[85vw] h-full h-screen h-dvh bg-white dark:bg-[#242526] shadow-2xl flex flex-col p-5 overflow-y-auto overscroll-contain animate-sidebar-slide border-0 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1.25rem))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+          {/* Drawer Menu Panel */}
+          <div className="relative w-[300px] max-w-[85vw] h-full bg-white dark:bg-[#242526] z-10 flex flex-col justify-between py-4 shadow-apple-lg animate-sidebar-slide border-l border-[#E4E6EB] dark:border-[#3A3B3C]">
             <div className="space-y-4">
               {/* Sidebar Header */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
+              <div className="flex items-center justify-between px-4 pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center justify-center text-[#050505] dark:text-[#E4E6EB] shrink-0">
-                    <HugeiconsIcon icon={GiftIcon} size={17} />
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB]">
-                      WhatGift
-                    </div>
-                    <div className="text-xs text-[#65676B] dark:text-[#B0B3B8] truncate max-w-[140px]">
+                  <span className="w-10 h-10 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center justify-center text-xl shrink-0 shadow-sm">
+                    {user?.avatar || '🎁'}
+                  </span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB] block truncate">
+                      {user?.alias}
+                    </span>
+                    <span className="text-xs text-[#65676B] dark:text-[#B0B3B8] block truncate">
                       {family?.name}
-                    </div>
+                    </span>
                   </div>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-full text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
-                  aria-label="Close Sidebar"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
+                  aria-label="Close Menu"
                 >
                   <HugeiconsIcon icon={Cancel01Icon} size={18} />
                 </button>
               </div>
 
-              {/* User Profile Card */}
-              <button
-                type="button"
-                onClick={() => handleMobileAction(() => onSelectTab?.('settings'))}
-                className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] text-left border-0 transition hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50]"
-                title="Account Settings"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl leading-none">{user?.avatar || '🎁'}</span>
-                  <div>
-                    <div className="font-bold text-sm text-[#050505] dark:text-[#E4E6EB]">
-                      {user?.alias}
-                    </div>
-                    <div className="text-xs text-[#65676B] dark:text-[#B0B3B8]">
-                      {isAdmin ? 'Family Admin' : 'Family Member'}
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Primary Wishlist Navigation Links */}
-              <div className="space-y-1 pt-1 border-b border-[#E4E6EB] dark:border-[#3A3B3C] pb-3">
+              {/* Navigation Items */}
+              <nav className="w-full">
                 <button
                   type="button"
                   onClick={() => handleMobileAction(() => onSelectTab?.('my-wishes'))}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition border-0 rounded-none ${
                     activeTab === 'my-wishes'
-                      ? 'bg-[var(--theme-primary)] text-white'
-                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] border-l-4 border-l-[var(--theme-primary)]'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
                   }`}
                 >
                   <HugeiconsIcon icon={GiftIcon} size={18} />
-                  <span>Wishlist</span>
+                  <span>My Wishlist</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleMobileAction(() => onSelectTab?.('family-wishes'))}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition border-0 rounded-none ${
                     activeTab === 'family-wishes'
-                      ? 'bg-[var(--theme-primary)] text-white'
-                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] border-l-4 border-l-[var(--theme-primary)]'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
                   }`}
                 >
                   <HugeiconsIcon icon={UserGroupIcon} size={18} />
                   <span>Family Wishlists</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleMobileAction(() => onSelectTab?.('add-gift'))}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
-                    activeTab === 'add-gift'
-                      ? 'bg-[var(--theme-primary)] text-white'
-                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
-                  }`}
-                >
-                  <HugeiconsIcon icon={Add01Icon} size={18} />
-                  <span>Add New Gift</span>
-                </button>
-              </div>
-
-              {/* Secondary Actions */}
-              <div className="space-y-1">
                 {isAdmin && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleMobileAction(() => onSelectTab?.('admin'))}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
-                        activeTab === 'admin'
-                          ? 'bg-[var(--theme-primary)] text-white'
-                          : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
-                      }`}
-                    >
+                  <button
+                    type="button"
+                    onClick={() => handleMobileAction(onOpenAdmin)}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold transition border-0 rounded-none ${
+                      activeTab === 'admin'
+                        ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] border-l-4 border-l-[var(--theme-primary)]'
+                        : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
                       <HugeiconsIcon icon={UserSettings01Icon} size={18} />
                       <span>Manage Family</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleMobileAction(() => onOpenSetupHelp?.())}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
-                    >
-                      <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
-                      <span>How to Setup Guide</span>
-                    </button>
-                  </>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                      Admin
+                    </span>
+                  </button>
                 )}
 
                 <button
                   type="button"
-                  onClick={() => handleMobileAction(() => onSelectTab?.('settings'))}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition border-0 ${
+                  onClick={() => handleMobileAction(onOpenProfile)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition border-0 rounded-none ${
                     activeTab === 'settings'
-                      ? 'bg-[var(--theme-primary)] text-white'
-                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] border-l-4 border-l-[var(--theme-primary)]'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
                   }`}
                 >
                   <HugeiconsIcon icon={Settings02Icon} size={18} />
                   <span>Settings & Preferences</span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={copyInviteLink}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] transition border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <HugeiconsIcon icon={Link01Icon} size={18} />
-                    <span>Copy Invite Link</span>
-                  </div>
-                  {copiedLink && (
-                    <span className="text-[#34C759] text-xs font-bold">Copied!</span>
-                  )}
-                </button>
-              </div>
+              </nav>
             </div>
 
-            {/* Sidebar Footer: Sign Out - not bottom anchored, but still at bottom separate to other controls */}
-            <div className="mt-6 pt-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C] shrink-0">
+            {/* Logout button */}
+            <div className="px-4 pt-3 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
               <button
                 type="button"
-                onClick={() => handleMobileAction(logout)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0"
+                onClick={() => {
+                  triggerLight();
+                  setMobileMenuOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0 active:scale-95"
               >
                 <HugeiconsIcon icon={Logout01Icon} size={16} />
                 <span>Sign Out</span>
               </button>
             </div>
-          </aside>
+          </div>
         </div>,
         document.body
       )}

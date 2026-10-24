@@ -8,7 +8,6 @@ import {
   DiscountTag01Icon,
   Link01Icon,
   SparklesIcon,
-  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
@@ -19,7 +18,7 @@ const PRIORITIES = [
   { value: 'high', label: 'High' },
 ];
 
-export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete = true, itemToEdit }) {
+export default function ItemModal({ isOpen, onClose, onSave, itemToEdit, canDelete = true }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
@@ -141,6 +140,8 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
       return;
     }
 
+    setError('');
+
     const payload = {
       title: title.trim(),
       description: description.trim() || null,
@@ -184,91 +185,43 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title={itemToEdit ? 'Edit Gift' : 'Add Gift'}
-        accentHeader
-        footer={
-          <div className="flex items-center justify-between gap-2.5 w-full">
-            <div>
-              {itemToEdit && canDelete && onDelete && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDelete(itemToEdit.id);
-                    onClose();
-                  }}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition active:scale-95 inline-flex items-center gap-1.5 border-0"
-                >
-                  <HugeiconsIcon icon={Delete02Icon} size={15} />
-                  <span>Delete</span>
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E] transition active:scale-95"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="item-modal-form"
-                onClick={handleSubmit}
-                disabled={submitting || isScraping}
-                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
-              >
-                {submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}
-              </button>
-            </div>
-          </div>
+        title={itemToEdit ? 'Edit Gift Wish' : 'Add Gift to Wishlist'}
+        subtitle={
+          itemToEdit
+            ? 'Update the price, store links, notes, or priority of this gift'
+            : 'Add an item to your wishlist with store links, photos, and approximate prices'
         }
+        primaryAction={{
+          label: submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Add to Wishlist',
+          onClick: handleSubmit,
+          disabled: submitting || isScraping,
+          loading: submitting,
+        }}
+        secondaryAction={{
+          label: 'Cancel',
+          onClick: onClose,
+          disabled: submitting,
+        }}
       >
-        <form id="item-modal-form" onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 text-xs rounded-xl bg-[#FF3B30]/10 text-[#FF3B30]">
-              <HugeiconsIcon icon={AlertCircleIcon} size={15} className="shrink-0" />
+            <div className="flex items-center gap-2 p-3 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]">
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Deletion notice when adding a new gift if disabled */}
-          {!itemToEdit && !canDelete && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FF9500]/10 dark:bg-[#FF9500]/20 text-[#A66200] dark:text-[#FFB340] text-xs">
-              <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5 text-[#FF9500]" />
-              <span className="leading-snug">
-                <strong className="font-sans font-bold">Notice:</strong> Item deletion is currently turned off in your family settings.
-              </span>
-            </div>
-          )}
-
-          {/* ======================================================== */}
-          {/* 1. TOP FIELD: Product Link (URL) with Smart Auto-Fill     */}
-          {/* ======================================================== */}
-          <div className="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-[var(--theme-tint)]/50 via-[#F8F8FA] to-[#F2F2F7] dark:from-[var(--theme-tint)]/25 dark:via-[#262628] dark:to-[#1E1E20] border-0 shadow-apple-card space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[var(--theme-primary)] text-white flex items-center justify-center shadow-apple-sm shrink-0">
-                  <HugeiconsIcon icon={SparklesIcon} size={15} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <label className="font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white">
-                      Store Link (URL)
-                    </label>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[var(--theme-primary)] text-white shadow-apple-sm">
-                      Do First
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] leading-tight mt-0.5">
-                    Paste a link from Amazon, JB Hi-Fi, Target, etc. to auto-fill details
-                  </p>
-                </div>
-              </div>
+          {/* 1. SMART STORE LINK AUTO-FILL */}
+          <div className="p-3.5 sm:p-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-xs sm:text-sm text-[#1C1C1E] dark:text-white flex items-center gap-1.5">
+                <HugeiconsIcon icon={SparklesIcon} size={15} className="text-[var(--theme-primary)]" />
+                <span>Smart Auto-Fill from Store Link</span>
+              </label>
               {isScraping && (
-                <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--theme-primary)] font-bold animate-pulse shrink-0">
+                <span className="inline-flex items-center gap-1 text-[11px] text-[var(--theme-primary)] font-bold animate-pulse">
                   <div className="w-3 h-3 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin" />
-                  <span className="hidden sm:inline">Detecting...</span>
+                  <span>Fetching...</span>
                 </span>
               )}
             </div>
@@ -276,106 +229,79 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
             <div className="relative flex items-center">
               <input
                 type="url"
-                placeholder="https://www.amazon.com/dp/... or paste link"
+                placeholder="Paste link from Amazon, Target, JB Hi-Fi..."
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => setUrl(sanitizeUrl(e.target.value))}
                 onPaste={handleUrlPaste}
-                className="w-full h-11 pl-10 pr-24 rounded-xl bg-white dark:bg-[#1C1C1E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
+                onBlur={() => {
+                  if (url && !title) handleAutoFillFromUrl(url);
+                }}
+                className="w-full h-11 pl-9 pr-24 rounded-xl bg-white dark:bg-[#38383A] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
               />
-              <div className="absolute left-3.5 text-[#8E8E93]">
-                <HugeiconsIcon icon={Link01Icon} size={18} />
-              </div>
-              {url.trim() && (
-                <button
-                  type="button"
-                  onClick={() => handleAutoFillFromUrl(url)}
-                  disabled={isScraping}
-                  className="absolute right-2 px-3 py-1.5 rounded-lg bg-[var(--theme-primary)] text-white font-sans font-bold text-xs hover:bg-[var(--theme-hover)] transition disabled:opacity-50"
-                >
-                  {isScraping ? 'Filling...' : 'Auto-fill'}
-                </button>
-              )}
+              <span className="absolute left-3 text-[#8E8E93]">
+                <HugeiconsIcon icon={Link01Icon} size={16} />
+              </span>
+              <button
+                type="button"
+                onClick={() => handleAutoFillFromUrl(url)}
+                disabled={isScraping || !url}
+                className="absolute right-1.5 h-8 px-3 rounded-lg bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] text-white text-xs font-semibold transition disabled:opacity-40 border-0 shadow-sm"
+              >
+                Auto-Fill
+              </button>
             </div>
 
-            {/* In-flight feedback shimmer banner */}
-            {isScraping && (
-              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-sm text-xs text-[var(--theme-primary)] font-semibold shadow-apple-sm animate-pulse">
-                <div className="w-4 h-4 border-2 border-[var(--theme-primary)] border-t-transparent rounded-full animate-spin shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold">Understanding link & fetching product details...</div>
-                  <div className="text-[11px] opacity-80 truncate">
-                    Extracting Open Graph title, pricing, and high-res image
-                  </div>
-                </div>
-              </div>
+            {scrapeSuccess && (
+              <p className="text-[11px] text-[#34C759] font-semibold">
+                ✓ Auto-filled {scrapeSuccess.count} details from {scrapeSuccess.site_name}!
+              </p>
+            )}
+            {scrapeNotice && (
+              <p className="text-[11px] text-[#FF9500] dark:text-[#FF9F0A]">
+                {scrapeNotice}
+              </p>
             )}
 
-            {/* Scrape Success Feedback Badge */}
-            {scrapeSuccess && (
-              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] text-xs font-semibold border border-[#34C759]/25 animate-in fade-in duration-200">
-                <div className="flex items-center gap-2 truncate">
-                  <HugeiconsIcon icon={SparklesIcon} size={15} className="shrink-0 text-[#34C759]" />
-                  <span className="truncate">
-                    Details auto-filled from <strong>{scrapeSuccess.site_name}</strong>!
+            {/* Detected Image Thumbnail */}
+            {imageUrl && (
+              <div className="flex items-center gap-2.5 p-2 bg-white dark:bg-[#38383A] rounded-xl shadow-apple-sm">
+                <img
+                  src={imageUrl}
+                  alt="Detected product"
+                  referrerPolicy="no-referrer"
+                  className="w-12 h-12 rounded-lg object-contain bg-[#F2F2F7] dark:bg-[#2C2C2E] p-1 shrink-0 border-0"
+                  onError={(e) => {
+                    handleImageFallbackError(e, imageUrl);
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-semibold text-[#1C1C1E] dark:text-white block truncate">
+                    Product Image Detected
+                  </span>
+                  <span className="text-[11px] text-[#8E8E93] truncate block font-mono">
+                    {imageUrl}
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setScrapeSuccess(null)}
-                  className="text-[11px] font-bold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white px-1.5 py-0.5"
-                  aria-label="Dismiss notice"
+                  onClick={() => setImageUrl('')}
+                  className="p-1 rounded-lg text-[#8E8E93] hover:text-[#FF3B30] text-xs font-bold transition"
+                  title="Remove image"
                 >
                   ✕
                 </button>
-              </div>
-            )}
-
-            {/* Scrape Notice Feedback (non-blocking fallback) */}
-            {scrapeNotice && (
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FF9500]/10 text-[#A66200] dark:text-[#FFB340] text-xs font-medium">
-                <span className="truncate">{scrapeNotice}</span>
-                <button
-                  type="button"
-                  onClick={() => setScrapeNotice('')}
-                  className="text-[10px] font-bold px-1.5 opacity-70 hover:opacity-100"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            {/* Extracted Image Preview Card */}
-            {imageUrl && (
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-[#1C1C1E] shadow-apple-sm border-0 animate-in fade-in duration-150">
-                <img
-                  src={imageUrl}
-                  alt="Product preview"
-                  referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-lg object-cover bg-[#F2F2F7] dark:bg-[#2C2C2E] shrink-0"
-                  onError={(e) => handleImageFallbackError(e, imageUrl)}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-[#1C1C1E] dark:text-white truncate">
-                    {title || 'Image Preview'}
-                  </div>
-                  <div className="text-[11px] text-[#8E8E93] truncate">
-                    Photo extracted from product link
-                  </div>
-                </div>
               </div>
             )}
           </div>
 
-          {/* ======================================================== */}
-          {/* 2. Gift Title / Name                                      */}
-          {/* ======================================================== */}
+          {/* 2. Gift Name (Required) */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+            <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
               Gift Name <span className="text-[#FF3B30]">*</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. Sony WH-1000XM5 Headphones"
+              placeholder="e.g. Sony WH-1000XM5 Noise Canceling Headphones"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
@@ -383,15 +309,13 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
             />
           </div>
 
-          {/* ======================================================== */}
-          {/* 3. Price Field (AUD $)                                    */}
-          {/* ======================================================== */}
+          {/* 3. Price (Required) */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
-              Approx. Price ($) <span className="text-[#FF3B30]">*</span>
+            <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
+              Price ($) <span className="text-[#FF3B30]">*</span>
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8E8E93]">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8E8E93]">
                 $
               </span>
               <input
@@ -405,16 +329,17 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
                 required
               />
             </div>
+            <p className="text-[11px] text-[#8E8E93] mt-1 pl-1">
+              Used for approximate budget estimation by family members. Enter 0 for free/DIY wishes.
+            </p>
           </div>
 
-          {/* ======================================================== */}
-          {/* 4. Priority Segmented Control                             */}
-          {/* ======================================================== */}
+          {/* 4. Priority Level Segmented Control */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+            <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
               Priority
             </label>
-            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E]">
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F2F2F7] dark:bg-[#2C2C2E] rounded-xl">
               {PRIORITIES.map((p) => {
                 const isSelected = priority === p.value;
                 return (
@@ -422,7 +347,7 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
                     key={p.value}
                     type="button"
                     onClick={() => setPriority(p.value)}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+                    className={`h-9 text-xs font-semibold rounded-lg transition-all ${
                       isSelected
                         ? 'bg-white dark:bg-[#1C1C1E] text-[var(--theme-primary)] shadow-apple-sm font-bold'
                         : 'text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white'
@@ -435,11 +360,9 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
             </div>
           </div>
 
-          {/* ======================================================== */}
           {/* 5. Notes / Sizes / Preferences */}
-          {/* ======================================================== */}
           <div>
-            <label className="block font-sans font-bold text-xs sm:text-[13px] text-[#1C1C1E] dark:text-white mb-1.5">
+            <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
               Notes & Preferences (Optional)
             </label>
             <textarea
@@ -451,21 +374,14 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
             />
           </div>
 
-          {/* ======================================================== */}
-          {/* 6. ADVANCED ACCORDION (Sale, Alt Link, Image URL)        */}
-          {/* ======================================================== */}
+          {/* 6. ADVANCED ACCORDION (Sale, Alt Link, Image URL) */}
           <div className="pt-1">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center justify-between w-full text-left font-sans font-bold text-xs text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white py-2 transition"
+              className="flex items-center justify-between w-full text-left text-xs font-semibold text-[#8E8E93] hover:text-[#1C1C1E] dark:hover:text-white py-2 transition"
             >
-              <span className="flex items-center gap-1.5">
-                <span>Advanced details (Photo, Alternative Link, Sale Highlight)</span>
-                {imageUrl && (
-                  <span className="inline-block w-2 h-2 rounded-full bg-[#34C759]" />
-                )}
-              </span>
+              <span>Advanced Options (On Sale, Alternative Store Link, Photo)</span>
               <HugeiconsIcon
                 icon={ArrowDown01Icon}
                 size={16}
@@ -474,13 +390,13 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
             </button>
 
             {showAdvanced && (
-              <div className="pt-3 space-y-3 animate-in fade-in duration-200">
+              <div className="pt-3 pb-1 space-y-3 animate-in fade-in duration-200 border-t border-[#E5E5EA] dark:border-[#2C2C2E] mt-1">
                 {/* On Sale Switch */}
-                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] transition">
+                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-white dark:bg-[#38383A] transition">
                   <div className="flex items-center gap-2">
                     <HugeiconsIcon icon={DiscountTag01Icon} size={16} className="text-[var(--theme-primary)]" />
                     <div>
-                      <span className="font-sans font-bold text-xs text-[#1C1C1E] dark:text-white block">
+                      <span className="font-semibold text-xs text-[#1C1C1E] dark:text-white block">
                         Mark as "On Sale"
                       </span>
                       <span className="text-[11px] text-[#8E8E93] block">
@@ -495,18 +411,18 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
                       onChange={(e) => setIsOnSale(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-[#E5E5EA] dark:bg-[#38383A] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                    <div className="w-11 h-6 bg-[#E5E5EA] dark:bg-[#2C2C2E] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
                   </div>
                 </label>
 
-                {/* Alternative Store Link (Optional) */}
+                {/* Alternative URL (Optional) */}
                 <div>
-                  <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
+                  <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
                     Alternative Store Link (Optional)
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Target, Kmart, or secondary retailer URL"
+                    placeholder="e.g. Target, JB Hi-Fi, or secondary link"
                     value={altUrl}
                     onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
                     className="w-full h-11 px-4 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border-0 focus:ring-2 focus:ring-[var(--theme-primary)] focus:bg-white dark:focus:bg-[#38383A] text-sm text-[#1C1C1E] dark:text-white placeholder-[#8E8E93] focus:outline-none transition shadow-apple-sm"
@@ -515,7 +431,7 @@ export default function ItemModal({ isOpen, onClose, onSave, onDelete, canDelete
 
                 {/* Image URL (Optional) */}
                 <div>
-                  <label className="block font-sans font-bold text-xs text-[#1C1C1E] dark:text-white mb-1.5">
+                  <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
                     Image URL (Optional)
                   </label>
                   <input

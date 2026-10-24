@@ -1,5 +1,26 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export function getChristmasCountdown() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  let christmas = new Date(currentYear, 11, 25);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (today.getTime() > christmas.getTime()) {
+    christmas = new Date(currentYear + 1, 11, 25);
+  }
+  const diffMs = christmas.getTime() - today.getTime();
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
+
+const isSouthernHemisphere = () => {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    return /Australia|Sydney|Melbourne|Brisbane|Perth|Adelaide|Hobart|Darwin|Auckland|Pacific|Argentina|Sao_Paulo|Johannesburg/i.test(tz);
+  } catch {
+    return false;
+  }
+};
+
 export const THEMES = [
   {
     id: 'christmas_duo',
@@ -11,10 +32,14 @@ export const THEMES = [
     secondary: '#34C759',
     secondaryDark: '#30D158',
     hover: '#E02E24',
-    navbarBg: 'linear-gradient(135deg, #FF3B30 0%, #D32F2F 52%, #34C759 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #3A0D10 0%, #2A080A 52%, #0A2412 100%)',
+    navbarBg: '#FF3B30',
+    navbarBgDark: '#2A080A',
     navbarBgFlat: '#FF3B30',
     navbarBgDarkFlat: '#2A080A',
+    headerBg: 'rgba(255, 59, 48, 0.08)',
+    headerBgDark: 'rgba(255, 69, 58, 0.16)',
+    headerBorder: 'rgba(255, 59, 48, 0.18)',
+    headerBorderDark: 'rgba(255, 69, 58, 0.28)',
     tint: 'rgba(255, 59, 48, 0.14)',
     tintDark: 'rgba(255, 69, 58, 0.22)',
     border: 'rgba(255, 59, 48, 0.35)',
@@ -34,31 +59,14 @@ export const THEMES = [
     navbarBgDark: '#0B2A4A',
     navbarBgFlat: '#007AFF',
     navbarBgDarkFlat: '#0B2A4A',
+    headerBg: 'rgba(0, 122, 255, 0.08)',
+    headerBgDark: 'rgba(10, 132, 255, 0.16)',
+    headerBorder: 'rgba(0, 122, 255, 0.18)',
+    headerBorderDark: 'rgba(10, 132, 255, 0.28)',
     tint: 'rgba(0, 122, 255, 0.14)',
     tintDark: 'rgba(10, 132, 255, 0.22)',
     border: 'rgba(0, 122, 255, 0.35)',
     swatch: '#007AFF',
-  },
-  {
-    id: 'birthday',
-    name: 'Birthday Fiesta',
-    holiday: 'Birthday / Festive Blue & Yellow',
-    isEvent: true,
-    primary: '#007AFF',
-    primaryDark: '#0A84FF',
-    secondary: '#FFCC00',
-    secondaryDark: '#FFD60A',
-    hover: '#0066D6',
-    navbarBg: 'linear-gradient(135deg, #007AFF 0%, #0066D6 55%, #FFCC00 100%)',
-    navbarBgDark: 'linear-gradient(135deg, #0A2040 0%, #0D2D5E 55%, #423000 100%)',
-    navbarBgFlat: '#007AFF',
-    navbarBgDarkFlat: '#0A2040',
-    tint: 'rgba(0, 122, 255, 0.14)',
-    tintDark: 'rgba(10, 132, 255, 0.22)',
-    border: 'rgba(0, 122, 255, 0.35)',
-    swatch: '#007AFF',
-    swatches: ['#007AFF', '#FFCC00'],
-    gradient: 'linear-gradient(90deg, #007AFF 0%, #FFCC00 100%)',
   },
   {
     id: 'christmas',
@@ -72,6 +80,10 @@ export const THEMES = [
     navbarBgDark: '#30070A',
     navbarBgFlat: '#FF3B30',
     navbarBgDarkFlat: '#30070A',
+    headerBg: 'rgba(255, 59, 48, 0.08)',
+    headerBgDark: 'rgba(255, 69, 58, 0.16)',
+    headerBorder: 'rgba(255, 59, 48, 0.18)',
+    headerBorderDark: 'rgba(255, 69, 58, 0.28)',
     tint: 'rgba(255, 59, 48, 0.14)',
     tintDark: 'rgba(255, 69, 58, 0.22)',
     border: 'rgba(255, 59, 48, 0.35)',
@@ -89,6 +101,10 @@ export const THEMES = [
     navbarBgDark: '#062130',
     navbarBgFlat: '#32ADE6',
     navbarBgDarkFlat: '#062130',
+    headerBg: 'rgba(50, 173, 230, 0.08)',
+    headerBgDark: 'rgba(100, 210, 255, 0.16)',
+    headerBorder: 'rgba(50, 173, 230, 0.18)',
+    headerBorderDark: 'rgba(100, 210, 255, 0.28)',
     tint: 'rgba(50, 173, 230, 0.14)',
     tintDark: 'rgba(100, 210, 255, 0.22)',
     border: 'rgba(50, 173, 230, 0.35)',
@@ -106,6 +122,10 @@ export const THEMES = [
     navbarBgDark: '#2C1402',
     navbarBgFlat: '#FF9500',
     navbarBgDarkFlat: '#2C1402',
+    headerBg: 'rgba(255, 149, 0, 0.08)',
+    headerBgDark: 'rgba(255, 159, 10, 0.16)',
+    headerBorder: 'rgba(255, 149, 0, 0.18)',
+    headerBorderDark: 'rgba(255, 159, 10, 0.28)',
     tint: 'rgba(255, 149, 0, 0.14)',
     tintDark: 'rgba(255, 159, 10, 0.22)',
     border: 'rgba(255, 149, 0, 0.35)',
@@ -123,6 +143,10 @@ export const THEMES = [
     navbarBgDark: '#2C030D',
     navbarBgFlat: '#FF2D55',
     navbarBgDarkFlat: '#2C030D',
+    headerBg: 'rgba(255, 45, 85, 0.08)',
+    headerBgDark: 'rgba(255, 55, 95, 0.16)',
+    headerBorder: 'rgba(255, 45, 85, 0.18)',
+    headerBorderDark: 'rgba(255, 55, 95, 0.28)',
     tint: 'rgba(255, 45, 85, 0.14)',
     tintDark: 'rgba(255, 55, 95, 0.22)',
     border: 'rgba(255, 45, 85, 0.35)',
@@ -140,6 +164,10 @@ export const THEMES = [
     navbarBgDark: '#032010',
     navbarBgFlat: '#34C759',
     navbarBgDarkFlat: '#032010',
+    headerBg: 'rgba(52, 199, 89, 0.08)',
+    headerBgDark: 'rgba(48, 209, 88, 0.16)',
+    headerBorder: 'rgba(52, 199, 89, 0.18)',
+    headerBorderDark: 'rgba(48, 209, 88, 0.28)',
     tint: 'rgba(52, 199, 89, 0.14)',
     tintDark: 'rgba(48, 209, 88, 0.22)',
     border: 'rgba(52, 199, 89, 0.35)',
@@ -157,6 +185,10 @@ export const THEMES = [
     navbarBgDark: '#201202',
     navbarBgFlat: '#FFCC00',
     navbarBgDarkFlat: '#201202',
+    headerBg: 'rgba(255, 204, 0, 0.08)',
+    headerBgDark: 'rgba(255, 214, 10, 0.16)',
+    headerBorder: 'rgba(255, 204, 0, 0.18)',
+    headerBorderDark: 'rgba(255, 214, 10, 0.28)',
     tint: 'rgba(255, 204, 0, 0.14)',
     tintDark: 'rgba(255, 214, 10, 0.22)',
     border: 'rgba(255, 204, 0, 0.35)',
@@ -174,6 +206,10 @@ export const THEMES = [
     navbarBgDark: '#022422',
     navbarBgFlat: '#00C7BE',
     navbarBgDarkFlat: '#022422',
+    headerBg: 'rgba(0, 199, 190, 0.08)',
+    headerBgDark: 'rgba(99, 230, 226, 0.16)',
+    headerBorder: 'rgba(0, 199, 190, 0.18)',
+    headerBorderDark: 'rgba(99, 230, 226, 0.28)',
     tint: 'rgba(0, 199, 190, 0.14)',
     tintDark: 'rgba(99, 230, 226, 0.22)',
     border: 'rgba(0, 199, 190, 0.35)',
@@ -191,6 +227,10 @@ export const THEMES = [
     navbarBgDark: '#042025',
     navbarBgFlat: '#30B0C7',
     navbarBgDarkFlat: '#042025',
+    headerBg: 'rgba(48, 176, 199, 0.08)',
+    headerBgDark: 'rgba(64, 200, 224, 0.16)',
+    headerBorder: 'rgba(48, 176, 199, 0.18)',
+    headerBorderDark: 'rgba(64, 200, 224, 0.28)',
     tint: 'rgba(48, 176, 199, 0.14)',
     tintDark: 'rgba(64, 200, 224, 0.22)',
     border: 'rgba(48, 176, 199, 0.35)',
@@ -208,6 +248,10 @@ export const THEMES = [
     navbarBgDark: '#131230',
     navbarBgFlat: '#5856D6',
     navbarBgDarkFlat: '#131230',
+    headerBg: 'rgba(88, 86, 214, 0.08)',
+    headerBgDark: 'rgba(94, 92, 230, 0.16)',
+    headerBorder: 'rgba(88, 86, 214, 0.18)',
+    headerBorderDark: 'rgba(94, 92, 230, 0.28)',
     tint: 'rgba(88, 86, 214, 0.14)',
     tintDark: 'rgba(94, 92, 230, 0.22)',
     border: 'rgba(88, 86, 214, 0.35)',
@@ -225,6 +269,10 @@ export const THEMES = [
     navbarBgDark: '#240B30',
     navbarBgFlat: '#AF52DE',
     navbarBgDarkFlat: '#240B30',
+    headerBg: 'rgba(175, 82, 222, 0.08)',
+    headerBgDark: 'rgba(191, 90, 242, 0.16)',
+    headerBorder: 'rgba(175, 82, 222, 0.18)',
+    headerBorderDark: 'rgba(191, 90, 242, 0.28)',
     tint: 'rgba(175, 82, 222, 0.14)',
     tintDark: 'rgba(191, 90, 242, 0.22)',
     border: 'rgba(175, 82, 222, 0.35)',
@@ -238,7 +286,7 @@ export function ThemeProvider({ children }) {
   const [themeId, setThemeId] = useState(() => {
     const saved = localStorage.getItem('whatgift_theme');
     const isCustomized = localStorage.getItem('whatgift_theme_customized');
-    if (!saved || (!isCustomized && saved === 'apple')) {
+    if (!saved || saved === 'birthday' || (!isCustomized && saved === 'apple')) {
       return 'christmas_duo';
     }
     return saved;
@@ -252,6 +300,20 @@ export function ThemeProvider({ children }) {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  // Seasonal atmosphere: 'snow' (Winter Wonderland) | 'sun' (Aussie Summer) | 'off'
+  const [seasonalAtmosphere, setSeasonalAtmosphereState] = useState(() => {
+    const saved = localStorage.getItem('whatgift_seasonal_atmosphere');
+    if (saved && (saved === 'snow' || saved === 'sun' || saved === 'off')) {
+      return saved;
+    }
+    return isSouthernHemisphere() ? 'sun' : 'snow';
+  });
+
+  const setSeasonalAtmosphere = (mode) => {
+    setSeasonalAtmosphereState(mode);
+    localStorage.setItem('whatgift_seasonal_atmosphere', mode);
+  };
 
   // Listen to OS system dark mode changes
   useEffect(() => {
@@ -283,6 +345,8 @@ export function ThemeProvider({ children }) {
   };
 
   const activeTheme = THEMES.find((t) => t.id === themeId) || THEMES[0];
+  const isChristmasTheme = activeTheme.id === 'christmas_duo' || activeTheme.id === 'christmas';
+  const christmasDays = getChristmasCountdown();
 
   useEffect(() => {
     localStorage.setItem('whatgift_theme', themeId);
@@ -295,6 +359,9 @@ export function ThemeProvider({ children }) {
       ? (activeTheme.navbarBgDark || activeTheme.primary)
       : (activeTheme.navbarBg || activeTheme.primary);
 
+    const currentHeaderBg = isDark ? activeTheme.headerBgDark : activeTheme.headerBg;
+    const currentHeaderBorder = isDark ? activeTheme.headerBorderDark : activeTheme.headerBorder;
+
     // Apply CSS custom properties
     root.style.setProperty('--theme-primary', currentPrimary);
     root.style.setProperty('--theme-hover', activeTheme.hover);
@@ -302,6 +369,8 @@ export function ThemeProvider({ children }) {
     root.style.setProperty('--theme-tint', activeTheme.tint);
     root.style.setProperty('--theme-tint-dark', activeTheme.tintDark || activeTheme.tint);
     root.style.setProperty('--theme-border', activeTheme.border);
+    root.style.setProperty('--theme-header-bg', currentHeaderBg);
+    root.style.setProperty('--theme-header-border', currentHeaderBorder);
 
     // Apply dark class and data-theme to BOTH <html> and <body>
     if (isDark) {
@@ -320,14 +389,14 @@ export function ThemeProvider({ children }) {
       if (body) body.style.backgroundColor = '#FFFFFF';
     }
 
-    // Update browser theme-color meta tag so browser status bar matches navbar accent
+    // Update browser theme-color meta tag so browser status bar matches header
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
         isDark
-          ? (activeTheme.navbarBgDarkFlat || '#000000')
-          : (activeTheme.navbarBgFlat || activeTheme.primary)
+          ? (activeTheme.navbarBgDarkFlat || '#18191A')
+          : (activeTheme.navbarBgFlat || '#FFFFFF')
       );
     }
   }, [themeId, activeTheme, isDark]);
@@ -350,6 +419,10 @@ export function ThemeProvider({ children }) {
         isDark,
         uiScale,
         setUiScale,
+        seasonalAtmosphere,
+        setSeasonalAtmosphere,
+        isChristmasTheme,
+        christmasDays,
       }}
     >
       {children}

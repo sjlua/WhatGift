@@ -11,6 +11,8 @@
     --theme-hover: #0066CC;
     --theme-tint: rgba(0, 122, 255, 0.12);
     --theme-tint-dark: rgba(10, 132, 255, 0.22);
+    --theme-header-bg: rgba(0, 122, 255, 0.08);
+    --theme-header-border: rgba(0, 122, 255, 0.16);
     --app-radius: 10px;
   }
 
@@ -173,6 +175,42 @@ dialog::backdrop {
   }
 }
 
+/* Festive Snowfall Animation */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-8vh) translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(105vh) translateX(var(--snow-drift, 20px));
+    opacity: 0;
+  }
+}
+
+/* Aussie Summer Sun Mote Float */
+@keyframes sunMoteFloat {
+  0% {
+    transform: translateY(10vh) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.65;
+  }
+  80% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(-105vh) translateX(var(--mote-drift, 25px)) scale(1.15);
+    opacity: 0;
+  }
+}
+
 .animate-sidebar-slide {
   animation: sidebarSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -183,4 +221,20 @@ dialog::backdrop {
 
 .animate-tab-fade {
   animation: tabFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-snowfall {
+  animation: snowfall linear infinite;
+}
+
+.animate-sun-mote {
+  animation: sunMoteFloat linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-snowfall,
+  .animate-sun-mote {
+    animation: none !important;
+    display: none !important;
+  }
 }
