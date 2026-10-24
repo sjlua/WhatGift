@@ -236,7 +236,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
     },
     {
       id: 'settings',
-      label: 'Circle Settings & Invites',
+      label: 'Family Settings & Invites',
       icon: Settings02Icon,
       badge: family?.code || null,
     },
@@ -255,7 +255,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
       <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight flex items-center gap-2">
-            <span>Manage Family & Members</span>
+            <span>Manage Family</span>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
               Admin
             </span>
@@ -568,7 +568,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                   <div>
                     <h2 className="text-lg font-semibold text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
                       <HugeiconsIcon icon={Link01Icon} size={18} className="text-[var(--theme-primary)]" />
-                      <span>Family Invite Link & Quick Access</span>
+                      <span>Family Invite Link</span>
                     </h2>
                     <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
                       Share with family members to let them sign in automatically with one tap
@@ -742,7 +742,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                   </p>
                 </div>
                 <span className="text-xs text-[#FF3B30] font-semibold px-2.5 py-0.5 rounded-full bg-[#FF3B30]/10">
-                  Irreversible
+                  Permanent
                 </span>
               </div>
 

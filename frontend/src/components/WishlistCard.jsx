@@ -200,7 +200,7 @@ export default function WishlistCard({
                 className={`${canDelete && onDelete ? 'flex-1' : 'w-full'} h-9 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition active:scale-95 border-0`}
               >
                 <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
-                <span>Edit Gift</span>
+                <span>Edit</span>
               </button>
 
               {canDelete && onDelete && (
