@@ -155,7 +155,7 @@ def delete_wishlist_item(
 ):
     """
     Delete a wishlist item. Only the owner (or family admin) can delete it.
-    If item deletion is disabled in the family settings, non-admins cannot delete items.
+    If item deletion is disabled in the family settings, nobody can delete items.
     """
     item = db.query(Item).filter(Item.id == item_id).first()
     if not item:
@@ -169,7 +169,7 @@ def delete_wishlist_item(
 
     # Check if item deletion is enabled in family settings
     family = db.query(Family).filter(Family.id == current_user.family_id).first()
-    if family and not family.allow_item_deletion and not current_user.is_admin:
+    if family and not family.allow_item_deletion:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Item deletion has been disabled for this family.",

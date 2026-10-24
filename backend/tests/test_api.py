@@ -394,6 +394,10 @@ def test_item_deletion_and_family_setting(client):
     assert forbidden_del.status_code == 403
     assert "disabled" in forbidden_del.json()["detail"].lower()
 
+    # The admin is subject to the same family-wide deletion lock.
+    admin_forbidden_del = client.delete(f"/api/items/{item2_id}", headers=parent_headers)
+    assert admin_forbidden_del.status_code == 403
+
     # Verify item is still present
     kid_items_still = client.get(f"/api/users/{kid_id}/items", headers=kid_headers).json()
     assert len(kid_items_still) == 1
@@ -517,6 +521,23 @@ def test_amazon_scraper_html_parsing():
     </script>
     """
     assert extract_price_from_html(amazon_json_html, "amazon.com.au") == 149.50
+
+
+def test_trendy_retailer_scraper_html_parsing():
+    from app.scraper import extract_price_from_html, guess_site_name
+
+    assert guess_site_name("https://au.shein.com/product/123") == "SHEIN"
+    assert guess_site_name("https://www.aliexpress.com/item/123.html") == "AliExpress"
+
+    jbhifi_html = '<div class="product-price"><span>$1,299.95</span></div>'
+    uniqlo_html = '<meta itemprop="price" content="39.90">'
+    shein_html = '<div data-sale-price="24.99"></div>'
+    aliexpress_html = '<div class="price--currentPrice--abc">$18.50</div>'
+
+    assert extract_price_from_html(jbhifi_html, "www.jbhifi.com.au") == 1299.95
+    assert extract_price_from_html(uniqlo_html, "www.uniqlo.com") == 39.90
+    assert extract_price_from_html(shein_html, "www.shein.com") == 24.99
+    assert extract_price_from_html(aliexpress_html, "www.aliexpress.com") == 18.50
 
 
 def test_url_sanitization_and_item_deduplication(client):

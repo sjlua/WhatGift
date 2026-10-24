@@ -34,6 +34,15 @@ RETAILER_DOMAINS = {
     "ebay.com.au": "eBay Australia",
     "ebay.com": "eBay",
     "uniqlo.com": "UNIQLO",
+    "shein.com": "SHEIN",
+    "aliexpress.com": "AliExpress",
+    "temu.com": "Temu",
+    "asos.com": "ASOS",
+    "hm.com": "H&M",
+    "fashionnova.com": "Fashion Nova",
+    "theiconic.com.au": "THE ICONIC",
+    "chemistwarehouse.com.au": "Chemist Warehouse",
+    "adorebeauty.com.au": "Adore Beauty",
     "zara.com": "Zara",
     "sephora.com.au": "Sephora",
     "mecca.com": "MECCA",
@@ -109,10 +118,26 @@ def parse_price(val: Any) -> Optional[float]:
         return round(float(val), 2) if val > 0 else None
     if isinstance(val, str):
         cleaned = val.strip()
-        # Find first valid currency/number pattern
-        match = re.search(r"(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)", cleaned)
+        # Prefer the number immediately following a currency marker. This avoids
+        # accidentally treating a product code or quantity as the price.
+        match = re.search(
+            r"(?:[$€£¥₹]\s*|(?:AUD|CAD|CNY|EUR|GBP|NZD|USD|RMB)\s*)"
+            r"(\d{1,3}(?:[,.]\d{3})*(?:[,.]\d{1,2})?|\d+(?:[,.]\d{1,2})?)",
+            cleaned,
+            re.IGNORECASE,
+        )
+        if not match:
+            match = re.search(r"(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)", cleaned)
         if match:
-            num_str = match.group(1).replace(",", "")
+            num_str = match.group(1)
+            # Handle both common thousands/decimal conventions.
+            if "," in num_str and "." in num_str:
+                num_str = num_str.replace(",", "")
+            elif "," in num_str:
+                chunks = num_str.split(",")
+                num_str = "".join(chunks) if len(chunks[-1]) == 3 else ".".join(chunks)
+            elif num_str.count(".") > 1:
+                num_str = num_str.replace(".", "")
             try:
                 p = float(num_str)
                 return round(p, 2) if p > 0 else None
@@ -133,7 +158,15 @@ def extract_product_from_json_ld(data: Any) -> Optional[Dict[str, Any]]:
         if dtype == "Product" or (isinstance(dtype, list) and "Product" in dtype):
             return data
         if "@graph" in data:
-            return extract_product_from_json_ld(data["@graph"])
+            found = extract_product_from_json_ld(data["@graph"])
+            if found:
+                return found
+        # Some storefronts wrap the product under a mainEntity or item field.
+        for key in ("mainEntity", "mainEntityOfPage", "item", "subject"):
+            if key in data:
+                found = extract_product_from_json_ld(data[key])
+                if found:
+                    return found
     return None
 
 
@@ -246,9 +279,9 @@ def extract_price_from_html(html_content: str, domain: str = "") -> Optional[flo
     generic_patterns = [
         r'itemprop=["\']price["\'][^>]*content=["\']([^"\']+)["\']',
         r'content=["\']([^"\']+)["\'][^>]*itemprop=["\']price["\']',
-        r'class="[^"]*(?:product-price|price-current|current-price|pdp-price|offer-price|price-now)[^"]*"[^>]*>[\s\S]*?(\$?\s*[0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)',
-        r'data-product-price=["\']([^"\']+)["\']',
-        r'data-price=["\']([^"\']+)["\']',
+        r'(?:class|id)=["\'][^"\']*(?:product-price|price-current|current-price|currentprice|pdp-price|offer-price|price-now|sale-price|price-sale|productprice|productPrice|salePrice|price-box)[^"\']*["\'][^>]*>[\s\S]{0,500}?([$€£¥₹]?\s*[0-9]{1,4}(?:[,.][0-9]{3})*(?:[,.][0-9]{1,2})?)',
+        r'(?:data-product-price|data-sale-price|data-price|data-amount|data-final-price)=["\']([^"\']+)["\']',
+        r'<meta[^>]+(?:property|name)=["\'](?:product:price:amount|og:price:amount|price)["\'][^>]+content=["\']([^"\']+)["\']',
     ]
     for pat in generic_patterns:
         m = re.search(pat, html_content, re.IGNORECASE)

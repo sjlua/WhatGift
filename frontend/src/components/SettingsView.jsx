@@ -275,14 +275,14 @@ export default function SettingsView({ onOpenAdmin }) {
               <div className="pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C] flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-[#050505] dark:text-[#E4E6EB]">
-                    Profile & Login Name
+                    Profile
                   </h2>
                   <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
                     Customize how your avatar and nickname appear to family members
                   </p>
                 </div>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                  {isAdmin ? 'Family Admin' : 'Member'}
+                  {isAdmin ? 'Admin' : 'Member'}
                 </span>
               </div>
 
@@ -367,7 +367,7 @@ export default function SettingsView({ onOpenAdmin }) {
                       Family Circle
                     </h2>
                     <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
-                      Information and permissions for {family?.name}
+                      Information for {family?.name}
                     </p>
                   </div>
                   <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]">

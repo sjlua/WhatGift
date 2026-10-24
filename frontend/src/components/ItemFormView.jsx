@@ -128,6 +128,10 @@ export default function ItemFormView({
         setPrice(String(data.price));
         filledFields.push('price');
       }
+      if (data.description && !description) {
+        setDescription(data.description);
+        filledFields.push('notes');
+      }
       if (data.image_url) {
         setImageUrl(data.image_url);
         filledFields.push('image');

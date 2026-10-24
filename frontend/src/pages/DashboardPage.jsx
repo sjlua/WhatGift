@@ -78,7 +78,7 @@ export default function DashboardPage() {
 
   // Whether item deletion is permitted in this family
   const allowItemDeletion = family?.allow_item_deletion !== false;
-  const canDelete = allowItemDeletion || isAdmin;
+  const canDelete = allowItemDeletion;
 
   // Other members in family (excluding the current user)
   const otherMembers = family?.members?.filter((m) => m.id !== user.id) || [];
@@ -399,8 +399,8 @@ export default function DashboardPage() {
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-0 rounded-none ${
                 activeTab === 'my-wishes'
-                  ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] border-l-4 border-l-[var(--theme-primary)]'
-                  : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
+                ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] shadow-[inset_3px_0_0_var(--theme-primary)]'
+                : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
               }`}
 
             >
@@ -478,8 +478,8 @@ export default function DashboardPage() {
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition border-0 rounded-none ${
                     isSelected
-                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] border-l-4 border-l-[var(--theme-primary)]'
-                      : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] shadow-[inset_3px_0_0_var(--theme-primary)]'
+                      : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
                   }`}
 
                 >
