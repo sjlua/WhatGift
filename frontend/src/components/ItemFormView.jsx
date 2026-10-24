@@ -19,9 +19,9 @@ import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
 
 const PRIORITIES = [
-  { value: 'low', label: 'Low Priority' },
-  { value: 'medium', label: 'Medium Priority' },
-  { value: 'high', label: 'High Priority' },
+  { value: "low", label: "Low Priority" },
+  { value: "medium", label: "Medium Priority" },
+  { value: "high", label: "High Priority" },
 ];
 
 export default function ItemFormView({
@@ -212,7 +212,7 @@ export default function ItemFormView({
       {/* Page Header */}
       <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight">
             {itemToEdit ? `Edit "${itemToEdit.title}"` : 'Add New Gift'}
           </h1>
           <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
@@ -222,7 +222,8 @@ export default function ItemFormView({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Desktop Top Action Buttons: Hidden on mobile to prevent cropping title and caption */}
+        <div className="hidden lg:flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={onCancel}

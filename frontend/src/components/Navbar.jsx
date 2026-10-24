@@ -13,9 +13,7 @@ import {
   Menu01Icon,
   Cancel01Icon,
   Settings02Icon,
-  PaintBoardIcon,
   UserSettings01Icon,
-  Add01Icon,
   CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
@@ -176,7 +174,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
               </div>
 
               {/* Navigation Items */}
-              <nav className="w-full">
+              <nav className="w-full space-y-0.5">
                 <button
                   type="button"
                   onClick={() => handleMobileAction(() => onSelectTab?.('my-wishes'))}
@@ -235,23 +233,21 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                   <HugeiconsIcon icon={Settings02Icon} size={18} />
                   <span>Settings & Preferences</span>
                 </button>
-              </nav>
-            </div>
 
-            {/* Logout button */}
-            <div className="px-4 pt-3 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
-              <button
-                type="button"
-                onClick={() => {
-                  triggerLight();
-                  setMobileMenuOpen(false);
-                  logout();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0 active:scale-95"
-              >
-                <HugeiconsIcon icon={Logout01Icon} size={16} />
-                <span>Sign Out</span>
-              </button>
+                {/* Sign Out: Placed directly under Settings & Preferences, full-width edge-to-edge */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerLight();
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#FF3B30] hover:bg-[#FF3B30]/10 transition border-0 rounded-none border-l-4 border-l-transparent text-left active:scale-[0.99]"
+                >
+                  <HugeiconsIcon icon={Logout01Icon} size={18} />
+                  <span>Sign Out</span>
+                </button>
+              </nav>
             </div>
           </div>
         </div>,

@@ -15,18 +15,15 @@ import {
   UserGroupIcon,
   Cancel01Icon,
   Settings02Icon,
+  PencilEdit02Icon,
 } from '@hugeicons/core-free-icons';
 import ConfirmDialog from './ConfirmDialog';
-
-const AVATAR_OPTIONS = [
-  '🎁', '🎄', '🎅', '🤶', '⭐', '❄️', '🦌', '⛄',
-  '🌟', '🔔', '🕯️', '🍪', '✨', '🎉', '🎈', '🎂',
-  '🎀', '👑', '💖', '🦄', '🐶', '🐱', '🦊', '🐻',
-];
+import { getThemeAvatars } from '../constants/avatars';
 
 export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
   const { family, updateFamilyDetails, refreshFamily, logout } = useAuth();
-  const { theme } = useTheme();
+  const { themeId, seasonalAtmosphere } = useTheme();
+  const themeAvatars = getThemeAvatars(themeId, seasonalAtmosphere);
   const { triggerSuccess, triggerWarning, triggerSelection } = useHaptics();
 
   // Active macOS settings section: 'members' | 'settings' | 'danger'
@@ -62,6 +59,13 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
   const [alias, setAlias] = useState('');
   const [avatar, setAvatar] = useState('🎁');
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit member state
+  const [editingMember, setEditingMember] = useState(null);
+  const [editAlias, setEditAlias] = useState("");
+  const [editAvatar, setEditAvatar] = useState("🎁");
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState("");
 
   const inviteUrl = `${window.location.origin}/?family=${encodeURIComponent(family?.code || '')}`;
 
@@ -203,6 +207,53 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
     }
   };
 
+  const handleStartEditMember = (m) => {
+    triggerSelection?.();
+    setEditingMember(m);
+    setEditAlias(m.alias);
+    setEditAvatar(m.avatar || "🎁");
+    setEditError("");
+  };
+
+  const handleCancelEditMember = () => {
+    triggerSelection?.();
+    setEditingMember(null);
+    setEditAlias("");
+    setEditAvatar("🎁");
+    setEditError("");
+  };
+
+  const handleSaveMemberEdit = async (e) => {
+    e.preventDefault();
+    if (!editingMember) return;
+    const cleanAlias = editAlias.trim();
+    if (!cleanAlias) {
+      setEditError("Name / alias cannot be empty");
+      triggerWarning?.();
+      return;
+    }
+
+    setSavingEdit(true);
+    setEditError("");
+    try {
+      await api.updateMember(editingMember.id, {
+        alias: cleanAlias,
+        avatar: editAvatar || "🎁",
+      });
+      triggerSuccess?.();
+      setSuccess('Updated "' + cleanAlias + '" successfully!');
+      setEditingMember(null);
+      await loadMembers();
+      await refreshFamily();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      triggerWarning?.();
+      setEditError(err.message || "Failed to update member");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const handleDeleteMember = (memberId, memberAlias) => {
     triggerWarning?.();
     setMemberToDelete({ id: memberId, alias: memberAlias });
@@ -269,7 +320,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
           <button
             type="button"
             onClick={onOpenSetupHelp}
-            className="h-10 inline-flex items-center gap-1.5 px-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] transition border-0 active:scale-95 shrink-0"
+            className="hidden sm:inline-flex h-10 items-center gap-1.5 px-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] transition border-0 active:scale-95 shrink-0"
             title="How to Setup Guide"
           >
             <HugeiconsIcon icon={CircleQuestionMarkIcon} size={16} className="text-[var(--theme-primary)]" />
@@ -422,7 +473,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                     triggerSelection?.();
                     setShowAddMember(!showAddMember);
                   }}
-                  className={`h-9 px-3.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition border-0 active:scale-95 ${
+                  className={`hidden sm:inline-flex h-9 px-3.5 rounded-xl text-xs font-semibold items-center gap-1.5 transition border-0 active:scale-95 ${
                     showAddMember
                       ? 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                       : 'bg-[var(--theme-primary)] text-white shadow-apple-sm'
@@ -471,7 +522,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                       Choose Member Avatar
                     </label>
                     <div className="flex flex-wrap gap-1.5 p-2 bg-white dark:bg-[#242526] rounded-xl max-h-32 overflow-y-auto shadow-inner">
-                      {AVATAR_OPTIONS.map((emoji) => (
+                      {themeAvatars.map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
@@ -519,42 +570,155 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                   </div>
                 ) : (
                   members.map((m) => (
-                    <div key={m.id} className="py-3.5 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C]">
-                          {m.avatar || '🎁'}
-                        </span>
-                        <div>
-                          <div className="font-semibold text-sm text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
-                            <span>{m.alias}</span>
-                            {m.is_admin && (
-                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                                Admin
-                              </span>
-                            )}
+                    editingMember?.id === m.id ? (
+                      <form
+                        key={m.id}
+                        onSubmit={handleSaveMemberEdit}
+                        className="p-4 my-2 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C]/50 space-y-3 border border-[var(--theme-primary)]/30 animate-in fade-in duration-200"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold uppercase tracking-wider text-[var(--theme-primary)]">
+                            Edit Member Profile
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleCancelEditMember}
+                            className="text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8] hover:text-[#050505] dark:hover:text-[#E4E6EB] transition border-0 bg-transparent"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+
+                        {editError && (
+                          <div className="flex items-center gap-2 p-2.5 text-xs rounded-xl bg-[#FF3B30]/10 text-[#FF3B30]">
+                            <HugeiconsIcon icon={AlertCircleIcon} size={14} className="shrink-0" />
+                            <span>{editError}</span>
                           </div>
-                          <div className="mt-0.5">
-                            <span className="inline-flex items-center text-xs text-[#65676B] dark:text-[#B0B3B8]">
-                              {m.item_count ?? 0} {m.item_count === 1 ? 'wish' : 'wishes'}
-                            </span>
+                        )}
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
+                            First Name / Nickname <span className="text-[#FF3B30]">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Grandma, Uncle Joe, Sophia"
+                            value={editAlias}
+                            onChange={(e) => setEditAlias(e.target.value)}
+                            className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#242526] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition focus:outline-none shadow-inner"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
+                            Choose Avatar
+                          </label>
+                          <div className="flex flex-wrap gap-1.5 p-2 bg-white dark:bg-[#242526] rounded-xl max-h-32 overflow-y-auto shadow-inner">
+                            {themeAvatars.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => setEditAvatar(emoji)}
+                                className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition border-0 ${
+                                  editAvatar === emoji
+                                    ? "bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] ring-2 ring-[var(--theme-primary)] scale-105"
+                                    : "hover:bg-black/5 dark:hover:bg-white/10"
+                                }`}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
                           </div>
                         </div>
-                      </div>
 
-                      {!m.is_admin && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteMember(m.id, m.alias)}
-                          className="w-9 h-9 flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 rounded-xl transition border-0"
-                          title="Remove member"
-                          aria-label={`Remove ${m.alias}`}
-                        >
-                          <HugeiconsIcon icon={Delete02Icon} size={16} />
-                        </button>
-                      )}
-                    </div>
+                        <div className="flex justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={handleCancelEditMember}
+                            className="h-10 px-4 rounded-xl text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8] hover:bg-black/5 dark:hover:bg-white/10 transition border-0"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={savingEdit || !editAlias.trim()}
+                            className="h-10 px-5 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50 shadow-apple-sm active:scale-95"
+                          >
+                            {savingEdit ? "Saving..." : "Save Changes"}
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div key={m.id} className="py-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+                            {m.avatar || "🎁"}
+                          </span>
+                          <div>
+                            <div className="font-semibold text-sm text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
+                              <span>{m.alias}</span>
+                              {m.is_admin && (
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                                  Admin
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-0.5">
+                              <span className="inline-flex items-center text-xs text-[#65676B] dark:text-[#B0B3B8]">
+                                {m.item_count ?? 0} {m.item_count === 1 ? "wish" : "wishes"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          {/* Pencil button directly left of delete button */}
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditMember(m)}
+                            className="w-9 h-9 flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] hover:text-[var(--theme-primary)] hover:bg-[var(--theme-tint)] rounded-xl transition border-0 active:scale-95"
+                            title="Edit member"
+                            aria-label={"Edit " + m.alias}
+                          >
+                            <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+                          </button>
+
+                          {!m.is_admin && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteMember(m.id, m.alias)}
+                              className="w-9 h-9 flex items-center justify-center text-[#65676B] dark:text-[#B0B3B8] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 rounded-xl transition border-0 active:scale-95"
+                              title="Remove member"
+                              aria-label={"Remove " + m.alias}
+                            >
+                              <HugeiconsIcon icon={Delete02Icon} size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )
                   ))
                 )}
+              </div>
+
+              {/* Mobile Add Member button at bottom of roster list */}
+              <div className="sm:hidden pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerSelection?.();
+                    setShowAddMember(!showAddMember);
+                  }}
+                  className={`w-full h-11 px-4 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2 transition border-0 active:scale-95 ${
+                    showAddMember
+                      ? "bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]"
+                      : "bg-[var(--theme-primary)] text-white shadow-apple-sm"
+                  }`}
+                >
+                  <HugeiconsIcon icon={showAddMember ? Cancel01Icon : Add01Icon} size={16} />
+                  <span>{showAddMember ? "Cancel" : "Add New Member"}</span>
+                </button>
               </div>
             </div>
           )}

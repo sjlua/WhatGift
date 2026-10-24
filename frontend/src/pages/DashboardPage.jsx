@@ -658,12 +658,12 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Add Gift Button (Navigates to full page) */}
+                {/* Add Gift Button (Navigates to full page on desktop; mobile uses bottom navigation bar) */}
                 {activeTab === 'my-wishes' && (
                   <button
                     type="button"
                     onClick={handleOpenAddItem}
-                    className="h-10 inline-flex items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
+                    className="hidden lg:inline-flex h-10 items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
                   >
                     <HugeiconsIcon icon={Add01Icon} size={16} />
                     <span>Add Gift</span>
