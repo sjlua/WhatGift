@@ -190,7 +190,7 @@ export default function CalendarView({ onNavigateToFamily, onBackToWishes }) {
             placeholder="Search sales, holidays, tech, toys, or buying tips..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 sm:h-12 pl-11 pr-10 rounded-2xl bg-white dark:bg-[#1C1C1E] border border-[#E4E6EB] dark:border-[#38383A] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#8E8E93] focus:outline-none focus:ring-2 focus:ring-[var(--theme-primary)] transition"
+            className="w-full h-11 sm:h-12 pl-11 pr-10 rounded-2xl bg-white dark:bg-black border border-[#CCD0D5] dark:border-[#38383A] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#8E8E93] focus:outline-none focus:ring-2 focus:ring-[var(--theme-primary)] shadow-sm transition"
           />
           {searchQuery && (
             <button

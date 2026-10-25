@@ -458,7 +458,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
             <HugeiconsIcon icon={AlertCircleIcon} size={16} />
             <span>Danger Zone</span>
           </h4>
-          <div className="p-4 rounded-2xl bg-[#FF3B30]/5 dark:bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4 rounded-2xl bg-[#FF3B30]/5 dark:bg-[#FF3B30]/10 border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="text-xs font-bold text-[#1C1C1E] dark:text-white">
                 Reset Entire Family Wishlist

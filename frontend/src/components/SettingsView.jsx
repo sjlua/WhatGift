@@ -153,14 +153,14 @@ export default function SettingsView({ onOpenAdmin }) {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3.5 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]">
+        <div className="flex items-center gap-2 p-3.5 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 text-[#FF3B30] border-0 shadow-apple-xs">
           <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-2 p-3.5 text-xs sm:text-sm rounded-xl bg-[#34C759]/10 border border-[#34C759]/20 text-[#1B8036] dark:text-[#30D158]">
+        <div className="flex items-center gap-2 p-3.5 text-xs sm:text-sm rounded-xl bg-[#34C759]/10 text-[#1B8036] dark:text-[#30D158] border-0 shadow-apple-xs">
           <HugeiconsIcon icon={Tick02Icon} size={16} className="shrink-0" />
           <span>{success}</span>
         </div>

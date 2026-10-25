@@ -378,14 +378,14 @@ export default function DashboardPage() {
               <HugeiconsIcon
                 icon={Search01Icon}
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#65676B] dark:text-[#B0B3B8] pointer-events-none"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#65676B] dark:text-[#8E8E93] pointer-events-none"
               />
               <input
                 type="text"
                 placeholder="Search gifts"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-3.5 bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] text-sm rounded-full border-0 focus:ring-0"
+                className="w-full h-10 pl-10 pr-3.5 bg-white dark:bg-black text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#8E8E93] text-sm rounded-full border border-[#CCD0D5] dark:border-[#38383A] focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] shadow-sm transition"
               />
             </div>
           </div>

@@ -205,7 +205,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit, canDele
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#FF3B30]">
+            <div className="flex items-center gap-2 p-3 text-xs sm:text-sm rounded-xl bg-[#FF3B30]/10 text-[#FF3B30] border-0 shadow-apple-xs">
               <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0" />
               <span>{error}</span>
             </div>

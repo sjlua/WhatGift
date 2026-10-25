@@ -12,9 +12,14 @@ export default function ConfirmDialog({
   isDestructive = true,
   icon,
   loading = false,
+  confirmDisabled = false,
   onConfirm,
   onCancel,
+  onClose,
+  variant,
 }) {
+  const handleCancel = onCancel || onClose;
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -23,7 +28,7 @@ export default function ConfirmDialog({
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && !loading) {
-        onCancel();
+        handleCancel?.();
       }
     };
 
@@ -32,7 +37,7 @@ export default function ConfirmDialog({
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, loading, onCancel]);
+  }, [isOpen, loading, handleCancel]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 
@@ -46,14 +51,14 @@ export default function ConfirmDialog({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/65 dark:bg-black/80 backdrop-blur-md animate-backdrop-fade"
-        onClick={() => !loading && onCancel()}
+        onClick={() => !loading && handleCancel?.()}
         aria-hidden="true"
       />
 
-      {/* Dialog Window */}
+      {/* Dialog Window: strictly borderless and outline-free */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative z-10 w-full max-w-sm rounded-3xl bg-white dark:bg-[#1C1C1E] p-6 shadow-2xl border-0 text-[#1C1C1E] dark:text-white animate-tab-fade"
+        className="relative z-10 w-full max-w-sm rounded-3xl bg-white dark:bg-[#1C1C1E] p-6 shadow-2xl border-0 outline-none ring-0 text-[#1C1C1E] dark:text-white animate-tab-fade"
       >
         <div className="flex flex-col items-center text-center">
           <div
@@ -78,16 +83,16 @@ export default function ConfirmDialog({
             <button
               type="button"
               disabled={loading}
-              onClick={onCancel}
-              className="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition border-0 active:scale-95 disabled:opacity-50"
+              onClick={handleCancel}
+              className="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#1C1C1E] dark:text-white hover:bg-[#E5E5EA] dark:hover:bg-[#38383A] transition border-0 outline-none ring-0 active:scale-95 disabled:opacity-50"
             >
               {cancelText}
             </button>
             <button
               type="button"
-              disabled={loading}
+              disabled={loading || confirmDisabled}
               onClick={onConfirm}
-              className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-apple-md transition border-0 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-apple-md transition border-0 outline-none ring-0 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 ${
                 isDestructive
                   ? 'bg-[#FF3B30] hover:bg-[#D70015]'
                   : 'bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)]'
