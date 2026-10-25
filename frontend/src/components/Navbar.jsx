@@ -15,6 +15,7 @@ import {
   Settings02Icon,
   UserSettings01Icon,
   CircleQuestionMarkIcon,
+  Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, activeTab, onSelectTab }) {
@@ -199,6 +200,25 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                 >
                   <HugeiconsIcon icon={UserGroupIcon} size={18} />
                   <span>Family Wishlists</span>
+                </button>
+
+                {/* Sales & Holidays Calendar */}
+                <button
+                  type="button"
+                  onClick={() => handleMobileAction(() => onSelectTab?.('calendar'))}
+                  className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold transition border-0 rounded-none ${
+                    activeTab === 'calendar'
+                      ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] border-l-4 border-l-[var(--theme-primary)]'
+                      : 'text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] border-l-4 border-l-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <HugeiconsIcon icon={Calendar03Icon} size={18} />
+                    <span>Sales & Holidays</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
+                    Deals
+                  </span>
                 </button>
 
                 {isAdmin && (
