@@ -368,7 +368,7 @@ export default function ItemFormView({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
-                  Price ($) <span className="text-[#FF3B30]">*</span>
+                  Price ($AUD) <span className="text-[#FF3B30]">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#65676B] dark:text-[#B0B3B8]">

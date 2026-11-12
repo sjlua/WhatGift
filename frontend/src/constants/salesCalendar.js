@@ -190,7 +190,138 @@ export const SALES_AND_HOLIDAYS = [
     getDates: (year) => [new Date(year, 11, 26)], // Dec 26
     bestFor: ['Seasonal Stock', 'Apparel', 'Gift Sets'],
     shippingAlert: 'Standard postal transit speeds return to normal.'
+  },
+  {
+    id: 'uniqlo-anniversary-festival',
+    name: 'UNIQLO Anniversary Festival',
+    category: 'retailer-sales',
+    retailers: ['UNIQLO'],
+    iconName: 'ShoppingBag01Icon',
+    badge: 'Seasonal Essentials',
+    discountLevel: '10% – 20% Off',
+    getDates: (year) => [new Date(year, 4, 23), new Date(year, 10, 20)],
+    bestFor: ['LifeWear', 'Outerwear', 'Basics'],
+    shippingAlert: 'Festival dates vary slightly each year; check UNIQLO Australia before ordering.'
+  },
+  {
+    id: 'jb-hi-fi-eofy',
+    name: 'JB Hi-Fi EOFY Sale',
+    category: 'retailer-sales',
+    retailers: ['JB Hi-Fi'],
+    iconName: 'ShoppingBag01Icon',
+    badge: 'Tech & Entertainment',
+    discountLevel: '10% – 30% Off',
+    getDates: (year) => [new Date(year, 5, 20)],
+    bestFor: ['Laptops', 'Gaming', 'Headphones'],
+    shippingAlert: 'Popular tech sells quickly around EOFY; allow extra time for bulky delivery.'
+  },
+  {
+    id: 'jb-hi-fi-black-friday',
+    name: 'JB Hi-Fi Black Friday',
+    category: 'retailer-sales',
+    retailers: ['JB Hi-Fi'],
+    iconName: 'FireIcon',
+    badge: 'Tech & Entertainment',
+    discountLevel: '10% – 30% Off',
+    getDates: (year) => [getNthWeekdayOfMonth(year, 10, 5, 4)],
+    bestFor: ['TVs', 'Gaming', 'Smartphones'],
+    shippingAlert: 'Order early for Christmas delivery; larger electronics may need extra transit time.'
+  },
+  {
+    id: 'zara-seasonal-sale',
+    name: 'Zara Seasonal Sale',
+    category: 'retailer-sales',
+    retailers: ['Zara'],
+    iconName: 'Tag01Icon',
+    badge: 'Fashion & Accessories',
+    discountLevel: '20% – 40% Off',
+    getDates: (year) => [new Date(year, 5, 26), new Date(year, 11, 26)],
+    bestFor: ['Apparel', 'Shoes', 'Accessories'],
+    shippingAlert: 'Sale stock is limited and can sell through quickly online.'
+  },
+  {
+    id: 'spotlight-vip-sale',
+    name: 'Spotlight VIP Sale',
+    category: 'retailer-sales',
+    retailers: ['Spotlight'],
+    iconName: 'Tag01Icon',
+    badge: 'Home & Craft',
+    discountLevel: '20% – 40% Off',
+    getDates: (year) => [new Date(year, 2, 14), new Date(year, 10, 21)],
+    bestFor: ['Craft', 'Homewares', 'Sewing'],
+    shippingAlert: 'Large homewares and fabric orders may use separate freight services.'
+  },
+  {
+    id: 'target-black-friday',
+    name: 'Target Black Friday',
+    category: 'retailer-sales',
+    retailers: ['Target'],
+    iconName: 'FireIcon',
+    badge: 'Family & Home',
+    discountLevel: '15% – 30% Off',
+    getDates: (year) => [getNthWeekdayOfMonth(year, 10, 5, 4)],
+    bestFor: ['Toys', 'Homewares', 'Beauty'],
+    shippingAlert: 'Allow a few extra days for delivery during the Black Friday rush.'
+  },
+  {
+    id: 'target-boxing-day',
+    name: 'Target Boxing Day Sale',
+    category: 'retailer-sales',
+    retailers: ['Target'],
+    iconName: 'Tag01Icon',
+    badge: 'Post-Holiday Clearance',
+    discountLevel: '20% – 50% Off',
+    getDates: (year) => [new Date(year, 11, 26)],
+    bestFor: ['Toys', 'Apparel', 'Seasonal Stock'],
+    shippingAlert: 'Clearance stock and delivery windows can change quickly after Christmas.'
+  },
+  {
+    id: 'kmart-black-friday',
+    name: 'Kmart Black Friday',
+    category: 'retailer-sales',
+    retailers: ['Kmart'],
+    iconName: 'FireIcon',
+    badge: 'Everyday Value',
+    discountLevel: '10% – 30% Off',
+    getDates: (year) => [getNthWeekdayOfMonth(year, 10, 5, 4)],
+    bestFor: ['Toys', 'Homewares', 'Gifts'],
+    shippingAlert: 'Check store availability when online stock is limited.'
+  },
+  {
+    id: 'myer-one-sale',
+    name: 'Myer One Sale',
+    category: 'retailer-sales',
+    retailers: ['Myer'],
+    iconName: 'ShoppingBag01Icon',
+    badge: 'Department Store Event',
+    discountLevel: '20% – 40% Off',
+    getDates: (year) => [new Date(year, 3, 24), new Date(year, 9, 24)],
+    bestFor: ['Beauty', 'Fashion', 'Homewares'],
+    shippingAlert: 'Sale delivery cutoffs vary by department and delivery location.'
+  },
+  {
+    id: 'the-iconic-birthday-sale',
+    name: 'THE ICONIC Birthday Sale',
+    category: 'retailer-sales',
+    retailers: ['THE ICONIC'],
+    iconName: 'SparklesIcon',
+    badge: 'Online Fashion',
+    discountLevel: '15% – 30% Off',
+    getDates: (year) => [new Date(year, 8, 1)],
+    bestFor: ['Fashion', 'Sneakers', 'Beauty'],
+    shippingAlert: 'Metro and regional delivery estimates differ during peak sale periods.'
   }
+];
+
+export const RETAILER_OPTIONS = [
+  'UNIQLO',
+  'JB Hi-Fi',
+  'Zara',
+  'Spotlight',
+  'Target',
+  'Kmart',
+  'Myer',
+  'THE ICONIC',
 ];
 
 /**
@@ -203,6 +334,7 @@ export function getEventsForYear(year) {
     dates.forEach(date => {
       result.push({
         ...event,
+        retailers: event.retailers || ['All retailers'],
         date,
         year: date.getFullYear(),
         month: date.getMonth(),

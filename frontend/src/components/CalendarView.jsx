@@ -5,6 +5,7 @@ import {
   getEventsForMonth,
   getEventsForDay,
   getNextUpcomingEvent,
+  RETAILER_OPTIONS,
 } from '../constants/salesCalendar';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -48,20 +49,25 @@ export default function CalendarView() {
   
   // Selected day in the calendar grid (null = view whole month)
   const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedRetailers, setSelectedRetailers] = useState(['All retailers']);
+
+  const showAllRetailers = selectedRetailers.includes('All retailers');
+  const matchesRetailerFilter = (event) =>
+    showAllRetailers || event.retailers?.some((retailer) => selectedRetailers.includes(retailer));
 
   // Next overall upcoming event for quick reference
   const nextUpcoming = useMemo(() => getNextUpcomingEvent(today), [today]);
 
   // All events occurring in the currently viewed month
   const monthEvents = useMemo(() => {
-    return getEventsForMonth(currentYear, currentMonth);
-  }, [currentYear, currentMonth]);
+    return getEventsForMonth(currentYear, currentMonth).filter(matchesRetailerFilter);
+  }, [currentYear, currentMonth, selectedRetailers]);
 
   // Events on the selected day (if a day is tapped)
   const selectedDayEvents = useMemo(() => {
     if (!selectedDay) return [];
-    return getEventsForDay(currentYear, currentMonth, selectedDay);
-  }, [currentYear, currentMonth, selectedDay]);
+    return getEventsForDay(currentYear, currentMonth, selectedDay).filter(matchesRetailerFilter);
+  }, [currentYear, currentMonth, selectedDay, selectedRetailers]);
 
   // Build the 7-column calendar matrix
   const calendarCells = useMemo(() => {
@@ -84,7 +90,7 @@ export default function CalendarView() {
 
     // Days in current month
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayEvents = getEventsForDay(currentYear, currentMonth, day);
+      const dayEvents = getEventsForDay(currentYear, currentMonth, day).filter(matchesRetailerFilter);
       const isToday =
         day === today.getDate() &&
         currentMonth === today.getMonth() &&
@@ -110,7 +116,7 @@ export default function CalendarView() {
     }
 
     return cells;
-  }, [currentYear, currentMonth, today]);
+  }, [currentYear, currentMonth, today, selectedRetailers]);
 
   // Navigation handlers
   const handlePrevMonth = () => {
@@ -147,13 +153,31 @@ export default function CalendarView() {
     setSelectedDay(selectedDay === day ? null : day);
   };
 
+  const handleRetailerToggle = (retailer) => {
+    triggerSelection();
+    if (retailer === 'All retailers') {
+      setSelectedRetailers(['All retailers']);
+      setSelectedDay(null);
+      return;
+    }
+
+    setSelectedRetailers((current) => {
+      const withoutAll = current.filter((value) => value !== 'All retailers');
+      const next = withoutAll.includes(retailer)
+        ? withoutAll.filter((value) => value !== retailer)
+        : [...withoutAll, retailer];
+      return next.length > 0 ? next : ['All retailers'];
+    });
+    setSelectedDay(null);
+  };
+
   const isCurrentMonthActive =
     currentYear === today.getFullYear() && currentMonth === today.getMonth();
 
   return (
     <div className="w-full space-y-4 animate-tab-fade">
       {/* Page Header */}
-      <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#E4E6EB] dark:border-[#38383A]">
+      <div className="flex items-center justify-between gap-3 pb-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight">
             Sales & Holiday Calendar
@@ -175,8 +199,46 @@ export default function CalendarView() {
         )}
       </div>
 
+      {/* Retailer filter */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-0.5">
+          <span className="text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8]">
+            Show dates for
+          </span>
+          {!showAllRetailers && (
+            <button
+              type="button"
+              onClick={() => handleRetailerToggle('All retailers')}
+              className="text-[11px] font-semibold text-[var(--theme-primary)] hover:underline border-0 bg-transparent"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+          {['All retailers', ...RETAILER_OPTIONS].map((retailer) => {
+            const isSelected = selectedRetailers.includes(retailer);
+            return (
+              <button
+                key={retailer}
+                type="button"
+                onClick={() => handleRetailerToggle(retailer)}
+                aria-pressed={isSelected}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95 ${
+                  isSelected
+                    ? 'bg-[var(--theme-primary)] text-white shadow-apple-xs'
+                    : 'bg-[#F0F2F5] dark:bg-[#2C2C2E] text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#E4E6EB] dark:hover:bg-[#3A3B3C]'
+                }`}
+              >
+                {retailer}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Calendar Controls & Month Header */}
-      <div className="flex items-center justify-between gap-3 bg-white dark:bg-[#1C1C1E] p-3 sm:p-4 rounded-2xl border border-[#E4E6EB] dark:border-[#38383A] shadow-apple-xs">
+      <div className="flex items-center justify-between gap-3 bg-white dark:bg-[#1C1C1E] p-3 sm:p-4 rounded-2xl shadow-apple-xs">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] flex items-center justify-center shrink-0">
             <HugeiconsIcon icon={Calendar03Icon} size={18} />
@@ -215,9 +277,9 @@ export default function CalendarView() {
       </div>
 
       {/* Calendar Grid Container */}
-      <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-[#E4E6EB] dark:border-[#38383A] shadow-apple-xs overflow-hidden">
+      <div className="bg-[#F0F2F5] dark:bg-[#242526] p-1 rounded-2xl shadow-apple-xs overflow-hidden">
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 border-b border-[#E4E6EB] dark:border-[#38383A] bg-[#F8F9FA] dark:bg-[#242526]">
+        <div className="grid grid-cols-7 bg-transparent">
           {WEEKDAYS.map((day) => (
             <div
               key={day}
@@ -229,7 +291,7 @@ export default function CalendarView() {
         </div>
 
         {/* 7-Column Days Grid */}
-        <div className="grid grid-cols-7 divide-x divide-y divide-[#E4E6EB]/60 dark:divide-[#38383A]/60">
+        <div className="grid grid-cols-7 gap-1">
           {calendarCells.map((cell, idx) => {
             const hasEvents = cell.events.length > 0;
             const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
@@ -244,8 +306,8 @@ export default function CalendarView() {
                   !cell.isCurrentMonth
                     ? 'bg-[#FAFAFC] dark:bg-[#18181A] opacity-35 cursor-default'
                     : isSelected
-                    ? 'bg-[var(--theme-tint)]/60 dark:bg-[var(--theme-tint-dark)]/40'
-                    : 'hover:bg-[#F0F2F5]/50 dark:hover:bg-[#2C2C2E]/40'
+                    ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]'
+                    : 'bg-white dark:bg-[#1C1C1E] hover:bg-[#F8F9FA] dark:hover:bg-[#2C2C2E]'
                 }`}
               >
                 {/* Day Number Row */}
@@ -276,7 +338,7 @@ export default function CalendarView() {
                       return (
                         <div
                           key={ev.id}
-                          className="w-full truncate px-1.5 py-0.5 rounded-md bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] text-[10px] font-bold flex items-center gap-1 border border-[var(--theme-primary)]/20"
+                          className="w-full truncate px-1.5 py-0.5 rounded-md bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] text-[var(--theme-primary)] text-[10px] font-bold flex items-center gap-1"
                           title={`${ev.name} • ${ev.discountLevel}`}
                         >
                           <HugeiconsIcon icon={Icon} size={11} className="shrink-0" />
@@ -319,7 +381,7 @@ export default function CalendarView() {
               return (
                 <div
                   key={ev.id}
-                  className="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl border border-[#E4E6EB] dark:border-[#38383A] shadow-apple-xs flex flex-col justify-between gap-2.5"
+                  className="bg-white dark:bg-[#1C1C1E] p-3.5 rounded-2xl shadow-apple-xs flex flex-col justify-between gap-2.5"
                 >
                   <div className="space-y-2">
                     {/* Header Row */}
@@ -376,7 +438,7 @@ export default function CalendarView() {
           </div>
         ) : (
           /* Empty Month / Day Notice */
-          <div className="p-4 rounded-2xl bg-white dark:bg-[#1C1C1E] border border-[#E4E6EB] dark:border-[#38383A] text-center space-y-1.5 text-xs text-[#65676B] dark:text-[#8E8E93]">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#1C1C1E] shadow-apple-xs text-center space-y-1.5 text-xs text-[#65676B] dark:text-[#8E8E93]">
             <p>
               {selectedDay
                 ? `No sales events on ${MONTH_NAMES[currentMonth]} ${selectedDay}, ${currentYear}.`

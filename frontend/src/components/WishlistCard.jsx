@@ -83,7 +83,7 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 transition-colors duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] flex flex-col justify-between border-0 outline-none">
+      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white dark:bg-[#1C1C1E] shadow-apple-xs transition-all duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
         {/* Festive blurred background accent circles for Christmas & Birthday themes */}
         {festiveGlowColors && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">

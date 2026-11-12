@@ -7,12 +7,12 @@
     --font-heading: "Merriweather", Georgia, serif;
     --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-sans: var(--font-body);
-    --theme-primary: #007AFF;
-    --theme-hover: #0066CC;
-    --theme-tint: rgba(0, 122, 255, 0.12);
-    --theme-tint-dark: rgba(10, 132, 255, 0.22);
-    --theme-header-bg: rgba(0, 122, 255, 0.08);
-    --theme-header-border: rgba(0, 122, 255, 0.16);
+    --theme-primary: #15803D;
+    --theme-hover: #166534;
+    --theme-tint: rgba(21, 128, 61, 0.14);
+    --theme-tint-dark: rgba(74, 222, 128, 0.22);
+    --theme-header-bg: rgba(21, 128, 61, 0.08);
+    --theme-header-border: rgba(21, 128, 61, 0.2);
     --app-radius: 10px;
   }
 

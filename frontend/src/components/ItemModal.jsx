@@ -312,7 +312,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit, canDele
           {/* 3. Price (Required) */}
           <div>
             <label className="block text-sm font-semibold text-[#1C1C1E] dark:text-white mb-1.5">
-              Price ($) <span className="text-[#FF3B30]">*</span>
+              Price ($AUD) <span className="text-[#FF3B30]">*</span>
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8E8E93]">
