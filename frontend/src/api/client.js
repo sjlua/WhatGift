@@ -142,6 +142,7 @@ export const api = {
   updateItem: (itemId, payload) => apiFetch(`/items/${itemId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteItem: (itemId) => apiFetch(`/items/${itemId}`, { method: 'DELETE' }),
   scrapeLink: (url) => apiFetch('/items/scrape-link', { method: 'POST', body: JSON.stringify({ url }) }),
+  rescanImages: () => apiFetch('/items/rescan-images', { method: 'POST' }),
 
   // Claims
   claimItem: (itemId, payload) => apiFetch(`/items/${itemId}/claim`, { method: 'POST', body: JSON.stringify(payload) }),

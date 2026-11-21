@@ -39,6 +39,47 @@ async def scrape_product_link(
     return ScrapeLinkResponse(**result)
 
 
+@router.post("/items/rescan-images")
+async def rescan_family_images(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Re-scrape family wishlist links to refresh missing or newly supported images.
+    """
+    family_items = (
+        db.query(Item)
+        .join(User, Item.user_id == User.id)
+        .filter(
+            User.family_id == current_user.family_id,
+            Item.is_archived.is_(False),
+        )
+        .all()
+    )
+
+    rescanned = 0
+    updated = 0
+    for item in family_items:
+        source_url = item.url or item.alt_url
+        if not source_url:
+            continue
+
+        rescanned += 1
+        try:
+            result = await scrape_opengraph_metadata(source_url)
+            image_url = result.get("image_url")
+            if image_url and item.image_url != image_url:
+                item.image_url = sanitize_url(image_url)
+                updated += 1
+        except Exception:
+            continue
+
+    if updated:
+        db.commit()
+
+    return {"rescanned": rescanned, "updated": updated}
+
+
 
 @router.get("/users/{user_id}/items", response_model=List[ItemResponse])
 def get_user_wishlist(

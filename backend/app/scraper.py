@@ -17,6 +17,9 @@ RETAILER_DOMAINS = {
     "target.com.au": "Target",
     "amazon.com.au": "Amazon Australia",
     "amazon.com": "Amazon",
+    "amzn.asia": "Amazon",
+    "amzn.to": "Amazon",
+    "a.co": "Amazon",
     "bunnings.com.au": "Bunnings",
     "myer.com.au": "Myer",
     "davidjones.com": "David Jones",
@@ -297,7 +300,7 @@ def extract_image_from_html(html_content: str, domain: str = "") -> Optional[str
     """Fallback image extractor from HTML (Amazon landingImage, data-old-hires, etc.)."""
     if not html_content:
         return None
-    is_amazon = "amazon." in domain.lower()
+    is_amazon = is_amazon_url(f"https://{domain}/")
     if is_amazon:
         m = re.search(r'data-old-hires=["\'](https?://[^"\']+)["\']', html_content)
         if m:
@@ -305,10 +308,62 @@ def extract_image_from_html(html_content: str, domain: str = "") -> Optional[str
         m2 = re.search(r'id=["\']landingImage["\'][^>]*data-a-dynamic-image=["\']\{["\'](https?://[^"\']+)["\']', html_content)
         if m2:
             return m2.group(1).strip()
+        m_dynamic = re.search(
+            r'data-a-dynamic-image=["\'](\{.*?\})["\']',
+            html_content,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if m_dynamic:
+            try:
+                dynamic_images = json.loads(html.unescape(m_dynamic.group(1)))
+                if isinstance(dynamic_images, dict) and dynamic_images:
+                    return str(next(iter(dynamic_images))).strip()
+            except Exception:
+                pass
         m3 = re.search(r'src=["\'](https?://images-[^"\']+\.media-amazon\.com/images/I/[^"\']+)["\']', html_content)
         if m3:
             return m3.group(1).strip()
+        m4 = re.search(
+            r'(https://(?:images-[^"\'\s]+|m\.media-amazon\.com)/[^"\'\s<>]+)',
+            html_content,
+            re.IGNORECASE,
+        )
+        if m4:
+            candidate = html.unescape(m4.group(1)).replace("\\/", "/")
+            if "/images/I/" in candidate:
+                return candidate.strip()
     return None
+
+
+def is_amazon_url(url: str) -> bool:
+    """Recognise Amazon storefronts and common Amazon app/share short domains."""
+    try:
+        domain = urlparse(url).netloc.lower()
+    except Exception:
+        domain = str(url).lower()
+    if domain.startswith("www.") or domain.startswith("smile."):
+        domain = domain.split(".", 1)[1]
+    return (
+        domain == "amazon.com"
+        or domain.endswith(".amazon.com")
+        or domain == "amazon.com.au"
+        or domain.endswith(".amazon.com.au")
+        or domain in {"amzn.asia", "amzn.to", "a.co"}
+        or domain.endswith(".amzn.asia")
+    )
+
+
+def extract_amazon_asin(url: str) -> Optional[str]:
+    """Extract an ASIN from Amazon product URLs and app-share links."""
+    matches = re.findall(
+        r"(?:/dp/|/gp/product/|/ASIN/|%2Fdp%2F)([A-Z0-9]{10})(?:[/?&#]|$)",
+        url,
+        re.IGNORECASE,
+    )
+    if matches:
+        return matches[0].upper()
+    query_match = re.search(r"(?:^|[?&])(?:asin|ASIN)=([A-Z0-9]{10})(?:[&#]|$)", url)
+    return query_match.group(1).upper() if query_match else None
 
 
 def sanitize_url(raw_url: Optional[str]) -> Optional[str]:
@@ -361,7 +416,7 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
     parsed_url = urlparse(clean_url)
     default_site_name = guess_site_name(clean_url)
     domain_lower = parsed_url.netloc.lower()
-    is_amazon = "amazon." in domain_lower
+    is_amazon = is_amazon_url(clean_url)
 
     req_headers = dict(DEFAULT_HEADERS)
     if is_amazon:
@@ -386,6 +441,35 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
                 logger.warning("Scrape received status %d for %s", resp.status_code, clean_url)
     except Exception as exc:
         logger.warning("Scrape error fetching %s: %s", clean_url, exc)
+
+    effective_domain_lower = urlparse(effective_url).netloc.lower()
+    is_amazon = is_amazon_url(effective_url) or is_amazon
+
+    # Amazon app links and amzn.asia redirects often resolve to a locale,
+    # but the resolved page may be an interstitial or remain missing metadata.
+    # Retry the resolved ASIN on the Australian storefront for a stable product page.
+    if is_amazon:
+        asin = extract_amazon_asin(effective_url) or extract_amazon_asin(clean_url)
+        if asin:
+            canonical_url = f"https://www.amazon.com.au/dp/{asin}"
+            if effective_url.rstrip("/") != canonical_url:
+                try:
+                    async with httpx.AsyncClient(
+                        headers=req_headers,
+                        follow_redirects=True,
+                        timeout=8.0,
+                        verify=False,
+                    ) as client:
+                        canonical_resp = await client.get(canonical_url)
+                        if canonical_resp.status_code < 400:
+                            canonical_html = canonical_resp.text
+                            if canonical_html:
+                                if not html_content or len(canonical_html) > len(html_content):
+                                    html_content = canonical_html
+                                    effective_url = str(canonical_resp.url)
+                                    effective_domain_lower = urlparse(effective_url).netloc.lower()
+                except Exception as exc:
+                    logger.warning("Amazon ASIN retry error for %s: %s", canonical_url, exc)
 
     meta_map: Dict[str, str] = {}
     title_tag: Optional[str] = None
@@ -480,7 +564,7 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
 
     # 3b. HTML Body price extraction (crucial for Amazon.com.au and retailers without OG price meta)
     if final_price is None and html_content:
-        final_price = extract_price_from_html(html_content, domain_lower)
+        final_price = extract_price_from_html(html_content, effective_domain_lower or domain_lower)
 
     # 4. Clean & Format Attributes
     site_name = guess_site_name(effective_url, og_site)
@@ -493,7 +577,7 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
         if resolved.startswith("http://") or resolved.startswith("https://"):
             final_image_url = resolved
     if not final_image_url and html_content:
-        final_image_url = extract_image_from_html(html_content, domain_lower)
+        final_image_url = extract_image_from_html(html_content, effective_domain_lower or domain_lower)
 
     # Clean description (trim to 350 chars)
     final_description: Optional[str] = None

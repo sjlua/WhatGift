@@ -1,10 +1,46 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import or_
 
 from app.config import settings
-from app.database import Base, engine
+from app.database import Base, engine, SessionLocal
 from app.routers import admin, auth, families, items
+from app.models import Item
+from app.scraper import sanitize_url, scrape_opengraph_metadata
+
+
+async def rescan_missing_startup_images():
+    """Backfill missing images after a backend restart or deployment."""
+    db = SessionLocal()
+    try:
+        missing_items = (
+            db.query(Item)
+            .filter(
+                Item.is_archived.is_(False),
+                Item.image_url.is_(None),
+                or_(Item.url.isnot(None), Item.alt_url.isnot(None)),
+            )
+            .all()
+        )
+        updated = 0
+        for item in missing_items:
+            source_url = item.url or item.alt_url
+            if not source_url:
+                continue
+            try:
+                result = await scrape_opengraph_metadata(source_url)
+                image_url = result.get("image_url")
+                if image_url:
+                    item.image_url = sanitize_url(image_url)
+                    updated += 1
+            except Exception:
+                continue
+        if updated:
+            db.commit()
+    finally:
+        db.close()
 
 
 @asynccontextmanager
@@ -27,12 +63,13 @@ async def lifespan(app: FastAPI):
                 conn.commit()
         except Exception:
             pass
+    asyncio.create_task(rescan_missing_startup_images())
     yield
 
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="0.2.1",
+    version="0.4.1",
     description="Mobile-friendly Family Wishlist API with privacy protection",
     lifespan=lifespan,
 )

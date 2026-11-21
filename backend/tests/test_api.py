@@ -448,6 +448,38 @@ def test_scrape_product_link_endpoint(client):
     assert "Airpods" in data["title"] or "apple" in data["title"].lower()
 
 
+def test_rescan_family_images_endpoint(client, monkeypatch):
+    import app.routers.items as items_router
+
+    setup_resp = client.post(
+        "/api/families",
+        json={"name": "Rescan Family", "admin_alias": "Rescanner"},
+    )
+    token = setup_resp.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    item_resp = client.post(
+        "/api/items",
+        headers=headers,
+        json={
+            "title": "Amazon Gift",
+            "price": 49.99,
+            "url": "https://amzn.asia/d/B08N5WRWNW",
+        },
+    )
+    assert item_resp.status_code == 201
+
+    async def mock_rescan(url):
+        return {"image_url": "https://m.media-amazon.com/images/I/81example.jpg"}
+
+    monkeypatch.setattr(items_router, "scrape_opengraph_metadata", mock_rescan)
+
+    rescan_resp = client.post("/api/items/rescan-images", headers=headers)
+    assert rescan_resp.status_code == 200
+    assert rescan_resp.json()["rescanned"] == 1
+    assert rescan_resp.json()["updated"] == 1
+
+
 def test_scraper_unit_parsing():
     from app.scraper import MetaTagParser, parse_price, extract_product_from_json_ld, clean_title
 
@@ -486,7 +518,29 @@ def test_scraper_unit_parsing():
 
 
 def test_amazon_scraper_html_parsing():
-    from app.scraper import extract_price_from_html, clean_title
+    from app.scraper import (
+        extract_price_from_html,
+        extract_image_from_html,
+        extract_amazon_asin,
+        is_amazon_url,
+        clean_title,
+    )
+
+    assert is_amazon_url("https://amzn.asia/d/B08N5WRWNW") is True
+    assert is_amazon_url("https://www.amazon.com.au/dp/B08N5WRWNW") is True
+    assert extract_amazon_asin("https://www.amazon.com.au/dp/B08N5WRWNW") == "B08N5WRWNW"
+    assert extract_amazon_asin("https://amzn.asia/d/B08N5WRWNW") is None
+
+    amazon_dynamic_image_html = """
+    <div id="imgTagWrapperId">
+      <img id="landingImage"
+           data-a-dynamic-image="{&quot;https://m.media-amazon.com/images/I/81example.jpg&quot;:[1500,1500]}" />
+    </div>
+    """
+    assert extract_image_from_html(
+        amazon_dynamic_image_html,
+        "amazon.com.au",
+    ) == "https://m.media-amazon.com/images/I/81example.jpg"
 
     # 1. Amazon Australia desktop with .priceToPay and .a-offscreen
     amazon_desktop_html = """

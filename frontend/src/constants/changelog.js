@@ -12,9 +12,35 @@ import {
 
 export const CHANGELOG_RELEASES = [
   {
+    version: 'v0.4.1',
+    title: 'Resilient Amazon Links & Automatic Image Refresh',
+    tag: 'Latest',
+    tagColor: 'bg-[var(--theme-primary)] text-white',
+    highlights: [
+      {
+        icon: SparklesIcon,
+        title: 'Amazon App & amzn.asia Link Support',
+        description:
+          'Amazon share links now follow redirects, detect ASIN codes, and retry the Australian Amazon storefront so product names, prices, and images are more reliably filled from links copied directly from the Amazon app.',
+      },
+      {
+        icon: Shield01Icon,
+        title: 'Automatic Reconnection Image Rescan',
+        description:
+          'Wishlists now rescan stored retailer links when the app reconnects, becomes visible again, or regains window focus, then reload updated images automatically.',
+      },
+      {
+        icon: PaintBoardIcon,
+        title: 'Startup Image Backfill',
+        description:
+          'The backend performs a lightweight startup pass for wishlist items that are still missing images, allowing newer parser improvements to backfill existing wishlists after updates or restarts.',
+      },
+    ],
+  },
+  {
     version: 'v0.4.0',
     title: 'Festive Holiday Atmosphere, Dual Climates & macOS Two-Pane Settings',
-    tag: 'Latest',
+    tag: 'Previous',
     tagColor: 'bg-[var(--theme-primary)] text-white',
     highlights: [
       {

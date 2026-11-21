@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useHaptics } from '../context/HapticsContext';
@@ -161,6 +161,42 @@ export default function DashboardPage() {
   useEffect(() => {
     loadItems();
   }, [activeTab, selectedMemberId]);
+
+  // Re-scrape stored retailer links whenever the app reconnects or becomes active,
+  // so improved parsers can backfill images already saved in wishlists.
+  const rescanInFlight = useRef(false);
+  const lastRescanAt = useRef(0);
+  const rescanImagesAndReload = async () => {
+    const now = Date.now();
+    if (!navigator.onLine || rescanInFlight.current || now - lastRescanAt.current < 30000) return;
+    lastRescanAt.current = now;
+    rescanInFlight.current = true;
+    try {
+      await api.rescanImages();
+      await loadItems();
+    } catch (err) {
+      console.warn('Wishlist image rescan failed:', err);
+    } finally {
+      rescanInFlight.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const handleOnline = () => rescanImagesAndReload();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') rescanImagesAndReload();
+    };
+    const handleFocus = () => rescanImagesAndReload();
+
+    window.addEventListener('online', handleOnline);
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [activeTab, selectedMemberId, user?.id]);
 
   // Item Handlers (Page based)
   const handleOpenAddItem = () => {
