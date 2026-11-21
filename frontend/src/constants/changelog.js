@@ -35,6 +35,12 @@ export const CHANGELOG_RELEASES = [
         description:
           'The backend performs a lightweight startup pass for wishlist items that are still missing images, allowing newer parser improvements to backfill existing wishlists after updates or restarts.',
       },
+      {
+        icon: PaintBoardIcon,
+        title: 'Clearer Mobile Navigation & Dark-Mode Accents',
+        description:
+          'The mobile bottom navigation now clearly labels the personal list “My Wishlist,” and dark-mode accent colors have been strengthened for better text and control legibility.',
+      },
     ],
   },
   {

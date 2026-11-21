@@ -86,6 +86,10 @@ export default function DashboardPage() {
   const otherMembers = family?.members?.filter((m) => m.id !== user.id) || [];
   const [memberItemCounts, setMemberItemCounts] = useState({});
   const [memberClaimStatuses, setMemberClaimStatuses] = useState({});
+  const myWishlistCount =
+    memberItemCounts[user.id] ??
+    family?.members?.find((member) => member.id === user.id)?.item_count ??
+    0;
 
   useEffect(() => {
     if (family?.members) {
@@ -465,7 +469,7 @@ export default function DashboardPage() {
                     : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                 }`}
               >
-                {items.length}
+                {myWishlistCount}
               </span>
             </button>
 
@@ -942,13 +946,13 @@ export default function DashboardPage() {
           >
             <div className="relative">
               <HugeiconsIcon icon={GiftIcon} size={20} />
-              {items.length > 0 && activeTab === 'my-wishes' && (
+              {myWishlistCount > 0 && (
                 <span className="absolute -top-1 -right-2 px-1 text-[9px] font-bold rounded-full bg-[var(--theme-primary)] text-white leading-none py-0.5">
-                  {items.length}
+                  {myWishlistCount}
                 </span>
               )}
             </div>
-            <span className="text-[11px] leading-tight">Wishlist</span>
+            <span className="text-[11px] leading-tight">My Wishlist</span>
           </button>
 
           {/* 2. Family Wishlists */}
