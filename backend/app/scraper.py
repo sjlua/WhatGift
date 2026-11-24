@@ -335,6 +335,102 @@ def extract_image_from_html(html_content: str, domain: str = "") -> Optional[str
     return None
 
 
+def is_hm_url(url: str) -> bool:
+    """Recognise H&M storefronts, including the www2.hm.com product host."""
+    try:
+        domain = urlparse(url).netloc.lower()
+    except Exception:
+        domain = str(url).lower()
+    return domain == "hm.com" or domain.endswith(".hm.com")
+
+
+def extract_hm_article_code(url: str) -> Optional[str]:
+    """Extract the numeric article code from H&M product URLs."""
+    match = re.search(r"productpage[._-]?(\d+)\.html", url, re.IGNORECASE)
+    if not match:
+        match = re.search(r"(?:^|[/_-])(\d{8,12})(?:\.html)?(?:[/?#]|$)", url)
+    return match.group(1) if match else None
+
+
+def extract_hm_fallbacks(html_content: str, target_url: str) -> Dict[str, Any]:
+    """Extract H&M metadata from Next.js, JSON-LD, and embedded product payloads."""
+    result: Dict[str, Any] = {
+        "title": None,
+        "description": None,
+        "image_url": None,
+        "price": None,
+        "currency": "AUD",
+    }
+
+    if not html_content:
+        article_code = extract_hm_article_code(target_url)
+        if article_code:
+            result["title"] = f"H&M Product {article_code}"
+        return result
+
+    title_patterns = [
+        r'"(?:productName|productTitle|name)"\s*:\s*"([^"]+)"',
+        r'<h1[^>]*>([^<]+)</h1>',
+        r'<meta[^>]+(?:property|name)="(?:og:)?title"[^>]+content="([^"]+)"',
+    ]
+    for pattern in title_patterns:
+        match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+        if match:
+            candidate = html.unescape(match.group(1).strip())
+            candidate = re.sub(r"\s*\|\s*H&M(?:\s*(?:AU|Australia))?.*$", "", candidate, flags=re.IGNORECASE)
+            if candidate:
+                result["title"] = candidate
+                break
+
+    description_patterns = [
+        r'"(?:description|productDescription)"\s*:\s*"([^"]{20,500})"',
+        r'<meta[^>]+(?:property|name)="(?:og:)?description"[^>]+content="([^"]+)"',
+    ]
+    for pattern in description_patterns:
+        match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+        if match:
+            candidate = html.unescape(match.group(1).strip())
+            if candidate:
+                result["description"] = re.sub(r"\s+", " ", candidate)[:350]
+                break
+
+    price_patterns = [
+        r'"(?:whitePrice|regularPrice|currentPrice|price|salePrice)"\s*:\s*"?(\$?\s*[0-9]+(?:[,.][0-9]{1,2})?)"',
+        r'\b(?:AUD|A\$)\s*([0-9]+(?:[,.][0-9]{1,2})?)',
+    ]
+    for pattern in price_patterns:
+        match = re.search(pattern, html_content, re.IGNORECASE)
+        if match:
+            price = parse_price(match.group(1))
+            if price:
+                result["price"] = price
+                break
+
+    image_patterns = [
+        r'https://(?:lp2|image)\.hm\.com/[^\s"<>]+',
+        r'"(?:image|imageUrl|mainImage|url)"\s*:\s*"((?:https?:)?//[^"]+(?:hmgoepprod|lp2)[^"]*)"',
+        r'<meta[^>]+(?:property|name)="(?:og:)?image(?::secure_url)?"[^>]+content="([^"]+)"',
+    ]
+    for pattern in image_patterns:
+        matches = re.findall(pattern, html_content, re.IGNORECASE)
+        if matches:
+            candidate = html.unescape(matches[0].strip())
+            if candidate.startswith("//"):
+                candidate = "https:" + candidate
+            candidate = candidate.replace("\\/", "/").replace("&amp;", "&")
+            if candidate.startswith("http://"):
+                candidate = "https://" + candidate[len("http://"):]
+            if candidate.startswith("https://"):
+                result["image_url"] = candidate
+                break
+
+    if not result["title"]:
+        article_code = extract_hm_article_code(target_url)
+        if article_code:
+            result["title"] = f"H&M Product {article_code}"
+    return result
+
+
 def is_amazon_url(url: str) -> bool:
     """Recognise Amazon storefronts and common Amazon app/share short domains."""
     try:
@@ -417,11 +513,16 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
     default_site_name = guess_site_name(clean_url)
     domain_lower = parsed_url.netloc.lower()
     is_amazon = is_amazon_url(clean_url)
+    is_hm = is_hm_url(clean_url)
 
     req_headers = dict(DEFAULT_HEADERS)
     if is_amazon:
         req_headers["Accept-Language"] = "en-AU,en-US;q=0.9,en;q=0.8"
         req_headers["Cookie"] = "i18n-prefs=AUD; lc-acbau=en_AU"
+    if is_hm:
+        req_headers["Accept-Language"] = "en-AU,en-US;q=0.9,en;q=0.8"
+        req_headers["Referer"] = "https://www.google.com/"
+        req_headers["Cookie"] = "market=au; language=en-AU"
 
     html_content = ""
     effective_url = clean_url
@@ -444,6 +545,37 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
 
     effective_domain_lower = urlparse(effective_url).netloc.lower()
     is_amazon = is_amazon_url(effective_url) or is_amazon
+    is_hm = is_hm_url(effective_url) or is_hm
+
+    # H&M sometimes returns a locale/interstitial page or blocks the www2 host.
+    # Retry the direct page with the Australian locale and mobile-style headers.
+    if is_hm:
+        article_code = extract_hm_article_code(effective_url) or extract_hm_article_code(clean_url)
+        if article_code:
+            canonical_hm_url = f"https://www2.hm.com/en_au/productpage.{article_code}.html"
+            if effective_url.rstrip("/") != canonical_hm_url:
+                try:
+                    hm_headers = dict(req_headers)
+                    hm_headers["Sec-Ch-Ua-Mobile"] = "?1"
+                    hm_headers["User-Agent"] = (
+                        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
+                        "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+                        "Version/17.0 Mobile/15E148 Safari/604.1"
+                    )
+                    async with httpx.AsyncClient(
+                        headers=hm_headers,
+                        follow_redirects=True,
+                        timeout=8.0,
+                        verify=False,
+                    ) as client:
+                        hm_resp = await client.get(canonical_hm_url)
+                        if hm_resp.status_code < 400 and hm_resp.text:
+                            if not html_content or len(hm_resp.text) > len(html_content):
+                                html_content = hm_resp.text
+                                effective_url = str(hm_resp.url)
+                                effective_domain_lower = urlparse(effective_url).netloc.lower()
+                except Exception as exc:
+                    logger.warning("H&M locale retry error for %s: %s", canonical_hm_url, exc)
 
     # Amazon app links and amzn.asia redirects often resolve to a locale,
     # but the resolved page may be an interstitial or remain missing metadata.
@@ -589,7 +721,7 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
         final_description = clean_d
 
     # If title is still missing, fallback to URL slug
-    if not final_title:
+    if not final_title and not is_hm:
         path = parsed_url.path.strip("/")
         if path:
             slug = path.split("/")[-1]
@@ -597,6 +729,19 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
             slug = re.sub(r"\.[a-zA-Z0-9]+$", "", slug)
             if len(slug) > 3 and not slug.isdigit():
                 final_title = slug.title()
+
+    if is_hm:
+        hm_fallbacks = extract_hm_fallbacks(html_content, effective_url)
+        if not final_title:
+            final_title = hm_fallbacks["title"]
+        elif hm_fallbacks["title"] and final_title.lower().startswith("h&m product"):
+            final_title = hm_fallbacks["title"]
+        if not final_description:
+            final_description = hm_fallbacks["description"]
+        if final_price is None:
+            final_price = hm_fallbacks["price"]
+        if not final_image_url:
+            final_image_url = hm_fallbacks["image_url"]
 
     return {
         "url": clean_url,

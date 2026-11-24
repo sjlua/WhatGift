@@ -594,6 +594,36 @@ def test_trendy_retailer_scraper_html_parsing():
     assert extract_price_from_html(aliexpress_html, "www.aliexpress.com") == 18.50
 
 
+def test_hm_scraper_product_fallbacks():
+    from app.scraper import (
+        is_hm_url,
+        extract_hm_article_code,
+        extract_hm_fallbacks,
+    )
+
+    hm_url = "https://www2.hm.com/en_au/productpage.1333822001.html"
+    assert is_hm_url(hm_url) is True
+    assert extract_hm_article_code(hm_url) == "1333822001"
+
+    hm_html = """
+    <html>
+      <head>
+        <meta property="og:title" content="Relaxed-Fit Denim Shorts | H&M AU" />
+        <meta property="og:image" content="https://lp2.hm.com/hmgoepprod?set=source[/abc123],width[600]" />
+      </head>
+      <body>
+        <script type="application/json">
+          {"productName":"Relaxed-Fit Denim Shorts","description":"Sturdy cotton denim shorts.","whitePrice":"A$39.99"}
+        </script>
+      </body>
+    </html>
+    """
+    result = extract_hm_fallbacks(hm_html, hm_url)
+    assert result["title"] == "Relaxed-Fit Denim Shorts"
+    assert result["price"] == 39.99
+    assert result["image_url"].startswith("https://lp2.hm.com/")
+
+
 def test_url_sanitization_and_item_deduplication(client):
     from app.scraper import sanitize_url
 
