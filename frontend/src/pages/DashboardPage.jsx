@@ -13,7 +13,7 @@ import ClaimModal from '../components/ClaimModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SettingsView from '../components/SettingsView';
 import SetupHelpModal from '../components/SetupHelpModal';
-import CalendarView from '../components/CalendarView';
+import HowToUseView from '../components/HowToUseView';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -26,7 +26,6 @@ import {
   Logout01Icon,
   Search01Icon,
   CircleQuestionMarkIcon,
-  Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function DashboardPage() {
@@ -58,7 +57,7 @@ export default function DashboardPage() {
     }
   }, [family?.code, user?.alias]);
 
-  // Navigation tab: 'my-wishes' | 'family-wishes' | 'add-gift' | 'edit-gift' | 'settings' | 'admin' | 'calendar'
+  // Navigation tab: 'my-wishes' | 'family-wishes' | 'add-gift' | 'edit-gift' | 'settings' | 'admin' | 'how-to-use'
   const [activeTab, setActiveTab] = useState('my-wishes');
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [familyFilter, setFamilyFilter] = useState('all'); // 'all' | 'available' | 'claimed'
@@ -127,7 +126,7 @@ export default function DashboardPage() {
 
   // Load wishlist items whenever activeTab or selectedMemberId changes
   const loadItems = async () => {
-    if (activeTab === 'settings' || activeTab === 'admin' || activeTab === 'calendar' || activeTab === 'add-gift' || activeTab === 'edit-gift') {
+    if (activeTab === 'settings' || activeTab === 'admin' || activeTab === 'how-to-use' || activeTab === 'add-gift' || activeTab === 'edit-gift') {
       setLoading(false);
       return;
     }
@@ -473,41 +472,38 @@ export default function DashboardPage() {
               </span>
             </button>
 
-            {/* Sales & Holidays Calendar */}
+            {/* How to Use */}
             <button
               type="button"
               onClick={() => {
-                setActiveTab('calendar');
+                setActiveTab('how-to-use');
                 triggerSelection();
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-0 rounded-none ${
-                activeTab === 'calendar'
+                activeTab === 'how-to-use'
                 ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)] shadow-[inset_3px_0_0_var(--theme-primary)]'
                 : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
               }`}
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                activeTab === 'calendar'
+                activeTab === 'how-to-use'
                   ? 'bg-[var(--theme-primary)] text-white'
                   : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
               }`}>
-                <HugeiconsIcon icon={Calendar03Icon} size={18} />
+                <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
               </div>
               <div className="min-w-0 flex-1">
                 <span className={`text-[15px] font-semibold block ${
-                  activeTab === 'calendar'
+                  activeTab === 'how-to-use'
                     ? 'text-[var(--theme-primary)]'
                     : 'text-[#050505] dark:text-[#E4E6EB]'
                 }`}>
-                  Sales & Holidays
+                  How to Use
                 </span>
                 <span className="text-[11px] text-[#65676B] dark:text-[#B0B3B8] block truncate">
-                  Best shopping dates
+                  A quick 5-step guide
                 </span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                Deals
-              </span>
             </button>
           </nav>
 
@@ -716,14 +712,10 @@ export default function DashboardPage() {
                 onOpenSetupHelp={() => setShowSetupHelp(true)}
               />
             </div>
-          ) : activeTab === 'calendar' ? (
-            /* VIEW: SALES & HOLIDAYS CALENDAR */
+          ) : activeTab === 'how-to-use' ? (
+            /* VIEW: HOW TO USE */
             <div className="w-full">
-              <CalendarView
-                onNavigateToFamily={() => {
-                  setActiveTab('family-wishes');
-                  triggerSelection();
-                }}
+              <HowToUseView
                 onBackToWishes={() => {
                   setActiveTab('my-wishes');
                   triggerSelection();
@@ -995,22 +987,22 @@ export default function DashboardPage() {
             <span className="text-[11px] leading-tight">Add Gift</span>
           </button>
 
-          {/* 4. Calendar (For non-admin users in nav bar where admin button is for admins) */}
+          {/* 4. How to Use (For non-admin users where the admin button replaces this slot) */}
           {!isAdmin && (
             <button
               type="button"
               onClick={() => {
                 triggerSelection();
-                setActiveTab('calendar');
+                setActiveTab('how-to-use');
               }}
               className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-                activeTab === 'calendar'
+                activeTab === 'how-to-use'
                   ? 'text-[var(--theme-primary)] font-bold'
                   : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
               }`}
             >
-              <HugeiconsIcon icon={Calendar03Icon} size={20} />
-              <span className="text-[11px] leading-tight">Calendar</span>
+              <HugeiconsIcon icon={CircleQuestionMarkIcon} size={20} />
+              <span className="text-[11px] leading-tight">How to Use</span>
             </button>
           )}
 
