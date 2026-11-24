@@ -336,7 +336,7 @@ export default function DashboardPage() {
     : 'Family Wishlists';
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#18191A] flex flex-col transition-colors duration-200 relative">
+    <div className="min-h-screen bg-white dark:bg-[#111113] flex flex-col transition-colors duration-200 relative">
       {/* Ambient Seasonal Atmosphere (Snow or Aussie Sunshine) */}
       <SeasonalAtmosphere />
       {/* ========== MOBILE TOP NAVBAR (lg:hidden) ========== */}
@@ -720,6 +720,12 @@ export default function DashboardPage() {
                   setActiveTab('my-wishes');
                   triggerSelection();
                 }}
+                onNavigate={(target) => {
+                  setActiveTab(target);
+                  triggerSelection();
+                }}
+                onCopyInvite={handleCopySidebarInvite}
+                inviteCopied={copiedSidebarLink}
               />
             </div>
           ) : (

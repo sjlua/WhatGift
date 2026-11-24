@@ -89,7 +89,7 @@
   }
 
   html.dark, html[data-theme="dark"], html.dark body, body.dark {
-    background-color: #18191A !important;
+    background-color: #111113 !important;
     color: #E4E6EB !important;
     color-scheme: dark;
   }

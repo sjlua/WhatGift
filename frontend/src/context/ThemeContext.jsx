@@ -378,8 +378,8 @@ export function ThemeProvider({ children }) {
       if (body) body.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
       root.style.colorScheme = 'dark';
-      root.style.backgroundColor = '#18191A';
-      if (body) body.style.backgroundColor = '#18191A';
+      root.style.backgroundColor = '#111113';
+      if (body) body.style.backgroundColor = '#111113';
     } else {
       root.classList.remove('dark');
       if (body) body.classList.remove('dark');
