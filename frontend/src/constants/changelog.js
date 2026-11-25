@@ -41,6 +41,18 @@ export const CHANGELOG_RELEASES = [
         description:
           'The mobile bottom navigation now clearly labels the personal list “My Wishlist,” and dark-mode accent colors have been strengthened for better text and control legibility.',
       },
+      {
+        icon: PaintBoardIcon,
+        title: 'Six Refined Color Themes',
+        description:
+          'Customisation now offers Christmas Classic, Lime Green, Diamond Blue, Ruby Red, Lilac Purple, and Grand Gold. Christmas Classic is the default, with coordinated shades tuned for readable controls and dark mode.',
+      },
+      {
+        icon: Settings02Icon,
+        title: 'Pill-Style Mobile Navigation',
+        description:
+          'The mobile tab bar now uses a softly tinted surface and a rounded highlight behind the active tab icon, making the current section easier to spot at a glance.',
+      },
     ],
   },
   {
