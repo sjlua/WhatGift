@@ -15,7 +15,9 @@ export default function AuthPage() {
   const { login, registerFamily } = useAuth();
   const { theme, isDark } = useTheme();
 
-  const [mode, setMode] = useState('join'); // 'join' | 'create'
+  const [mode, setMode] = useState(() => (
+    new URLSearchParams(window.location.search).get('start-family') === '1' ? 'create' : 'join'
+  )); // 'join' | 'create'
   const [familyCode, setFamilyCode] = useState('');
   const [firstName, setFirstName] = useState('');
   const [familyData, setFamilyData] = useState(null);
@@ -51,16 +53,27 @@ export default function AuthPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codeParam = params.get('family') || params.get('code');
+    const startFamily = params.get('start-family') === '1';
     const rememberedCode = localStorage.getItem('whatgift_last_family_code');
     const targetCode = codeParam ? codeParam.trim().toUpperCase() : (rememberedCode ? rememberedCode.trim().toUpperCase() : '');
 
-    if (targetCode) {
+    if (targetCode && !startFamily) {
       setFamilyCode(targetCode);
       setMode('join');
       if (codeParam) {
         setAutoLaunched(true);
       }
       lookupAndSetFamily(targetCode);
+    }
+
+    if (startFamily) {
+      params.delete('start-family');
+      const query = params.toString();
+      window.history.replaceState(
+        {},
+        document.title,
+        `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
+      );
     }
 
     const rememberedAlias = localStorage.getItem('whatgift_last_alias');

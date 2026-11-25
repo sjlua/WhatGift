@@ -106,21 +106,25 @@ export default function WishlistCard({
 
         <div className="relative z-[1]">
           {/* Image container — square aspect ratio like FB Marketplace */}
-          <div
-            onClick={item.image_url ? handleOpenLightbox : undefined}
-            className="relative w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] overflow-hidden rounded-xl cursor-pointer"
-          >
+          <div className="relative w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] overflow-hidden rounded-xl">
             {item.image_url ? (
-              <img
-                src={item.image_url}
-                alt={item.title}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-                onError={(e) => {
-                  handleImageFallbackError(e, item.image_url);
-                }}
-              />
+              <button
+                type="button"
+                onClick={handleOpenLightbox}
+                aria-label={`View larger image of ${item.title}`}
+                className="absolute inset-0 w-full h-full p-0 border-0 bg-transparent cursor-zoom-in"
+              >
+                <img
+                  src={item.image_url}
+                  alt=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                  onError={(e) => {
+                    handleImageFallbackError(e, item.image_url);
+                  }}
+                />
+              </button>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
                 <HugeiconsIcon icon={GiftIcon} size={42} />
@@ -129,7 +133,7 @@ export default function WishlistCard({
 
             {/* Sale badge overlay — top-left */}
             {item.is_on_sale && (
-              <div className="absolute top-2 left-2">
+              <div className="absolute top-2 left-2 pointer-events-none">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded-md shadow-sm">
                   <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
                   Sale
@@ -139,7 +143,7 @@ export default function WishlistCard({
 
             {/* Claim status overlay — top-right, only for non-owner */}
             {!isOwner && claim && (
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 pointer-events-none">
                 {isBought ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[#34C759] text-white rounded-md shadow-sm">
                     <HugeiconsIcon icon={Tick02Icon} size={11} />
@@ -165,11 +169,19 @@ export default function WishlistCard({
             )}
 
             {/* Title — 2 lines max */}
-            <h3
-              onClick={item.image_url ? handleOpenLightbox : undefined}
-              className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2 cursor-pointer hover:underline"
-            >
-              {item.title}
+            <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
+              {cleanUrl ? (
+                <a
+                  href={cleanUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline underline-offset-2"
+                >
+                  {item.title}
+                </a>
+              ) : (
+                item.title
+              )}
             </h3>
 
             {/* Subtle Metadata: store domain or owner hint */}
@@ -301,14 +313,14 @@ export default function WishlistCard({
           onClick={() => setShowLightbox(false)}
         >
           <div
-            className="relative max-w-4xl max-h-[92vh] flex flex-col items-center"
+            className="relative w-full max-w-5xl max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col items-center px-2 pt-12 pb-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setShowLightbox(false)}
-              className="absolute -top-12 right-0 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition active:scale-95 shadow-md border-0"
+              className="absolute top-1 right-1 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition active:scale-95 shadow-md border-0"
               aria-label="Close full image view"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={20} />
@@ -319,14 +331,14 @@ export default function WishlistCard({
               src={item.image_url}
               alt={item.title}
               referrerPolicy="no-referrer"
-              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-black/40"
+              className="max-w-full max-h-[min(70vh,calc(100dvh-14rem))] object-contain rounded-lg shadow-2xl bg-black/40"
               onError={(e) => {
                 handleImageFallbackError(e, item.image_url);
               }}
             />
 
             {/* Title & Price Caption */}
-            <div className="mt-3.5 text-center text-white max-w-lg">
+            <div className="mt-3.5 mb-2 text-center text-white w-full max-w-2xl shrink-0">
               <h4 className="font-bold text-base sm:text-lg leading-snug drop-shadow-sm">
                 {item.title}
               </h4>

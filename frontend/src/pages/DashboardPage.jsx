@@ -725,6 +725,11 @@ export default function DashboardPage() {
                   triggerSelection();
                 }}
                 onCopyInvite={handleCopySidebarInvite}
+                canManageFamily={isAdmin}
+                onStartNewFamily={() => {
+                  window.history.replaceState({}, document.title, '/?start-family=1');
+                  logout();
+                }}
                 inviteCopied={copiedSidebarLink}
               />
             </div>
