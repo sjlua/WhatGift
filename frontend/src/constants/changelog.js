@@ -15,7 +15,7 @@ export const CHANGELOG_RELEASES = [
     version: 'v0.4.1',
     title: 'Resilient Amazon Links & Automatic Image Refresh',
     tag: 'Latest',
-    tagColor: 'bg-[var(--theme-primary)] text-white',
+    tagColor: 'bg-[var(--theme-action)] text-white',
     highlights: [
       {
         icon: SparklesIcon,
@@ -47,7 +47,7 @@ export const CHANGELOG_RELEASES = [
     version: 'v0.4.0',
     title: 'Festive Holiday Atmosphere, Dual Climates & macOS Two-Pane Settings',
     tag: 'Previous',
-    tagColor: 'bg-[var(--theme-primary)] text-white',
+    tagColor: 'bg-[var(--theme-action)] text-white',
     highlights: [
       {
         icon: SparklesIcon,

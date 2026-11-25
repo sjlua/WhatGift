@@ -65,7 +65,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
             }}
             className="flex items-center gap-2.5 text-left border-0 bg-transparent"
           >
-            <div className="w-8 h-8 rounded-full bg-[var(--theme-primary)] flex items-center justify-center text-white shrink-0 shadow-apple-sm">
+            <div className="w-8 h-8 rounded-full bg-[var(--theme-action)] flex items-center justify-center text-white shrink-0 shadow-apple-sm">
               <HugeiconsIcon icon={GiftIcon} size={18} />
             </div>
             <div className="flex flex-col justify-center">

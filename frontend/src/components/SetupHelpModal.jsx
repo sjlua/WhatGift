@@ -42,7 +42,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
       step: 1,
       title: 'Add Family Members',
       badge: 'Important First Step',
-      badgeColor: 'bg-[var(--theme-primary)] text-white',
+      badgeColor: 'bg-[var(--theme-action)] text-white',
       icon: UserGroupIcon,
       description:
         'Pre-add each family member (grandparents, parents, kids, partners) with their first name and a fun avatar emoji. This allows them to join WhatGift with a single tap of their name—no emails, passwords, or registration needed!',
@@ -50,7 +50,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
         <button
           type="button"
           onClick={handleGoToAddMember}
-          className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 shadow-apple-xs active:scale-95"
+          className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 shadow-apple-xs active:scale-95"
         >
           <HugeiconsIcon icon={Add01Icon} size={14} />
           <span>Add Family Members in Admin</span>
@@ -76,7 +76,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
           <button
             type="button"
             onClick={handleCopyLink}
-            className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 shrink-0 inline-flex items-center gap-1 active:scale-95"
+            className="px-3 py-1.5 text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-lg transition border-0 shrink-0 inline-flex items-center gap-1 active:scale-95"
           >
             {copiedLink ? (
               <>
@@ -124,7 +124,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
         {/* Intro banner */}
         <div className="p-3.5 rounded-xl bg-[var(--theme-tint)]/60 text-[#1C1C1E] dark:text-white border-0">
           <div className="flex items-start gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-8 h-8 rounded-lg bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0 mt-0.5">
               <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
             </div>
             <div className="min-w-0 flex-1">
@@ -147,7 +147,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[var(--theme-primary)] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-[var(--theme-action)] text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {item.step}
                   </span>
                   <h5 className="text-xs sm:text-sm font-bold text-[#050505] dark:text-[#E4E6EB] flex items-center gap-1.5">
@@ -180,7 +180,7 @@ export default function SetupHelpModal({ isOpen, onClose, onNavigateToAdmin }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 text-center"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition border-0 text-center"
           >
             Got It, Let's Go!
           </button>

@@ -32,7 +32,7 @@ export default function WishlistCard({
   // Festive Christmas background ambient blurred circle accents
   const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
   const festiveGlowColors = isChristmasTheme
-    ? [isDark ? '#FF453A' : '#FF3B30', isDark ? '#30D158' : '#34C759']
+    ? [isDark ? '#F17870' : '#AE2E24', isDark ? '#94C748' : '#4C6B1F']
     : null;
 
   const isOwner = item.is_owner;
@@ -134,7 +134,7 @@ export default function WishlistCard({
             {/* Sale badge overlay — top-left */}
             {item.is_on_sale && (
               <div className="absolute top-2 left-2 pointer-events-none">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded-md shadow-sm">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-action)] text-white rounded-md shadow-sm">
                   <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
                   Sale
                 </span>
@@ -256,7 +256,7 @@ export default function WishlistCard({
                     className={`flex-1 h-9 px-2.5 rounded-lg text-xs font-semibold transition border-0 active:scale-95 inline-flex items-center justify-center gap-1 ${
                       isBought
                         ? 'bg-[#34C759]/15 text-[#34C759] hover:bg-[#34C759]/25'
-                        : 'bg-[var(--theme-primary)] text-white hover:bg-[var(--theme-hover)]'
+                        : 'bg-[var(--theme-action)] text-white hover:bg-[var(--theme-hover)]'
                     }`}
                   >
                     <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={13} />
@@ -280,7 +280,7 @@ export default function WishlistCard({
                 <button
                   type="button"
                   onClick={handleClaimClick}
-                  className="w-full h-9 px-3 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-sm inline-flex items-center justify-center gap-1.5 border-0"
+                  className="w-full h-9 px-3 rounded-lg text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-sm inline-flex items-center justify-center gap-1.5 border-0"
                 >
                   <HugeiconsIcon icon={ShoppingBag01Icon} size={14} />
                   <span>Claim Gift</span>
@@ -348,7 +348,7 @@ export default function WishlistCard({
                     href={cleanUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-md border-0"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-md border-0"
                   >
                     <HugeiconsIcon icon={LinkSquare01Icon} size={15} />
                     <span>Open in Store ({getDomain(cleanUrl)})</span>

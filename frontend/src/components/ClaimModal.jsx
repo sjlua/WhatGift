@@ -240,7 +240,7 @@ export default function ClaimModal({
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition disabled:opacity-50"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition disabled:opacity-50"
             >
               {submitting ? 'Saving...' : isExistingClaim ? 'Update Status' : 'Confirm Choice'}
             </button>

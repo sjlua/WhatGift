@@ -402,7 +402,7 @@ export default function DashboardPage() {
                   }}
                   className={`w-9 h-9 flex items-center justify-center rounded-full transition border-0 ${
                     activeTab === 'settings'
-                      ? 'bg-[var(--theme-primary)] text-white'
+                      ? 'bg-[var(--theme-action)] text-white'
                       : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
                   }`}
                   title="Settings"
@@ -447,7 +447,7 @@ export default function DashboardPage() {
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                 activeTab === 'my-wishes'
-                  ? 'bg-[var(--theme-primary)] text-white'
+                  ? 'bg-[var(--theme-action)] text-white'
                   : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
               }`}>
                 <HugeiconsIcon icon={GiftIcon} size={18} />
@@ -464,7 +464,7 @@ export default function DashboardPage() {
               <span
                 className={`text-xs font-bold px-2 py-0.5 rounded-full transition ${
                   activeTab === 'my-wishes'
-                    ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                    ? 'bg-[var(--theme-action)] text-white shadow-sm'
                     : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                 }`}
               >
@@ -487,7 +487,7 @@ export default function DashboardPage() {
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                 activeTab === 'how-to-use'
-                  ? 'bg-[var(--theme-primary)] text-white'
+                  ? 'bg-[var(--theme-action)] text-white'
                   : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
               }`}>
                 <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
@@ -524,7 +524,7 @@ export default function DashboardPage() {
                 }}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition border-0 ${
                   activeTab === 'admin'
-                    ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                    ? 'bg-[var(--theme-action)] text-white shadow-sm'
                     : 'text-[var(--theme-primary)] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C]'
                 }`}
                 title="Manage Family Members"
@@ -582,7 +582,7 @@ export default function DashboardPage() {
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full transition ${
                         isSelected
-                          ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                          ? 'bg-[var(--theme-action)] text-white shadow-sm'
                           : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                       }`}
                     >
@@ -759,7 +759,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={handleOpenAddItem}
-                    className="hidden lg:inline-flex h-10 items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
+                    className="hidden lg:inline-flex h-10 items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
                   >
                     <HugeiconsIcon icon={Add01Icon} size={16} />
                     <span>Add Gift</span>
@@ -802,7 +802,7 @@ export default function DashboardPage() {
                           }}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border-0 shrink-0 ${
                             isSelected
-                              ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                              ? 'bg-[var(--theme-action)] text-white shadow-sm'
                               : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
                           }`}
                         >
@@ -845,7 +845,7 @@ export default function DashboardPage() {
                       onClick={() => setFamilyFilter(f.key)}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold transition border-0 ${
                         familyFilter === f.key
-                          ? 'bg-[var(--theme-primary)] text-white shadow-sm'
+                          ? 'bg-[var(--theme-action)] text-white shadow-sm'
                           : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
                       }`}
                     >
@@ -877,7 +877,7 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         onClick={handleOpenAddItem}
-                        className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shadow-apple-sm"
+                        className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shadow-apple-sm"
                       >
                         <HugeiconsIcon icon={Add01Icon} size={16} />
                         <span>Add Your First Gift</span>
@@ -931,9 +931,9 @@ export default function DashboardPage() {
       {/* Ensures wishlists, family, add gift, and settings are ALWAYS accessible anywhere on mobile */}
       <nav
         aria-label="Mobile Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#242526] border-t border-[#E4E6EB] dark:border-[#3A3B3C] px-2 py-1.5 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F4EFF5] dark:bg-[#1C1C1E] border-t border-[#E9E1EB] dark:border-[#38383A] px-1.5 pt-2 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
       >
-        <div className="flex items-center justify-around max-w-md mx-auto">
+        <div className="flex items-start max-w-md mx-auto">
           {/* 1. My Wishlist */}
           <button
             type="button"
@@ -941,21 +941,22 @@ export default function DashboardPage() {
               triggerSelection();
               setActiveTab('my-wishes');
             }}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-              activeTab === 'my-wishes'
-                ? 'text-[var(--theme-primary)] font-bold'
-                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            aria-current={activeTab === 'my-wishes' ? 'page' : undefined}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+              activeTab === 'my-wishes' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
             }`}
           >
-            <div className="relative">
+            <div className={`relative w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+              activeTab === 'my-wishes' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+            }`}>
               <HugeiconsIcon icon={GiftIcon} size={20} />
               {myWishlistCount > 0 && (
-                <span className="absolute -top-1 -right-2 px-1 text-[9px] font-bold rounded-full bg-[var(--theme-primary)] text-white leading-none py-0.5">
+                <span className="absolute top-0 right-0 px-1 text-[9px] font-bold rounded-full bg-[var(--theme-action)] text-white leading-none py-0.5">
                   {myWishlistCount}
                 </span>
               )}
             </div>
-            <span className="text-[11px] leading-tight">My Wishlist</span>
+            <span className="w-full text-[11px] leading-tight text-center truncate">My Wishlist</span>
           </button>
 
           {/* 2. Family Wishlists */}
@@ -965,13 +966,14 @@ export default function DashboardPage() {
               triggerSelection();
               setActiveTab('family-wishes');
             }}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-              activeTab === 'family-wishes'
-                ? 'text-[var(--theme-primary)] font-bold'
-                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            aria-current={activeTab === 'family-wishes' ? 'page' : undefined}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+              activeTab === 'family-wishes' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
             }`}
           >
-            <div className="relative">
+            <div className={`relative w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+              activeTab === 'family-wishes' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+            }`}>
               <HugeiconsIcon icon={UserGroupIcon} size={20} />
               {otherMembers.length > 0 && (
                 <span className="absolute -top-1 -right-2 px-1 text-[9px] font-bold rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] leading-none py-0.5">
@@ -979,23 +981,24 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            <span className="text-[11px] leading-tight">Family</span>
+            <span className="w-full text-[11px] leading-tight text-center truncate">Family</span>
           </button>
 
           {/* 3. Add Gift Button (Page based) */}
           <button
             type="button"
             onClick={handleOpenAddItem}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-              activeTab === 'add-gift'
-                ? 'text-[var(--theme-primary)] font-bold'
-                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            aria-current={activeTab === 'add-gift' ? 'page' : undefined}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+              activeTab === 'add-gift' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
             }`}
           >
-            <div className="w-6 h-6 rounded-full bg-[var(--theme-primary)] text-white flex items-center justify-center shadow-sm">
-              <HugeiconsIcon icon={Add01Icon} size={16} />
+            <div className={`w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+              activeTab === 'add-gift' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+            }`}>
+              <HugeiconsIcon icon={Add01Icon} size={20} />
             </div>
-            <span className="text-[11px] leading-tight">Add Gift</span>
+            <span className="w-full text-[11px] leading-tight text-center truncate">Add Gift</span>
           </button>
 
           {/* 4. How to Use (For non-admin users where the admin button replaces this slot) */}
@@ -1006,14 +1009,17 @@ export default function DashboardPage() {
                 triggerSelection();
                 setActiveTab('how-to-use');
               }}
-              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-                activeTab === 'how-to-use'
-                  ? 'text-[var(--theme-primary)] font-bold'
-                  : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+              aria-current={activeTab === 'how-to-use' ? 'page' : undefined}
+              className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+                activeTab === 'how-to-use' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
               }`}
             >
-              <HugeiconsIcon icon={CircleQuestionMarkIcon} size={20} />
-              <span className="text-[11px] leading-tight">How to Use</span>
+              <div className={`w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+                activeTab === 'how-to-use' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+              }`}>
+                <HugeiconsIcon icon={CircleQuestionMarkIcon} size={20} />
+              </div>
+              <span className="w-full text-[11px] leading-tight text-center truncate">How to Use</span>
             </button>
           )}
 
@@ -1025,14 +1031,17 @@ export default function DashboardPage() {
                 triggerSelection();
                 setActiveTab('admin');
               }}
-              className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-                activeTab === 'admin'
-                  ? 'text-[var(--theme-primary)] font-bold'
-                  : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+              aria-current={activeTab === 'admin' ? 'page' : undefined}
+              className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+                activeTab === 'admin' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
               }`}
             >
-              <HugeiconsIcon icon={UserSettings01Icon} size={20} />
-              <span className="text-[11px] leading-tight">Admin</span>
+              <div className={`w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+                activeTab === 'admin' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+              }`}>
+                <HugeiconsIcon icon={UserSettings01Icon} size={20} />
+              </div>
+              <span className="w-full text-[11px] leading-tight text-center truncate">Admin</span>
             </button>
           )}
 
@@ -1043,14 +1052,17 @@ export default function DashboardPage() {
               triggerSelection();
               setActiveTab('settings');
             }}
-            className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition border-0 ${
-              activeTab === 'settings'
-                ? 'text-[var(--theme-primary)] font-bold'
-                : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
+            aria-current={activeTab === 'settings' ? 'page' : undefined}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
+              activeTab === 'settings' ? 'text-[var(--theme-primary)] font-semibold' : 'text-[#65676B] dark:text-[#B0B3B8] font-medium'
             }`}
           >
-            <HugeiconsIcon icon={Settings02Icon} size={20} />
-            <span className="text-[11px] leading-tight">Settings</span>
+            <div className={`w-14 h-9 rounded-full flex items-center justify-center transition-colors ${
+              activeTab === 'settings' ? 'bg-[var(--theme-tint)] dark:bg-[var(--theme-tint-dark)]' : ''
+            }`}>
+              <HugeiconsIcon icon={Settings02Icon} size={20} />
+            </div>
+            <span className="w-full text-[11px] leading-tight text-center truncate">Settings</span>
           </button>
         </div>
       </nav>

@@ -146,7 +146,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
             <button
               type="submit"
               disabled={submitting || !alias.trim()}
-              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:opacity-90 shadow-apple-sm transition disabled:opacity-50 border-0 font-sans"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--theme-action)] hover:opacity-90 shadow-apple-sm transition disabled:opacity-50 border-0 font-sans"
             >
               {submitting ? 'Saving...' : 'Save Profile'}
             </button>
@@ -176,7 +176,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
                 triggerSelection();
                 onOpenAdmin?.();
               }}
-              className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold font-sans text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] shadow-apple-sm transition active:scale-95 flex items-center justify-center gap-2 border-0"
+              className="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold font-sans text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] shadow-apple-sm transition active:scale-95 flex items-center justify-center gap-2 border-0"
             >
               <HugeiconsIcon icon={UserGroupIcon} size={16} />
               <span>Open Family Settings</span>
@@ -227,12 +227,12 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
           </div>
         </div>
 
-        {/* Section 3: Holiday & Color Scheme Themings */}
+        {/* Section 3: Color Themes */}
         <div className="bg-[#F2F2F7] dark:bg-[#2C2C2E] p-4 rounded-2xl border-0 shadow-apple-sm">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E5E5EA] dark:border-[#38383A]">
             <span className="font-heading font-bold text-sm sm:text-base text-[#1C1C1E] dark:text-white flex items-center gap-2">
               <HugeiconsIcon icon={PaintBoardIcon} size={16} className="text-[var(--theme-primary)]" />
-              Holiday Accent Themes
+              Color Themes
             </span>
             <span className="text-[11px] font-semibold text-[var(--theme-primary)]">
               {theme.holiday}
@@ -247,7 +247,6 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
                   key={t.id}
                   type="button"
                   onClick={() => {
-                    localStorage.setItem('whatgift_theme_customized', 'true');
                     setThemeId(t.id);
                     triggerSelection();
                   }}
@@ -258,10 +257,15 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span
-                      className="w-4 h-4 rounded-full shadow-apple-sm border-0 shrink-0"
-                      style={{ background: t.gradient || t.primary }}
-                    />
+                    <span className="flex items-center -space-x-1.5">
+                      {(t.swatches || [t.swatch]).map((color, index) => (
+                        <span
+                          key={`${t.id}-swatch-${index}`}
+                          className="w-4 h-4 rounded-full shadow-apple-sm border-0 shrink-0"
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </span>
                     {isSelected && (
                       <HugeiconsIcon icon={Tick02Icon} size={13} className="text-[var(--theme-primary)]" />
                     )}
@@ -300,7 +304,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
               aria-checked={hapticsEnabled}
               onClick={toggleHaptics}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                hapticsEnabled ? 'bg-[var(--theme-primary)]' : 'bg-[#E5E5EA] dark:bg-[#3A3A3C]'
+                hapticsEnabled ? 'bg-[var(--theme-action)]' : 'bg-[#E5E5EA] dark:bg-[#3A3A3C]'
               }`}
             >
               <span
@@ -334,7 +338,7 @@ export default function ProfileModal({ isOpen, onClose, onOpenAdmin }) {
               <HugeiconsIcon icon={SparklesIcon} size={16} className="text-[var(--theme-primary)]" />
               What's New & Changelog
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-action)] text-white">
               v0.2.1
             </span>
           </div>

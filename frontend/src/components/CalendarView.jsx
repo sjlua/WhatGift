@@ -226,7 +226,7 @@ export default function CalendarView() {
                 aria-pressed={isSelected}
                 className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition active:scale-95 ${
                   isSelected
-                    ? 'bg-[var(--theme-primary)] text-white shadow-apple-xs'
+                    ? 'bg-[var(--theme-action)] text-white shadow-apple-xs'
                     : 'bg-[#F0F2F5] dark:bg-[#2C2C2E] text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#E4E6EB] dark:hover:bg-[#3A3B3C]'
                 }`}
               >
@@ -315,7 +315,7 @@ export default function CalendarView() {
                   <span
                     className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs font-semibold transition ${
                       cell.isToday
-                        ? 'bg-[var(--theme-primary)] text-white font-bold shadow-apple-xs'
+                        ? 'bg-[var(--theme-action)] text-white font-bold shadow-apple-xs'
                         : isSelected
                         ? 'text-[var(--theme-primary)] font-bold'
                         : 'text-[#050505] dark:text-[#E4E6EB]'
@@ -326,7 +326,7 @@ export default function CalendarView() {
 
                   {/* Mobile Indicator Dot (if event exists) */}
                   {hasEvents && (
-                    <span className="sm:hidden w-1.5 h-1.5 rounded-full bg-[var(--theme-primary)]" />
+                    <span className="sm:hidden w-1.5 h-1.5 rounded-full bg-[var(--theme-action)]" />
                   )}
                 </div>
 

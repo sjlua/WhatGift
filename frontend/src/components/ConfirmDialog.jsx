@@ -95,7 +95,7 @@ export default function ConfirmDialog({
               className={`flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-apple-md transition border-0 outline-none ring-0 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 ${
                 isDestructive
                   ? 'bg-[#FF3B30] hover:bg-[#D70015]'
-                  : 'bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)]'
+                  : 'bg-[var(--theme-action)] hover:bg-[var(--theme-hover)]'
               }`}
             >
               {loading ? (

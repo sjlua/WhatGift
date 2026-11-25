@@ -257,7 +257,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
             <button
               type="button"
               onClick={handleCopyInviteLink}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition shrink-0"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition shrink-0"
             >
               {copiedInvite ? 'Copied' : 'Copy'}
             </button>
@@ -342,7 +342,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
               className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white border-0 shadow-apple-sm transition disabled:opacity-40 ${
                 isCodeModified
                   ? 'bg-[#FF9500] hover:bg-[#E08500]'
-                  : 'bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)]'
+                  : 'bg-[var(--theme-action)] hover:bg-[var(--theme-hover)]'
               }`}
             >
               {savingFamily
@@ -404,7 +404,7 @@ export default function AdminModal({ isOpen, onClose, onWishlistReset }) {
             <button
               type="submit"
               disabled={submitting || !alias.trim()}
-              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition disabled:opacity-50"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-sm transition disabled:opacity-50"
             >
               {submitting ? 'Adding...' : 'Add Member'}
             </button>

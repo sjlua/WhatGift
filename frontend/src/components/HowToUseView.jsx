@@ -56,7 +56,7 @@ export default function HowToUseView({
     <div className="w-full max-w-3xl mx-auto">
       <div className="flex items-start justify-between gap-4 mb-7">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0 shadow-apple-sm">
+          <div className="w-11 h-11 rounded-2xl bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0 shadow-apple-sm">
             <HugeiconsIcon icon={CircleQuestionMarkIcon} size={22} />
           </div>
           <div>
@@ -86,7 +86,7 @@ export default function HowToUseView({
               <button
                 type="button"
                 onClick={() => onNavigate?.('add-gift')}
-                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-[0.98] border-0 shadow-apple-sm"
+                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition active:scale-[0.98] border-0 shadow-apple-sm"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} />
                 <span>Add Gift</span>
@@ -111,7 +111,7 @@ export default function HowToUseView({
               <button
                 type="button"
                 onClick={onStartNewFamily}
-                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition active:scale-[0.98] border-0 shadow-apple-sm"
+                className="h-10 inline-flex items-center gap-1.5 px-4 rounded-xl text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition active:scale-[0.98] border-0 shadow-apple-sm"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} />
                 <span>Start a New Family</span>

@@ -245,7 +245,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit, canDele
                 type="button"
                 onClick={() => handleAutoFillFromUrl(url)}
                 disabled={isScraping || !url}
-                className="absolute right-1.5 h-8 px-3 rounded-lg bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] text-white text-xs font-semibold transition disabled:opacity-40 border-0 shadow-sm"
+                className="absolute right-1.5 h-8 px-3 rounded-lg bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] text-white text-xs font-semibold transition disabled:opacity-40 border-0 shadow-sm"
               >
                 Auto-Fill
               </button>
@@ -411,7 +411,7 @@ export default function ItemModal({ isOpen, onClose, onSave, itemToEdit, canDele
                       onChange={(e) => setIsOnSale(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-[#E5E5EA] dark:bg-[#2C2C2E] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                    <div className="w-11 h-6 bg-[#E5E5EA] dark:bg-[#2C2C2E] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-action)]" />
                   </div>
                 </label>
 

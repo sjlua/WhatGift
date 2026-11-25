@@ -180,7 +180,7 @@ export default function SettingsView({ onOpenAdmin }) {
               }}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition border-0 shrink-0 ${
                 isSelected
-                  ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm'
+                  ? 'bg-[var(--theme-action)] text-white shadow-apple-sm'
                   : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
               }`}
             >
@@ -231,7 +231,7 @@ export default function SettingsView({ onOpenAdmin }) {
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition text-left border-0 ${
                     isSelected
-                      ? 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-semibold'
+                      ? 'bg-[var(--theme-action)] text-white shadow-apple-sm font-semibold'
                       : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] font-medium'
                   }`}
                 >
@@ -348,7 +348,7 @@ export default function SettingsView({ onOpenAdmin }) {
                   <button
                     type="submit"
                     disabled={submitting || !alias.trim()}
-                    className="h-11 px-5 rounded-xl text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition disabled:opacity-50 border-0 shadow-apple-sm active:scale-95"
+                    className="h-11 px-5 rounded-xl text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition disabled:opacity-50 border-0 shadow-apple-sm active:scale-95"
                   >
                     {submitting ? 'Saving...' : 'Save Profile Changes'}
                   </button>
@@ -413,7 +413,7 @@ export default function SettingsView({ onOpenAdmin }) {
                             disabled={savingDeletion}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                          <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-action)]" />
                         </div>
                       </label>
                     ) : (
@@ -455,7 +455,7 @@ export default function SettingsView({ onOpenAdmin }) {
                       <button
                         type="button"
                         onClick={onOpenAdmin}
-                        className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl text-xs font-semibold bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] text-white transition border-0 shadow-apple-sm active:scale-95"
+                        className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl text-xs font-semibold bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] text-white transition border-0 shadow-apple-sm active:scale-95"
                       >
                         <HugeiconsIcon icon={UserSettings01Icon} size={15} />
                         <span>Manage Family</span>
@@ -543,10 +543,10 @@ export default function SettingsView({ onOpenAdmin }) {
                 <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
                   <div>
                     <h2 className="text-lg font-semibold text-[#050505] dark:text-[#E4E6EB]">
-                      Color Theme & Occasions
+                      Color Themes
                     </h2>
                     <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
-                      Tailored accents, navigation tint, and festive atmosphere
+                      Six coordinated palettes, adjusted for light and dark mode
                     </p>
                   </div>
                   <span className="text-xs font-semibold text-[#65676B] dark:text-[#B0B3B8]">
@@ -576,7 +576,7 @@ export default function SettingsView({ onOpenAdmin }) {
                             {t.name}
                           </span>
                           {isSelected && (
-                            <span className="w-4 h-4 rounded-full bg-[var(--theme-primary)] text-white flex items-center justify-center">
+                            <span className="w-4 h-4 rounded-full bg-[var(--theme-action)] text-white flex items-center justify-center">
                               <HugeiconsIcon icon={Tick02Icon} size={11} />
                             </span>
                           )}
@@ -585,17 +585,13 @@ export default function SettingsView({ onOpenAdmin }) {
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs text-[#65676B] dark:text-[#B0B3B8] truncate">{t.holiday}</span>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            {t.gradient ? (
+                            {(t.swatches || [t.swatch]).map((color, index) => (
                               <span
+                                key={`${t.id}-swatch-${index}`}
                                 className="w-4 h-4 rounded-full shadow-sm"
-                                style={{ background: t.gradient }}
+                                style={{ backgroundColor: color }}
                               />
-                            ) : (
-                              <span
-                                className="w-4 h-4 rounded-full shadow-sm"
-                                style={{ backgroundColor: t.primary }}
-                              />
-                            )}
+                            ))}
                           </div>
                         </div>
                       </button>
@@ -662,7 +658,7 @@ export default function SettingsView({ onOpenAdmin }) {
                         <div className="flex items-center justify-between">
                           <span className="text-xl">{opt.icon}</span>
                           {isSelected && (
-                            <span className="w-4 h-4 rounded-full bg-[var(--theme-primary)] text-white flex items-center justify-center">
+                            <span className="w-4 h-4 rounded-full bg-[var(--theme-action)] text-white flex items-center justify-center">
                               <HugeiconsIcon icon={Tick02Icon} size={11} />
                             </span>
                           )}
@@ -830,7 +826,7 @@ export default function SettingsView({ onOpenAdmin }) {
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[var(--theme-primary)] text-white flex items-center justify-center text-2xl shrink-0 shadow-apple-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-[var(--theme-action)] text-white flex items-center justify-center text-2xl shrink-0 shadow-apple-sm">
                     🎁
                   </div>
                   <div className="min-w-0 flex-1">
@@ -838,7 +834,7 @@ export default function SettingsView({ onOpenAdmin }) {
                       <span className="text-base font-bold text-[#050505] dark:text-[#E4E6EB]">
                         WhatGift
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-primary)] text-white">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--theme-action)] text-white">
                         Latest
                       </span>
                     </div>

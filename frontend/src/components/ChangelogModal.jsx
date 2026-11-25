@@ -58,7 +58,7 @@ export default function ChangelogModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 rounded-lg text-xs font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 transition"
+            className="w-full py-2.5 px-4 rounded-lg text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 transition"
           >
             Got It
           </button>

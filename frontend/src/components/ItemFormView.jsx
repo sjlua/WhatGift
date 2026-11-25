@@ -251,7 +251,7 @@ export default function ItemFormView({
             type="submit"
             form="item-page-form"
             disabled={submitting || isScraping}
-            className="h-11 px-5 text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition border-0 disabled:opacity-50 shrink-0 inline-flex items-center gap-1.5 shadow-apple-sm active:scale-95"
+            className="h-11 px-5 text-sm font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition border-0 disabled:opacity-50 shrink-0 inline-flex items-center gap-1.5 shadow-apple-sm active:scale-95"
           >
             {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={16} />}
             <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>
@@ -284,7 +284,7 @@ export default function ItemFormView({
           <div className="p-4 sm:p-5 rounded-2xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0">
                   <HugeiconsIcon icon={SparklesIcon} size={17} />
                 </div>
                 <div>
@@ -328,7 +328,7 @@ export default function ItemFormView({
                 type="button"
                 onClick={() => handleAutoFillFromUrl(url)}
                 disabled={isScraping || !url}
-                className="absolute right-1.5 h-8 px-3 text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-lg transition disabled:opacity-40 border-0 shadow-sm"
+                className="absolute right-1.5 h-8 px-3 text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-lg transition disabled:opacity-40 border-0 shadow-sm"
               >
                 Auto-Fill
               </button>
@@ -446,7 +446,7 @@ export default function ItemFormView({
                 {/* On Sale Switch */}
                 <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-white dark:bg-[#3A3B3C] transition">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--theme-primary)] text-white flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0">
                       <HugeiconsIcon icon={DiscountTag01Icon} size={16} />
                     </div>
                     <div>
@@ -465,7 +465,7 @@ export default function ItemFormView({
                       onChange={(e) => setIsOnSale(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                    <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-action)]" />
                   </div>
                 </label>
 
@@ -549,7 +549,7 @@ export default function ItemFormView({
 
                 {isOnSale && (
                   <div className="absolute top-2 left-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-primary)] text-white rounded-md shadow-sm">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-action)] text-white rounded-md shadow-sm">
                       <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
                       Sale
                     </span>
@@ -602,7 +602,7 @@ export default function ItemFormView({
             <button
               type="submit"
               disabled={submitting || isScraping}
-              className="flex-1 h-11 text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] rounded-xl transition border-0 disabled:opacity-50 shadow-apple-sm inline-flex items-center justify-center gap-2 text-center active:scale-95"
+              className="flex-1 h-11 text-sm font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition border-0 disabled:opacity-50 shadow-apple-sm inline-flex items-center justify-center gap-2 text-center active:scale-95"
             >
               {!itemToEdit && <HugeiconsIcon icon={Add01Icon} size={16} />}
               <span>{submitting ? 'Saving...' : itemToEdit ? 'Save Changes' : 'Publish Item'}</span>

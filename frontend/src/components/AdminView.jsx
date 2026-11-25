@@ -359,7 +359,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                 isSelected
                   ? sec.destructive
                     ? 'bg-[#FF3B30] text-white shadow-apple-sm'
-                    : 'bg-[var(--theme-primary)] text-white shadow-apple-sm'
+                    : 'bg-[var(--theme-action)] text-white shadow-apple-sm'
                   : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
               }`}
             >
@@ -410,7 +410,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                     isSelected
                       ? sec.destructive
                         ? 'bg-[#FF3B30] text-white shadow-apple-sm font-semibold'
-                        : 'bg-[var(--theme-primary)] text-white shadow-apple-sm font-semibold'
+                        : 'bg-[var(--theme-action)] text-white shadow-apple-sm font-semibold'
                       : sec.destructive
                       ? 'hover:bg-[#FF3B30]/10 text-[#FF3B30] font-medium'
                       : 'hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] font-medium'
@@ -476,7 +476,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                   className={`hidden sm:inline-flex h-9 px-3.5 rounded-xl text-xs font-semibold items-center gap-1.5 transition border-0 active:scale-95 ${
                     showAddMember
                       ? 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
-                      : 'bg-[var(--theme-primary)] text-white shadow-apple-sm'
+                      : 'bg-[var(--theme-action)] text-white shadow-apple-sm'
                   }`}
                 >
                   {showAddMember ? (
@@ -550,7 +550,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                     <button
                       type="submit"
                       disabled={submitting || !alias.trim()}
-                      className="h-10 px-5 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50 shadow-apple-sm active:scale-95"
+                      className="h-10 px-5 rounded-xl text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50 shadow-apple-sm active:scale-95"
                     >
                       {submitting ? 'Adding...' : 'Add to Family'}
                     </button>
@@ -643,7 +643,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                           <button
                             type="submit"
                             disabled={savingEdit || !editAlias.trim()}
-                            className="h-10 px-5 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50 shadow-apple-sm active:scale-95"
+                            className="h-10 px-5 rounded-xl text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-50 shadow-apple-sm active:scale-95"
                           >
                             {savingEdit ? "Saving..." : "Save Changes"}
                           </button>
@@ -713,7 +713,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                   className={`w-full h-11 px-4 rounded-xl text-sm font-semibold inline-flex items-center justify-center gap-2 transition border-0 active:scale-95 ${
                     showAddMember
                       ? "bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]"
-                      : "bg-[var(--theme-primary)] text-white shadow-apple-sm"
+                      : "bg-[var(--theme-action)] text-white shadow-apple-sm"
                   }`}
                 >
                   <HugeiconsIcon icon={showAddMember ? Cancel01Icon : Add01Icon} size={16} />
@@ -758,7 +758,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                       <button
                         type="button"
                         onClick={handleCopyInviteLink}
-                        className="h-11 px-4 rounded-xl text-xs font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 shrink-0 shadow-apple-sm inline-flex items-center gap-1.5 active:scale-95"
+                        className="h-11 px-4 rounded-xl text-xs font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition border-0 shrink-0 shadow-apple-sm inline-flex items-center gap-1.5 active:scale-95"
                       >
                         {copiedInvite ? (
                           <>
@@ -864,7 +864,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                           onChange={(e) => setAllowItemDeletion(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-primary)]" />
+                        <div className="w-11 h-6 bg-[#E4E6EB] dark:bg-[#4E4F50] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--theme-action)]" />
                       </div>
                     </label>
                   </div>
@@ -882,7 +882,7 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
                     <button
                       type="submit"
                       disabled={savingFamily || !hasFamilyChanges}
-                      className="h-11 px-5 rounded-xl text-sm font-semibold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-40 shadow-apple-sm active:scale-95"
+                      className="h-11 px-5 rounded-xl text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition border-0 disabled:opacity-40 shadow-apple-sm active:scale-95"
                     >
                       {savingFamily ? 'Saving Changes...' : 'Save Family Settings'}
                     </button>

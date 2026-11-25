@@ -238,7 +238,7 @@ export default function AuthPage() {
                   <button
                     type="submit"
                     disabled={loading || !familyCode.trim()}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
                   >
                     {loading ? 'Finding Family...' : 'Continue'}
                     <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
@@ -302,7 +302,7 @@ export default function AuthPage() {
                     <button
                       type="submit"
                       disabled={loading || !firstName.trim()}
-                      className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
+                      className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition active:scale-95 disabled:opacity-50"
                     >
                       {loading ? 'Logging in...' : 'Log In'}
                     </button>
@@ -415,7 +415,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading || !createForm.name.trim() || !createForm.admin_alias.trim()}
-                className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-primary)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition disabled:opacity-50 mt-2"
+                className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] border-0 shadow-apple-md transition disabled:opacity-50 mt-2"
               >
                 {loading ? 'Creating Family...' : 'Start Family Wishlist'}
               </button>
