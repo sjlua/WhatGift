@@ -138,16 +138,14 @@ export default function WishlistCard({
             {item.title}
           </h3>
 
-          <div className="mt-2">
-            <ExpandableDescription text={item.description} variant="card" />
-          </div>
+          <ExpandableDescription text={item.description} variant="card" />
 
           {cleanUrl && (
             <a
               href={cleanUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] underline decoration-1 underline-offset-2 hover:text-[#1C1C1E] dark:text-[#B0B3B8] dark:hover:text-white"
+              className="mt-0.5 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] underline decoration-1 underline-offset-2 hover:text-[#1C1C1E] dark:text-[#B0B3B8] dark:hover:text-white"
               aria-label={`Open product link at ${getDomain(cleanUrl)}`}
             >
               <HugeiconsIcon icon={LinkSquare01Icon} size={17} className="shrink-0" />
@@ -165,7 +163,7 @@ export default function WishlistCard({
         <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
           <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white sm:text-[22px]">
             {item.is_on_sale && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[11px] font-bold text-white">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[13px] font-bold text-white">
                 <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
                 Sale!
               </span>
@@ -181,9 +179,9 @@ export default function WishlistCard({
                   triggerLight();
                   onEdit(item);
                 }}
-                className={`${canDelete && onDelete ? 'flex-1 rounded-tl-[17px] rounded-tr-none' : 'w-full rounded-t-[17px]'} inline-flex min-h-14 items-center justify-center gap-2 bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]`}
+                className={`${canDelete && onDelete ? 'flex-1 rounded-tl-[17px] rounded-tr-none' : 'w-full rounded-t-[17px]'} inline-flex min-h-14 items-center justify-center gap-2 bg-[#E4E6EB] px-3 text-base font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]`}
               >
-                <HugeiconsIcon icon={PencilEdit02Icon} size={17} />
+                <HugeiconsIcon icon={PencilEdit02Icon} size={19} />
                 <span>Edit</span>
               </button>
 
@@ -208,19 +206,19 @@ export default function WishlistCard({
               <button
                 type="button"
                 onClick={() => onQuickMark?.(item)}
-                className={`inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-tl-[17px] rounded-tr-none px-2 text-sm font-bold transition active:scale-[0.98] ${
+                className={`inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-tl-[17px] rounded-tr-none px-2 text-base font-bold transition active:scale-[0.98] ${
                   isBought
                     ? 'bg-[#91D66D] text-[#1C1C1E] hover:bg-[#82CA5B]'
-                    : 'bg-[var(--theme-action)] text-white hover:bg-[var(--theme-hover)]'
+                    : 'bg-[#F4B400] text-[#1C1C1E] hover:bg-[#E5A900]'
                 }`}
               >
-                <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={17} />
+                <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={19} />
                 <span>{isBought ? 'Bought' : 'Mark Bought'}</span>
               </button>
               <button
                 type="button"
                 onClick={handleEditClaimClick}
-                className="min-h-14 rounded-tl-none rounded-tr-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]"
+                className="min-h-14 rounded-tl-none rounded-tr-[17px] bg-[#E4E6EB] px-3 text-base font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]"
               >
                 Edit
               </button>
@@ -228,11 +226,11 @@ export default function WishlistCard({
           ) : claim ? (
             <div
               role="status"
-              className={`flex min-h-14 items-center justify-center gap-2 rounded-t-[17px] px-3 text-center text-sm font-bold text-[#1C1C1E] ${
+              className={`flex min-h-14 items-center justify-center gap-2 rounded-t-[17px] px-3 text-center text-base font-bold text-[#1C1C1E] ${
                 isBought ? 'bg-[#91D66D]' : 'bg-[#F4B400]'
               }`}
             >
-              <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={18} />
+              <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={20} />
               <span className="truncate">Claimed by {claim.claimer_alias || 'family'}</span>
             </div>
           ) : (

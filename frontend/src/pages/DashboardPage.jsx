@@ -913,7 +913,7 @@ export default function DashboardPage() {
                           key={f.key}
                           type="button"
                           onClick={() => setFamilyFilter(f.key)}
-                          className={`inline-flex h-11 shrink-0 items-center gap-1.5 px-3 rounded-full text-xs font-semibold transition border-0 ${
+                          className={`inline-flex h-11 shrink-0 items-center gap-1.5 px-3 rounded-full text-[13px] font-semibold transition border-0 ${
                             familyFilter === f.key
                               ? 'bg-[var(--theme-action)] text-white shadow-sm'
                               : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
@@ -921,7 +921,7 @@ export default function DashboardPage() {
                         >
                           <span>{f.label}</span>
                           <span
-                            className={`min-w-5 h-5 px-1 rounded-full inline-flex items-center justify-center text-[11px] font-bold tabular-nums ${
+                            className={`min-w-5 h-5 px-1 rounded-full inline-flex items-center justify-center text-xs font-bold tabular-nums ${
                               familyFilter === f.key
                                 ? 'bg-white/25 text-white'
                                 : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
@@ -933,7 +933,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
-                  <label className="relative ml-auto flex h-11 w-[188px] shrink-0 items-center rounded-full bg-white dark:bg-[#3A3B3C] pl-3 pr-9 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] shadow-sm">
+                  <label className="relative ml-auto flex h-11 w-[188px] shrink-0 items-center rounded-full bg-white dark:bg-[#3A3B3C] pl-3 pr-9 text-[13px] font-semibold text-[#050505] dark:text-[#E4E6EB] shadow-sm">
                     <select
                       aria-label="Sort wishlist items"
                       value={wishlistSort}
@@ -941,7 +941,7 @@ export default function DashboardPage() {
                         setWishlistSort(e.target.value);
                         triggerSelection();
                       }}
-                      className="h-full w-full appearance-none bg-transparent text-xs font-semibold text-inherit focus:ring-0"
+                      className="h-full w-full appearance-none bg-transparent text-[13px] font-semibold text-inherit focus:ring-0"
                     >
                       <option value="alphabetical">Alphabetical</option>
                       <option value="price-ascending">Price: Low to High</option>
