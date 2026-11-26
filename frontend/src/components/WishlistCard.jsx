@@ -55,8 +55,12 @@ export default function WishlistCard({
   const claim = item.claim;
 
   const isBought = claim?.status === 'bought' || claim?.status === 'purchased';
-  const isWantToBuy = claim?.status === 'want_to_buy' || claim?.status === 'claimed';
   const priorityBadge = PRIORITY_BADGES[item.priority?.toLowerCase()] ?? PRIORITY_BADGES.medium;
+  const cardSurfaceClass = !isOwner && claim
+    ? isBought
+      ? 'bg-[#E8F5EC] dark:bg-[#1B2C20] hover:bg-[#DFF1E5] dark:hover:bg-[#213629]'
+      : 'bg-[#FFF2DF] dark:bg-[#332819] hover:bg-[#FBE9CC] dark:hover:bg-[#3A2D1D]'
+    : 'bg-white dark:bg-[#1C1C1E] hover:bg-[#FAFAFC] dark:hover:bg-[#2A2B2D]';
 
   const cleanUrl = sanitizeUrl(item.url);
 
@@ -100,7 +104,7 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white dark:bg-[#1C1C1E] shadow-apple-xs transition-all duration-150 hover:bg-[#FAFAFC] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
+      <div className={`group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 shadow-apple-xs transition-all duration-150 ${cardSurfaceClass} hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none`}>
         {/* Festive blurred background accent circles for Christmas & Birthday themes */}
         {festiveGlowColors && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
@@ -123,49 +127,46 @@ export default function WishlistCard({
 
         <div className="relative z-[1]">
           <div className="pt-1 pb-1">
-            <div className="mb-2 flex justify-center">
-              <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-28 sm:w-28">
-                {item.image_url ? (
-                  <button
-                    type="button"
-                    onClick={handleOpenLightbox}
-                    aria-label={`View larger image of ${item.title}`}
-                    className="absolute inset-0 h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
-                  >
-                    <img
-                      src={item.image_url}
-                      alt=""
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-                      onError={(e) => {
-                        handleImageFallbackError(e, item.image_url);
-                      }}
-                    />
-                  </button>
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
-                    <HugeiconsIcon icon={GiftIcon} size={24} />
-                  </div>
-                )}
-                {item.is_on_sale && (
-                  <span className="absolute bottom-0.5 left-0.5 inline-flex items-center gap-0.5 rounded bg-[var(--theme-action)] px-1 py-0.5 text-[8px] font-bold text-white">
-                    <HugeiconsIcon icon={DiscountTag01Icon} size={9} />
-                    Sale
-                  </span>
-                )}
-                {!isOwner && claim && (
-                  <span
-                    className={`absolute right-0.5 top-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-white ${
-                      isBought ? 'bg-[#34C759]' : 'bg-[#FF9500]'
-                    }`}
-                    aria-label={isBought ? 'Purchased' : 'Claimed'}
-                    title={isBought ? 'Purchased' : 'Claimed'}
-                  >
-                    <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={10} />
-                  </span>
-                )}
-              </div>
+            <div className="relative -mx-2.5 -mt-2.5 mb-2.5 aspect-square overflow-hidden bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:-mx-3 sm:-mt-3">
+              {item.image_url ? (
+                <button
+                  type="button"
+                  onClick={handleOpenLightbox}
+                  aria-label={`View larger image of ${item.title}`}
+                  className="absolute inset-0 h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
+                >
+                  <img
+                    src={item.image_url}
+                    alt=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                    onError={(e) => {
+                      handleImageFallbackError(e, item.image_url);
+                    }}
+                  />
+                </button>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                  <HugeiconsIcon icon={GiftIcon} size={42} />
+                </div>
+              )}
+              {item.is_on_sale && (
+                <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-[var(--theme-action)] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                  <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
+                  Sale
+                </span>
+              )}
+              {!isOwner && claim && (
+                <span
+                  className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold text-white shadow-sm ${
+                    isBought ? 'bg-[#15803D]' : 'bg-[#B54708]'
+                  }`}
+                >
+                  <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={11} />
+                  {isBought ? 'Purchased' : 'Claimed'}
+                </span>
+              )}
             </div>
 
             {/* Title — 2 lines max */}
@@ -207,7 +208,7 @@ export default function WishlistCard({
         </div>
 
         {/* Card Footer: Action Buttons (FB Marketplace Style) */}
-        <div className="mt-2 relative z-[1] rounded-xl bg-[#F2F2F7] dark:bg-[#2A2B2D] p-1.5">
+        <div className="mt-2 relative z-[1]">
           {isOwner ? (
             /* OWNER CONTROLS: Edit button and optional Delete button */
             <div className="flex items-center gap-1.5 w-full">

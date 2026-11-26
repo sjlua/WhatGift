@@ -533,31 +533,29 @@ export default function ItemFormView({
             )}
             <div className="relative z-[1]">
               <div className="pt-1 pb-1">
-                <div className="mb-2 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-28 sm:w-28">
-                    {imageUrl && !imageLoadFailed ? (
-                      <img
-                        key={imageUrl}
-                        src={imageUrl}
-                        alt={title || 'Preview'}
-                        referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
-                        }}
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
-                        <HugeiconsIcon icon={GiftIcon} size={24} />
-                      </div>
-                    )}
-                    {isOnSale && (
-                      <span className="absolute bottom-0.5 left-0.5 inline-flex items-center gap-0.5 rounded bg-[var(--theme-action)] px-1 py-0.5 text-[8px] font-bold text-white">
-                        <HugeiconsIcon icon={DiscountTag01Icon} size={9} />
-                        Sale
-                      </span>
-                    )}
-                  </div>
+                <div className="-mx-2.5 -mt-2.5 mb-2.5 aspect-square overflow-hidden bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:-mx-3 sm:-mt-3 relative">
+                  {imageUrl && !imageLoadFailed ? (
+                    <img
+                      key={imageUrl}
+                      src={imageUrl}
+                      alt={title || 'Preview'}
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                      <HugeiconsIcon icon={GiftIcon} size={42} />
+                    </div>
+                  )}
+                  {isOnSale && (
+                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-[var(--theme-action)] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                      <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
+                      Sale
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
@@ -591,7 +589,7 @@ export default function ItemFormView({
                 )}
                 <ExpandableDescription text={description} />
               </div>
-              <div className="mt-2 rounded-xl bg-[#F2F2F7] dark:bg-[#2A2B2D] p-1.5">
+              <div className="mt-2 relative z-[1]">
                 <div className="flex items-center gap-1.5 w-full">
                   <div className={`${canDelete ? 'flex-1' : 'w-full'} h-9 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C]`}>
                     <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
