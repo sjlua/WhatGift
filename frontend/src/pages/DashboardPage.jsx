@@ -26,6 +26,7 @@ import {
   Search01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  ArrowDown01Icon,
   CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
@@ -63,6 +64,7 @@ export default function DashboardPage() {
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [showMobileFamilyMembers, setShowMobileFamilyMembers] = useState(false);
   const [familyFilter, setFamilyFilter] = useState('all'); // 'all' | 'available' | 'claimed'
+  const [wishlistSort, setWishlistSort] = useState('alphabetical');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -340,7 +342,21 @@ export default function DashboardPage() {
     return true;
   });
 
-  const displayedItems = activeTab === 'family-wishes' ? displayedFamilyItems : searchFiltered;
+  const displayedItems = [...(activeTab === 'family-wishes' ? displayedFamilyItems : searchFiltered)].sort((a, b) => {
+    if (wishlistSort === 'price-ascending' || wishlistSort === 'price-descending') {
+      const aPrice = a.price == null ? null : Number(a.price);
+      const bPrice = b.price == null ? null : Number(b.price);
+      const aHasPrice = aPrice !== null && Number.isFinite(aPrice);
+      const bHasPrice = bPrice !== null && Number.isFinite(bPrice);
+
+      if (aHasPrice !== bHasPrice) return aHasPrice ? -1 : 1;
+      if (aHasPrice && bHasPrice && aPrice !== bPrice) {
+        return wishlistSort === 'price-ascending' ? aPrice - bPrice : bPrice - aPrice;
+      }
+    }
+
+    return (a.title || '').localeCompare(b.title || '', undefined, { numeric: true, sensitivity: 'base' });
+  });
 
   // Section header text
   const sectionTitle = activeTab === 'my-wishes'
@@ -350,7 +366,7 @@ export default function DashboardPage() {
     : 'Family Wishlists';
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#111113] flex flex-col transition-colors duration-200 relative">
+    <div className="min-h-screen bg-[#F2F2F7] dark:bg-[#111113] flex flex-col transition-colors duration-200 relative">
       {/* Ambient Seasonal Atmosphere (Snow or Aussie Sunshine) */}
       <SeasonalAtmosphere />
       {/* ========== MOBILE TOP NAVBAR (lg:hidden) ========== */}
@@ -883,36 +899,61 @@ export default function DashboardPage() {
 
               </div>
 
-              {/* Family Filter Pills (All / Available / Claimed) */}
-              {activeTab === 'family-wishes' && items.length > 0 && (
-                <div className="flex gap-2 mb-4">
-                  {[
-                    { key: 'all', label: 'All', count: items.length },
-                    { key: 'available', label: 'Available', count: availableCount },
-                    { key: 'claimed', label: 'Claimed', count: claimedCount },
-                  ].map((f) => (
-                    <button
-                      key={f.key}
-                      type="button"
-                      onClick={() => setFamilyFilter(f.key)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition border-0 ${
-                        familyFilter === f.key
-                          ? 'bg-[var(--theme-action)] text-white shadow-sm'
-                          : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
-                      }`}
+              {/* Wishlist filters and sorting */}
+              {(activeTab === 'family-wishes' || activeTab === 'my-wishes') && items.length > 0 && (
+                <div className="mb-4 flex min-w-0 items-center gap-2">
+                  {activeTab === 'family-wishes' && (
+                    <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto scrollbar-hide">
+                      {[
+                        { key: 'all', label: 'All', count: items.length },
+                        { key: 'available', label: 'Available', count: availableCount },
+                        { key: 'claimed', label: 'Claimed', count: claimedCount },
+                      ].map((f) => (
+                        <button
+                          key={f.key}
+                          type="button"
+                          onClick={() => setFamilyFilter(f.key)}
+                          className={`inline-flex h-11 shrink-0 items-center gap-1.5 px-3 rounded-full text-xs font-semibold transition border-0 ${
+                            familyFilter === f.key
+                              ? 'bg-[var(--theme-action)] text-white shadow-sm'
+                              : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
+                          }`}
+                        >
+                          <span>{f.label}</span>
+                          <span
+                            className={`min-w-5 h-5 px-1 rounded-full inline-flex items-center justify-center text-[11px] font-bold tabular-nums ${
+                              familyFilter === f.key
+                                ? 'bg-white/25 text-white'
+                                : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
+                            }`}
+                          >
+                            {f.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <label className="relative ml-auto flex h-11 w-[148px] shrink-0 items-center rounded-full bg-white dark:bg-[#3A3B3C] pl-3 pr-9 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] shadow-sm">
+                    <select
+                      aria-label="Sort wishlist items"
+                      value={wishlistSort}
+                      onChange={(e) => {
+                        setWishlistSort(e.target.value);
+                        triggerSelection();
+                      }}
+                      className="h-full w-full appearance-none bg-transparent text-xs font-semibold text-inherit focus:ring-0"
                     >
-                      <span>{f.label}</span>
-                      <span
-                        className={`min-w-5 h-5 px-1 rounded-full inline-flex items-center justify-center text-[11px] font-bold tabular-nums ${
-                          familyFilter === f.key
-                            ? 'bg-white/25 text-white'
-                            : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
-                        }`}
-                      >
-                        {f.count}
-                      </span>
-                    </button>
-                  ))}
+                      <option value="alphabetical">Alphabetical</option>
+                      <option value="price-ascending">Price: Low to High</option>
+                      <option value="price-descending">Price: High to Low</option>
+                    </select>
+                    <HugeiconsIcon
+                      icon={ArrowDown01Icon}
+                      size={14}
+                      className="pointer-events-none absolute right-3 text-[#65676B] dark:text-[#B0B3B8]"
+                      aria-hidden="true"
+                    />
+                  </label>
                 </div>
               )}
 

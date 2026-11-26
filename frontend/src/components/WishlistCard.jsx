@@ -99,7 +99,7 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white/90 dark:bg-[#1C1C1E]/90 shadow-apple-xs transition-all duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
+      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white dark:bg-[#1C1C1E] shadow-apple-xs transition-all duration-150 hover:bg-[#FAFAFC] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
         {/* Festive blurred background accent circles for Christmas & Birthday themes */}
         {festiveGlowColors && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
@@ -121,95 +121,84 @@ export default function WishlistCard({
         )}
 
         <div className="relative z-[1]">
-          {/* Image container — square aspect ratio like FB Marketplace */}
-          <div className="relative w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] overflow-hidden rounded-xl">
-            {item.image_url ? (
-              <button
-                type="button"
-                onClick={handleOpenLightbox}
-                aria-label={`View larger image of ${item.title}`}
-                className="absolute inset-0 w-full h-full p-0 border-0 bg-transparent cursor-zoom-in"
-              >
-                <img
-                  src={item.image_url}
-                  alt=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-                  onError={(e) => {
-                    handleImageFallbackError(e, item.image_url);
-                  }}
-                />
-              </button>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
-                <HugeiconsIcon icon={GiftIcon} size={42} />
-              </div>
-            )}
-
-            {/* Sale badge overlay — top-left */}
-            {item.is_on_sale && (
-              <div className="absolute top-2 left-2 pointer-events-none">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-action)] text-white rounded-md shadow-sm">
-                  <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
-                  Sale
-                </span>
-              </div>
-            )}
-
-            {/* Claim status overlay — top-right, only for non-owner */}
-            {!isOwner && claim && (
-              <div className="absolute top-2 right-2 pointer-events-none">
-                {isBought ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[#34C759] text-white rounded-md shadow-sm">
-                    <HugeiconsIcon icon={Tick02Icon} size={11} />
-                    Purchased
-                  </span>
+          <div className="pt-1 pb-1">
+            {/* Title — 2 lines max */}
+            <div className="flex items-start gap-2">
+              <h3 className="min-w-0 flex-1 text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
+                {item.title}
+              </h3>
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+                {item.image_url ? (
+                  <button
+                    type="button"
+                    onClick={handleOpenLightbox}
+                    aria-label={`View larger image of ${item.title}`}
+                    className="absolute inset-0 h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
+                  >
+                    <img
+                      src={item.image_url}
+                      alt=""
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                      onError={(e) => {
+                        handleImageFallbackError(e, item.image_url);
+                      }}
+                    />
+                  </button>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[#FF9500] text-white rounded-md shadow-sm">
-                    <HugeiconsIcon icon={ShoppingBag01Icon} size={11} />
-                    Claimed
+                  <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                    <HugeiconsIcon icon={GiftIcon} size={24} />
+                  </div>
+                )}
+                {item.is_on_sale && (
+                  <span className="absolute bottom-0.5 left-0.5 inline-flex items-center gap-0.5 rounded bg-[var(--theme-action)] px-1 py-0.5 text-[8px] font-bold text-white">
+                    <HugeiconsIcon icon={DiscountTag01Icon} size={9} />
+                    Sale
+                  </span>
+                )}
+                {!isOwner && claim && (
+                  <span
+                    className={`absolute right-0.5 top-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-white ${
+                      isBought ? 'bg-[#34C759]' : 'bg-[#FF9500]'
+                    }`}
+                    aria-label={isBought ? 'Purchased' : 'Claimed'}
+                    title={isBought ? 'Purchased' : 'Claimed'}
+                  >
+                    <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={10} />
                   </span>
                 )}
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Details Area — compact FB Marketplace typography */}
-          <div className="pt-2 sm:pt-2.5 pb-1">
-            {/* Prominent Price Display */}
-            {priceDisplay && (
-              <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight mb-0.5">
+            <div className="mt-1.5 flex min-h-6 items-center justify-between gap-2">
+              <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight">
                 {priceDisplay}
               </div>
-            )}
-
-            {/* Title — 2 lines max */}
-            <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
-              {cleanUrl ? (
-                <a
-                  href={cleanUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline underline-offset-2"
-                >
-                  {item.title}
-                </a>
-              ) : (
-                item.title
-              )}
-            </h3>
-
-            <div className="mt-1">
-              <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold tracking-wide rounded-md ${priorityBadge.className}`}>
+              <span className={`inline-flex min-w-12 items-center justify-center px-1.5 py-1 text-[9px] font-bold tracking-wide rounded-md ${priorityBadge.className}`}>
                 {priorityBadge.label}
               </span>
             </div>
 
-            {/* Subtle Metadata: store domain or owner hint */}
-            <div className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] mt-0.5 truncate">
-              {cleanUrl ? getDomain(cleanUrl) : 'Wishlist Gift'}
-            </div>
+            {cleanUrl && (
+              <a
+                href={cleanUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1.5 inline-flex min-h-8 max-w-full items-center gap-1.5 text-[12px] font-semibold text-[var(--theme-primary)] hover:underline underline-offset-2"
+                aria-label={`Open product link at ${getDomain(cleanUrl)}`}
+              >
+                <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
+                <span className="shrink-0">Link</span>
+                <span className="truncate font-normal text-[#65676B] dark:text-[#B0B3B8]">{getDomain(cleanUrl)}</span>
+              </a>
+            )}
+
+            {item.description && (
+              <p className="mt-1 text-[12px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words">
+                {item.description}
+              </p>
+            )}
 
             {/* Private Claimer Note indicator (if claimed by current viewer) */}
             {!isOwner && claim?.is_claimed_by_viewer && claim?.notes && (
@@ -253,18 +242,6 @@ export default function WishlistCard({
                 </button>
               )}
 
-              {cleanUrl && (
-                <a
-                  href={cleanUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#E4E6EB] dark:hover:bg-[#3A3B3C] transition shrink-0"
-                  title="Open store link"
-                  aria-label="Open store link"
-                >
-                  <HugeiconsIcon icon={LinkSquare01Icon} size={16} />
-                </a>
-              )}
             </div>
           ) : (
             /* NON-OWNER: Claim / Coordinate Buttons */
@@ -309,18 +286,6 @@ export default function WishlistCard({
                 </button>
               )}
 
-              {cleanUrl && (
-                <a
-                  href={cleanUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-[#65676B] dark:text-[#B0B3B8] hover:bg-[#E4E6EB] dark:hover:bg-[#3A3B3C] transition shrink-0"
-                  title="Open store link"
-                  aria-label="Open store link"
-                >
-                  <HugeiconsIcon icon={LinkSquare01Icon} size={16} />
-                </a>
-              )}
             </div>
           )}
         </div>
