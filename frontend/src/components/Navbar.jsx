@@ -54,7 +54,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelect
   return (
     <>
       {/* Mobile Sticky Header with Theme Tint (no gradient!) */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-[var(--theme-header-bg)] backdrop-blur-md border-b border-[var(--theme-header-border)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-1 px-4 transition-colors">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-[var(--theme-header-border)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-1 px-4 transition-colors">
         <div className="flex items-center justify-between h-12">
           {/* Brand & Family Info */}
           <button

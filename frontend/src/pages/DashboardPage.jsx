@@ -1033,7 +1033,7 @@ export default function DashboardPage() {
       {/* Ensures wishlists, family, add gift, and settings are ALWAYS accessible anywhere on mobile */}
       <nav
         aria-label="Mobile Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--theme-header-bg)] backdrop-blur-md border-t border-[var(--theme-header-border)] px-1.5 pt-2 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-black/90 backdrop-blur-md border-t border-[var(--theme-header-border)] px-1.5 pt-2 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
       >
         <div className="flex items-start max-w-md mx-auto">
           {/* 1. My Wishlist */}
