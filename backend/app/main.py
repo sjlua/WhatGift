@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="0.4.1",
+    version="0.5.0",
     description="Mobile-friendly Family Wishlist API with privacy protection",
     lifespan=lifespan,
 )

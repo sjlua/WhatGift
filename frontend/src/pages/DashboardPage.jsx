@@ -814,28 +814,30 @@ export default function DashboardPage() {
             <>
               {/* Section Header */}
               <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 min-w-0">
-                    {activeTab === 'family-wishes' && activeSelectedMember && !isDesktop && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          triggerSelection();
-                          setSelectedMemberId(null);
-                          setShowMobileFamilyMembers(true);
-                          setFamilyFilter('all');
-                          setSearchQuery('');
-                        }}
-                        aria-label="Back to family members"
-                        className="w-11 h-11 -ml-2 shrink-0 inline-flex items-center justify-center rounded-full text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] active:scale-95 transition border-0 bg-transparent"
-                      >
-                        <HugeiconsIcon icon={ArrowLeft01Icon} size={21} />
-                      </button>
-                    )}
-                    <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
-                      {sectionTitle}
-                    </h2>
-                  </div>
+                <div
+                  className={`relative min-w-0 ${
+                    activeTab === 'family-wishes' && activeSelectedMember && !isDesktop ? 'pl-11' : ''
+                  }`}
+                >
+                  {activeTab === 'family-wishes' && activeSelectedMember && !isDesktop && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerSelection();
+                        setSelectedMemberId(null);
+                        setShowMobileFamilyMembers(true);
+                        setFamilyFilter('all');
+                        setSearchQuery('');
+                      }}
+                      aria-label="Back to family members"
+                      className="absolute -left-2 -top-2 w-11 h-11 inline-flex items-center justify-center rounded-full text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] active:scale-95 transition border-0 bg-transparent"
+                    >
+                      <HugeiconsIcon icon={ArrowLeft01Icon} size={21} />
+                    </button>
+                  )}
+                  <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
+                    {sectionTitle}
+                  </h2>
                   {activeTab === 'my-wishes' && (
                     <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
                       {family?.name}

@@ -83,7 +83,7 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white dark:bg-[#1C1C1E] shadow-apple-xs transition-all duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
+      <div className="group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 bg-white/90 dark:bg-[#1C1C1E]/90 shadow-apple-xs transition-all duration-150 hover:bg-[#F2F4F7] dark:hover:bg-[#2A2B2D] hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none">
         {/* Festive blurred background accent circles for Christmas & Birthday themes */}
         {festiveGlowColors && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
@@ -191,7 +191,7 @@ export default function WishlistCard({
 
             {/* Private Claimer Note indicator (if claimed by current viewer) */}
             {!isOwner && claim?.is_claimed_by_viewer && claim?.notes && (
-              <div className="mt-1 text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] italic line-clamp-1">
+              <div className="mt-1 text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] italic whitespace-pre-wrap break-words">
                 Note: {claim.notes}
               </div>
             )}

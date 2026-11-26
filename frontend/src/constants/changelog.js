@@ -12,8 +12,8 @@ import {
 
 export const CHANGELOG_RELEASES = [
   {
-    version: 'v0.4.1',
-    title: 'Resilient Amazon Links & Automatic Image Refresh',
+    version: 'v0.5.0',
+    title: 'Mobile Wishlist Navigation & Gift Coordination',
     tag: 'Latest',
     tagColor: 'bg-[var(--theme-action)] text-white',
     highlights: [
@@ -52,6 +52,30 @@ export const CHANGELOG_RELEASES = [
         title: 'Pill-Style Mobile Navigation',
         description:
           'The mobile tab bar now uses a softly tinted surface and a rounded highlight behind the active tab icon, making the current section easier to spot at a glance.',
+      },
+      {
+        icon: UserGroupIcon,
+        title: 'Family Wishlist Browsing on Mobile',
+        description:
+          'Family opens a member list styled like the desktop sidebar, with a back control on each wishlist. Requests are guarded against stale responses so switching members shows the right gifts.',
+      },
+      {
+        icon: GiftIcon,
+        title: 'Quicker Wishlist Actions',
+        description:
+          'Add Gift is now available from the My Wishlist header on mobile, filter counts use circular badges, and mobile header spacing is tighter.',
+      },
+      {
+        icon: PaintBoardIcon,
+        title: 'Clearer Gift Notes & Seasonal Settings',
+        description:
+          'Gift notes wrap across lines, add-item placeholders are visually distinct from entered values, and holiday climate controls use clear vector icons. Gift cards now have translucent surfaces in both themes.',
+      },
+      {
+        icon: Shield01Icon,
+        title: 'Simpler Help & Claim Privacy',
+        description:
+          'Removed the legacy admin setup popup and misleading purchaser-visibility copy. The How to Use page remains available to family members.',
       },
     ],
   },

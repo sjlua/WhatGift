@@ -6,6 +6,7 @@ import { getThemeAvatars } from '../constants/avatars';
 import { CHANGELOG_RELEASES } from '../constants/changelog';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
+  GiftIcon,
   UserIcon,
   PaintBoardIcon,
   SmartPhone01Icon,
@@ -136,7 +137,7 @@ export default function SettingsView({ onOpenAdmin }) {
       id: 'about',
       label: 'About WhatGift',
       icon: SparklesIcon,
-      badge: 'v0.4.1',
+      badge: 'v0.5.0',
     },
   ];
 
@@ -827,13 +828,13 @@ export default function SettingsView({ onOpenAdmin }) {
                     </p>
                   </div>
                   <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                    v0.4.1
+                    v0.5.0
                   </span>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[var(--theme-action)] text-white flex items-center justify-center text-2xl shrink-0 shadow-apple-sm">
-                    🎁
+                  <div className="w-14 h-14 rounded-2xl bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0 shadow-apple-sm">
+                    <HugeiconsIcon icon={GiftIcon} size={28} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">

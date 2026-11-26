@@ -572,7 +572,7 @@ export default function ItemFormView({
                   {priority === 'high' ? 'High priority' : priority === 'low' ? 'Low priority' : 'Medium priority'}
                 </div>
                 {description && (
-                  <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] line-clamp-2 pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
+                  <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
                     {description}
                   </p>
                 )}

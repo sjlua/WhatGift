@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import ConfirmDialog from './ConfirmDialog';
-import { useAuth } from '../context/AuthContext';
 import { useHaptics } from '../context/HapticsContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -19,7 +18,6 @@ export default function ClaimModal({
   onSaveClaim,
   onReleaseClaim,
 }) {
-  const { user } = useAuth();
   const { triggerSelection, triggerSuccess, triggerWarning } = useHaptics();
 
   const [status, setStatus] = useState('want_to_buy');
@@ -107,25 +105,6 @@ export default function ClaimModal({
           </span>
         </div>
 
-        {/* Purchaser Identity Preview */}
-        <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#2C2C2E] border-0 shadow-apple-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="text-2xl leading-none">{user?.avatar || '🎁'}</span>
-            <div>
-              <div className="text-xs font-bold text-[#1C1C1E] dark:text-white">
-                Visible to family as
-              </div>
-              <div className="text-[11px] text-[#8E8E93]">
-                Your emoji and name will appear on this gift
-              </div>
-            </div>
-          </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)] text-xs font-bold shadow-apple-sm">
-            <span>{user?.avatar || '🎁'}</span>
-            <span>{user?.alias}</span>
-          </span>
-        </div>
-
         {/* Choice: BOUGHT or WANT TO BUY */}
         <div>
           <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-2">
@@ -203,7 +182,7 @@ export default function ClaimModal({
         {/* Secret Notes */}
         <div>
           <label className="block font-sans font-bold text-xs text-[#8E8E93] dark:text-[#A1A1A6] mb-1">
-            Secret Note (Visible to other family buyers)
+            Secret Note
           </label>
           <textarea
             rows="2"
