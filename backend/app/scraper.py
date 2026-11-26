@@ -431,6 +431,88 @@ def extract_hm_fallbacks(html_content: str, target_url: str) -> Dict[str, Any]:
     return result
 
 
+def extract_hm_api_image_url(payload: Dict[str, Any], article_code: str) -> Optional[str]:
+    """Get the product image from H&M's by-ID product API response."""
+    if not isinstance(payload, dict) or not article_code:
+        return None
+    article_data = payload.get("articles")
+    if not isinstance(article_data, dict):
+        return None
+    articles = article_data.get("productList", [])
+    if not isinstance(articles, list):
+        return None
+    article = next(
+        (
+            entry
+            for entry in articles
+            if isinstance(entry, dict) and str(entry.get("id", "")) == article_code
+        ),
+        None,
+    )
+    if not article:
+        return None
+
+    images = article.get("images", [])
+    if not isinstance(images, list):
+        images = []
+    descriptive_images = [
+        image.get("url")
+        for image in images
+        if isinstance(image, dict)
+        and image.get("assetType") in {"DescriptiveStillLife", "DescriptiveDetail"}
+    ]
+    image_candidates = [
+        article.get("productImage"),
+        *descriptive_images,
+        article.get("modelImage"),
+        *(image.get("url") for image in images if isinstance(image, dict)),
+    ]
+
+    for candidate in image_candidates:
+        if not isinstance(candidate, str) or not candidate.strip():
+            continue
+        resolved = urljoin("https://image.hm.com/", candidate.strip())
+        parsed = urlparse(resolved)
+        if parsed.scheme == "https" and parsed.hostname in {"image.hm.com", "lp2.hm.com"}:
+            return resolved
+    return None
+
+
+async def fetch_hm_product_image(article_code: str) -> Optional[str]:
+    """Fetch H&M product images when Akamai blocks the product page scraper."""
+    if not article_code or not article_code.isdigit():
+        return None
+
+    endpoint = "https://api.hm.com/search-services/v1/en_au/search/byids"
+    headers = {
+        "Accept": "application/json",
+        "Accept-Language": "en-AU,en-US;q=0.9,en;q=0.8",
+        "User-Agent": DEFAULT_HEADERS["User-Agent"],
+        "Referer": "https://www2.hm.com/",
+        "Origin": "https://www2.hm.com",
+    }
+
+    try:
+        async with httpx.AsyncClient(
+            headers=headers,
+            follow_redirects=True,
+            timeout=8.0,
+        ) as client:
+            response = await client.get(
+                endpoint,
+                params={
+                    "ids": article_code,
+                    "touchPoint": "DESKTOP",
+                    "pageSource": "pdp",
+                },
+            )
+            response.raise_for_status()
+            return extract_hm_api_image_url(response.json(), article_code)
+    except (httpx.RequestError, httpx.HTTPStatusError, ValueError) as exc:
+        logger.warning("H&M image API lookup failed for article %s: %s", article_code, exc)
+        return None
+
+
 def is_amazon_url(url: str) -> bool:
     """Recognise Amazon storefronts and common Amazon app/share short domains."""
     try:
@@ -742,6 +824,10 @@ async def scrape_opengraph_metadata(target_url: str) -> Dict[str, Any]:
             final_price = hm_fallbacks["price"]
         if not final_image_url:
             final_image_url = hm_fallbacks["image_url"]
+        if not final_image_url:
+            article_code = extract_hm_article_code(effective_url) or extract_hm_article_code(clean_url)
+            if article_code:
+                final_image_url = await fetch_hm_product_image(article_code)
 
     return {
         "url": clean_url,

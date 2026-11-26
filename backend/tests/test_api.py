@@ -599,6 +599,7 @@ def test_hm_scraper_product_fallbacks():
         is_hm_url,
         extract_hm_article_code,
         extract_hm_fallbacks,
+        extract_hm_api_image_url,
     )
 
     hm_url = "https://www2.hm.com/en_au/productpage.1333822001.html"
@@ -622,6 +623,17 @@ def test_hm_scraper_product_fallbacks():
     assert result["title"] == "Relaxed-Fit Denim Shorts"
     assert result["price"] == 39.99
     assert result["image_url"].startswith("https://lp2.hm.com/")
+
+    api_image_url = "https://image.hm.com/assets/hm/example.jpg"
+    api_payload = {
+        "articles": {
+            "productList": [
+                {"id": "1333822001", "productImage": api_image_url},
+            ],
+        },
+    }
+    assert extract_hm_api_image_url(api_payload, "1333822001") == api_image_url
+    assert extract_hm_api_image_url(api_payload, "9999999999") is None
 
 
 def test_url_sanitization_and_item_deduplication(client):
