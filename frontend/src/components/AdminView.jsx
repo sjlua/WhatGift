@@ -11,7 +11,6 @@ import {
   AlertCircleIcon,
   Link01Icon,
   UserSettings01Icon,
-  CircleQuestionMarkIcon,
   UserGroupIcon,
   Cancel01Icon,
   Settings02Icon,
@@ -20,7 +19,7 @@ import {
 import ConfirmDialog from './ConfirmDialog';
 import { getThemeAvatars } from '../constants/avatars';
 
-export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
+export default function AdminView({ onWishlistReset }) {
   const { family, updateFamilyDetails, refreshFamily, logout } = useAuth();
   const { themeId, seasonalAtmosphere } = useTheme();
   const themeAvatars = getThemeAvatars(themeId, seasonalAtmosphere);
@@ -316,17 +315,6 @@ export default function AdminView({ onWishlistReset, onOpenSetupHelp }) {
           </p>
         </div>
 
-        {onOpenSetupHelp && (
-          <button
-            type="button"
-            onClick={onOpenSetupHelp}
-            className="hidden sm:inline-flex h-10 items-center gap-1.5 px-3.5 rounded-xl bg-[#F0F2F5] dark:bg-[#3A3B3C] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] transition border-0 active:scale-95 shrink-0"
-            title="How to Setup Guide"
-          >
-            <HugeiconsIcon icon={CircleQuestionMarkIcon} size={16} className="text-[var(--theme-primary)]" />
-            <span>How to Setup</span>
-          </button>
-        )}
       </div>
 
       {error && (

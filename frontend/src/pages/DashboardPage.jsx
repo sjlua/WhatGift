@@ -12,7 +12,6 @@ import AdminView from '../components/AdminView';
 import ClaimModal from '../components/ClaimModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import SettingsView from '../components/SettingsView';
-import SetupHelpModal from '../components/SetupHelpModal';
 import HowToUseView from '../components/HowToUseView';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -25,6 +24,8 @@ import {
   Tick02Icon,
   Logout01Icon,
   Search01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
   CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
@@ -60,6 +61,7 @@ export default function DashboardPage() {
   // Navigation tab: 'my-wishes' | 'family-wishes' | 'add-gift' | 'edit-gift' | 'settings' | 'admin' | 'how-to-use'
   const [activeTab, setActiveTab] = useState('my-wishes');
   const [selectedMemberId, setSelectedMemberId] = useState(null);
+  const [showMobileFamilyMembers, setShowMobileFamilyMembers] = useState(false);
   const [familyFilter, setFamilyFilter] = useState('all'); // 'all' | 'available' | 'claimed'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,6 @@ export default function DashboardPage() {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
-  const [showSetupHelp, setShowSetupHelp] = useState(false);
 
   // Whether item deletion is permitted in this family
   const allowItemDeletion = family?.allow_item_deletion !== false;
@@ -109,10 +110,15 @@ export default function DashboardPage() {
 
   // When switching to family tab, default selected member to first other member if none selected
   useEffect(() => {
-    if (activeTab === 'family-wishes' && !selectedMemberId && otherMembers.length > 0) {
+    if (
+      activeTab === 'family-wishes' &&
+      (isDesktop || !showMobileFamilyMembers) &&
+      !selectedMemberId &&
+      otherMembers.length > 0
+    ) {
       setSelectedMemberId(otherMembers[0].id);
     }
-  }, [activeTab, otherMembers, selectedMemberId]);
+  }, [activeTab, isDesktop, otherMembers, selectedMemberId, showMobileFamilyMembers]);
 
   const [copiedSidebarLink, setCopiedSidebarLink] = useState(false);
   const handleCopySidebarInvite = () => {
@@ -125,12 +131,15 @@ export default function DashboardPage() {
   };
 
   // Load wishlist items whenever activeTab or selectedMemberId changes
+  const itemsRequestId = useRef(0);
   const loadItems = async () => {
+    const requestId = ++itemsRequestId.current;
     if (activeTab === 'settings' || activeTab === 'admin' || activeTab === 'how-to-use' || activeTab === 'add-gift' || activeTab === 'edit-gift') {
       setLoading(false);
       return;
     }
-    const targetUserId = activeTab === 'my-wishes' ? user.id : selectedMemberId;
+    const isMobileMemberList = !isDesktop && activeTab === 'family-wishes' && showMobileFamilyMembers;
+    const targetUserId = activeTab === 'my-wishes' ? user.id : isMobileMemberList ? null : selectedMemberId;
     if (!targetUserId) {
       setItems([]);
       setLoading(false);
@@ -141,6 +150,7 @@ export default function DashboardPage() {
     setError('');
     try {
       const data = await api.getUserItems(targetUserId);
+      if (requestId !== itemsRequestId.current) return;
       setItems(data);
       setMemberItemCounts((prev) => ({ ...prev, [targetUserId]: data.length }));
 
@@ -155,15 +165,19 @@ export default function DashboardPage() {
         setMemberClaimStatuses((prev) => ({ ...prev, [targetUserId]: status }));
       }
     } catch (err) {
-      setError(err.message || 'Failed to load wishlist items');
+      if (requestId === itemsRequestId.current) {
+        setError(err.message || 'Failed to load wishlist items');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === itemsRequestId.current) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     loadItems();
-  }, [activeTab, selectedMemberId]);
+  }, [activeTab, selectedMemberId, isDesktop, showMobileFamilyMembers]);
 
   // Re-scrape stored retailer links whenever the app reconnects or becomes active,
   // so improved parsers can backfill images already saved in wishlists.
@@ -199,7 +213,7 @@ export default function DashboardPage() {
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [activeTab, selectedMemberId, user?.id]);
+  }, [activeTab, selectedMemberId, isDesktop, showMobileFamilyMembers, user?.id]);
 
   // Item Handlers (Page based)
   const handleOpenAddItem = () => {
@@ -349,12 +363,15 @@ export default function DashboardPage() {
           setActiveTab('settings');
           triggerSelection();
         }}
-        onOpenSetupHelp={() => {
-          setShowSetupHelp(true);
-        }}
         activeTab={activeTab}
         onSelectTab={(tab) => {
           setActiveTab(tab);
+          if (tab === 'family-wishes') {
+            setSelectedMemberId(null);
+            setShowMobileFamilyMembers(true);
+            setFamilyFilter('all');
+            setSearchQuery('');
+          }
           triggerSelection();
         }}
         onSwitchUser={logout}
@@ -380,20 +397,6 @@ export default function DashboardPage() {
                 )}
               </div>
               <div className="flex items-center gap-1">
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerSelection();
-                      setShowSetupHelp(true);
-                    }}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition border-0 active:scale-95"
-                    title="How to Set Up (Admin Guide)"
-                    aria-label="How to Set Up"
-                  >
-                    <HugeiconsIcon icon={CircleQuestionMarkIcon} size={18} />
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -709,7 +712,6 @@ export default function DashboardPage() {
                   triggerSelection();
                 }}
                 onWishlistReset={handleWishlistReset}
-                onOpenSetupHelp={() => setShowSetupHelp(true)}
               />
             </div>
           ) : activeTab === 'how-to-use' ? (
@@ -733,15 +735,107 @@ export default function DashboardPage() {
                 inviteCopied={copiedSidebarLink}
               />
             </div>
+          ) : activeTab === 'family-wishes' && !isDesktop && showMobileFamilyMembers ? (
+            <section className="max-w-2xl mx-auto" aria-labelledby="family-members-title">
+              <div className="mb-4">
+                <h2
+                  id="family-members-title"
+                  className="text-xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight"
+                >
+                  Family Members
+                </h2>
+                <p className="mt-1 text-sm text-[#65676B] dark:text-[#B0B3B8]">
+                  Choose someone to view their wishlist.
+                </p>
+              </div>
+              {otherMembers.length > 0 ? (
+                <nav
+                  aria-label="Family members"
+                  className="overflow-hidden rounded-2xl bg-white dark:bg-[#242526] shadow-apple-sm divide-y divide-[#E4E6EB] dark:divide-[#3A3B3C]"
+                >
+                  {otherMembers.map((member) => {
+                    const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
+                    const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => {
+                          triggerSelection();
+                          setSelectedMemberId(member.id);
+                          setShowMobileFamilyMembers(false);
+                          setFamilyFilter('all');
+                          setSearchQuery('');
+                        }}
+                        className="w-full min-h-16 flex items-center gap-3 px-4 py-3 text-left bg-transparent hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] active:bg-[#E4E6EB] dark:active:bg-[#48494A] transition border-0"
+                      >
+                        <span className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#E4E6EB] dark:bg-[#3A3B3C] text-xl leading-none">
+                          {member.avatar || '🎁'}
+                        </span>
+                        <span className="min-w-0 flex-1 text-[15px] font-semibold text-[#050505] dark:text-[#E4E6EB] truncate">
+                          {member.alias}
+                        </span>
+                        <span className="flex items-center gap-2 shrink-0">
+                          {claimStatus && (
+                            <span
+                              className={`w-2.5 h-2.5 rounded-full ${
+                                claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
+                              }`}
+                              aria-label={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
+                              title={claimStatus === 'bought' ? 'Gift bought' : 'Want to buy'}
+                            />
+                          )}
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]">
+                            {count}
+                          </span>
+                          <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="text-[#8E8E93]" />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              ) : (
+                <div className="py-12 text-center text-sm text-[#65676B] dark:text-[#B0B3B8]">
+                  No other family members yet.
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('admin')}
+                      className="block min-h-11 mx-auto mt-2 px-3 text-[var(--theme-primary)] font-semibold border-0 bg-transparent hover:underline"
+                    >
+                      Add Members
+                    </button>
+                  )}
+                </div>
+              )}
+            </section>
           ) : (
             /* VIEW: WISHLISTS (MY WISHES & FAMILY WISHES) */
             <>
               {/* Section Header */}
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="min-w-0">
-                  <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
-                    {sectionTitle}
-                  </h2>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {activeTab === 'family-wishes' && activeSelectedMember && !isDesktop && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerSelection();
+                          setSelectedMemberId(null);
+                          setShowMobileFamilyMembers(true);
+                          setFamilyFilter('all');
+                          setSearchQuery('');
+                        }}
+                        aria-label="Back to family members"
+                        className="w-11 h-11 -ml-2 shrink-0 inline-flex items-center justify-center rounded-full text-[#050505] dark:text-[#E4E6EB] hover:bg-[#F0F2F5] dark:hover:bg-[#3A3B3C] active:scale-95 transition border-0 bg-transparent"
+                      >
+                        <HugeiconsIcon icon={ArrowLeft01Icon} size={21} />
+                      </button>
+                    )}
+                    <h2 className="text-xl lg:text-2xl font-bold text-[#050505] dark:text-[#E4E6EB] tracking-tight truncate">
+                      {sectionTitle}
+                    </h2>
+                  </div>
                   {activeTab === 'my-wishes' && (
                     <p className="text-xs sm:text-sm text-[#65676B] dark:text-[#B0B3B8] mt-0.5 line-clamp-1 sm:line-clamp-none">
                       {family?.name}
@@ -785,71 +879,36 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                {/* Mobile Member Tabs (Visible on Family tab only) */}
-                {activeTab === 'family-wishes' && otherMembers.length > 0 && (
-                  <div className="flex gap-2 overflow-x-auto pb-0.5 pt-0.5 scrollbar-hide">
-                    {otherMembers.map((member) => {
-                      const isSelected = selectedMemberId === member.id;
-                      const claimStatus = memberClaimStatuses[member.id] ?? member.viewer_claim_status;
-                      const count = memberItemCounts[member.id] ?? member.item_count ?? 0;
-                      return (
-                        <button
-                          key={member.id}
-                          type="button"
-                          onClick={() => {
-                            triggerSelection();
-                            setSelectedMemberId(member.id);
-                          }}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border-0 shrink-0 ${
-                            isSelected
-                              ? 'bg-[var(--theme-action)] text-white shadow-sm'
-                              : 'bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB]'
-                          }`}
-                        >
-                          <span className="text-base leading-none">{member.avatar || '🎁'}</span>
-                          <span>{member.alias}</span>
-                          <span
-                            className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full transition ${
-                              isSelected
-                                ? 'bg-white/25 text-white'
-                                : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
-                            }`}
-                          >
-                            {count}
-                          </span>
-                          {claimStatus && (
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                claimStatus === 'bought' ? 'bg-[#34C759]' : 'bg-[#FF9500]'
-                              }`}
-                            />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
 
               {/* Family Filter Pills (All / Available / Claimed) */}
               {activeTab === 'family-wishes' && items.length > 0 && (
                 <div className="flex gap-2 mb-4">
                   {[
-                    { key: 'all', label: `All (${items.length})` },
-                    { key: 'available', label: `Available (${availableCount})` },
-                    { key: 'claimed', label: `Claimed (${claimedCount})` },
+                    { key: 'all', label: 'All', count: items.length },
+                    { key: 'available', label: 'Available', count: availableCount },
+                    { key: 'claimed', label: 'Claimed', count: claimedCount },
                   ].map((f) => (
                     <button
                       key={f.key}
                       type="button"
                       onClick={() => setFamilyFilter(f.key)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition border-0 ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition border-0 ${
                         familyFilter === f.key
                           ? 'bg-[var(--theme-action)] text-white shadow-sm'
                           : 'bg-[#E4E6EB] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50]'
                       }`}
                     >
-                      {f.label}
+                      <span>{f.label}</span>
+                      <span
+                        className={`min-w-5 h-5 px-1 rounded-full inline-flex items-center justify-center text-[11px] font-bold tabular-nums ${
+                          familyFilter === f.key
+                            ? 'bg-white/25 text-white'
+                            : 'bg-black/5 dark:bg-white/10 text-[#050505] dark:text-[#E4E6EB]'
+                        }`}
+                      >
+                        {f.count}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -965,6 +1024,10 @@ export default function DashboardPage() {
             onClick={() => {
               triggerSelection();
               setActiveTab('family-wishes');
+              setSelectedMemberId(null);
+              setShowMobileFamilyMembers(true);
+              setFamilyFilter('all');
+              setSearchQuery('');
             }}
             aria-current={activeTab === 'family-wishes' ? 'page' : undefined}
             className={`flex-1 min-w-0 flex flex-col items-center gap-1 py-0.5 px-0.5 border-0 bg-transparent transition ${
@@ -1101,15 +1164,6 @@ export default function DashboardPage() {
         onCancel={() => setAlertMessage(null)}
       />
 
-      {/* How to Setup Modal for Family Admins */}
-      <SetupHelpModal
-        isOpen={showSetupHelp}
-        onClose={() => setShowSetupHelp(false)}
-        onNavigateToAdmin={() => {
-          setActiveTab('admin');
-          triggerSelection();
-        }}
-      />
     </div>
   );
 }

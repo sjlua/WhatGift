@@ -17,7 +17,7 @@ import {
   CircleQuestionMarkIcon,
 } from '@hugeicons/core-free-icons';
 
-export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, activeTab, onSelectTab }) {
+export default function Navbar({ onOpenAdmin, onOpenProfile, activeTab, onSelectTab }) {
   const { user, family, isAdmin, logout } = useAuth();
   const { theme, isDark, isChristmasTheme, seasonalAtmosphere, christmasDays } = useTheme();
   const { triggerSuccess, triggerLight } = useHaptics();
@@ -54,7 +54,7 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
   return (
     <>
       {/* Mobile Sticky Header with Theme Tint (no gradient!) */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-[var(--theme-header-bg)] backdrop-blur-md border-b border-[var(--theme-header-border)] pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 px-4 transition-colors">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 w-full bg-[var(--theme-header-bg)] backdrop-blur-md border-b border-[var(--theme-header-border)] pt-[max(0.25rem,env(safe-area-inset-top))] pb-1 px-4 transition-colors">
         <div className="flex items-center justify-between h-12">
           {/* Brand & Family Info */}
           <button
@@ -106,21 +106,6 @@ export default function Navbar({ onOpenAdmin, onOpenProfile, onOpenSetupHelp, ac
                 </>
               )}
             </button>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => {
-                  triggerLight();
-                  onOpenSetupHelp?.();
-                }}
-                title="How to Set Up (Admin Guide)"
-                aria-label="How to Set Up"
-                className="w-8 h-8 rounded-full bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#050505] dark:text-[#E4E6EB] hover:bg-[#E4E6EB] dark:hover:bg-[#4E4F50] transition flex items-center justify-center border-0 active:scale-95"
-              >
-                <HugeiconsIcon icon={CircleQuestionMarkIcon} size={17} />
-              </button>
-            )}
 
             <button
               type="button"
