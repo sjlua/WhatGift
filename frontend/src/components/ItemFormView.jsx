@@ -319,7 +319,7 @@ export default function ItemFormView({
                 onBlur={() => {
                   if (url && !title) handleAutoFillFromUrl(url);
                 }}
-                className="w-full h-11 pl-10 pr-28 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner focus:outline-none"
+                className="w-full h-11 pl-10 pr-28 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
               />
               <span className="absolute left-3 text-[#65676B] dark:text-[#B0B3B8]">
                 <HugeiconsIcon icon={Link01Icon} size={18} />
@@ -360,7 +360,7 @@ export default function ItemFormView({
                 placeholder="e.g. Sony WH-1000XM5 Headphones"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner focus:outline-none"
+                className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                 required
               />
             </div>
@@ -381,7 +381,7 @@ export default function ItemFormView({
                     placeholder="29.99"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-11 pl-8 pr-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm font-bold text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner focus:outline-none"
+                    className="w-full h-11 pl-8 pr-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm font-bold text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                     required
                   />
                 </div>
@@ -414,7 +414,7 @@ export default function ItemFormView({
                 placeholder="e.g. Size M, Midnight Blue colourway, or alternate suggestions..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition resize-none shadow-inner focus:outline-none"
+                className="w-full p-3 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition resize-none shadow-inner focus:outline-none"
               />
             </div>
           </div>
@@ -478,7 +478,7 @@ export default function ItemFormView({
                     placeholder="https://...image.jpg"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner focus:outline-none"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                   />
                 </div>
 
@@ -491,7 +491,7 @@ export default function ItemFormView({
                     placeholder="e.g. Target or secondary link"
                     value={altUrl}
                     onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder-[#65676B] dark:placeholder-[#B0B3B8] transition shadow-inner focus:outline-none"
+                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                   />
                 </div>
               </div>

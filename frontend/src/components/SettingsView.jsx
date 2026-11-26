@@ -22,6 +22,8 @@ import {
   UserSettings01Icon,
   ArrowDown01Icon,
   ALargeSmallIcon,
+  SnowflakeIcon,
+  Cancel01Icon,
 } from '@hugeicons/core-free-icons';
 
 export default function SettingsView({ onOpenAdmin }) {
@@ -605,7 +607,11 @@ export default function SettingsView({ onOpenAdmin }) {
                 <div className="flex items-center justify-between pb-3 border-b border-[#E4E6EB] dark:border-[#3A3B3C]">
                   <div>
                     <h2 className="text-lg font-semibold text-[#050505] dark:text-[#E4E6EB] flex items-center gap-2">
-                      <span>{seasonalAtmosphere === 'sun' ? '☀️' : '❄️'}</span>
+                      <HugeiconsIcon
+                        icon={seasonalAtmosphere === 'sun' ? Sun01Icon : SnowflakeIcon}
+                        size={18}
+                        className="text-[var(--theme-primary)]"
+                      />
                       <span>Holiday Climate & Atmosphere</span>
                     </h2>
                     <p className="text-xs text-[#65676B] dark:text-[#B0B3B8] mt-0.5">
@@ -624,19 +630,19 @@ export default function SettingsView({ onOpenAdmin }) {
                     {
                       id: 'snow',
                       label: 'Winter Snow',
-                      icon: '❄️',
+                      icon: SnowflakeIcon,
                       desc: 'Gentle falling snowflakes',
                     },
                     {
                       id: 'sun',
                       label: 'Aussie Summer',
-                      icon: '☀️',
+                      icon: Sun01Icon,
                       desc: 'Golden sunbeams & summer shimmer',
                     },
                     {
                       id: 'off',
                       label: 'Minimal (Off)',
-                      icon: '🚫',
+                      icon: Cancel01Icon,
                       desc: 'Clean interface with no particles',
                     },
                   ].map((opt) => {
@@ -656,7 +662,7 @@ export default function SettingsView({ onOpenAdmin }) {
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xl">{opt.icon}</span>
+                          <HugeiconsIcon icon={opt.icon} size={20} className="text-[var(--theme-primary)]" />
                           {isSelected && (
                             <span className="w-4 h-4 rounded-full bg-[var(--theme-action)] text-white flex items-center justify-center">
                               <HugeiconsIcon icon={Tick02Icon} size={11} />

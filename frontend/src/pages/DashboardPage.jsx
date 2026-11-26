@@ -378,7 +378,7 @@ export default function DashboardPage() {
       />
 
       {/* ========== LAYOUT: Sidebar + Main ========== */}
-      <div className="flex flex-1 pt-[calc(max(0.5rem,env(safe-area-inset-top))+4rem)] lg:pt-0">
+      <div className="flex flex-1 pt-[calc(max(0.25rem,env(safe-area-inset-top))+3.3125rem)] lg:pt-0">
 
         {/* ========== DESKTOP LEFT SIDEBAR ========== */}
         <aside className="hidden lg:flex flex-col w-[340px] shrink-0 h-screen sticky top-0 border-r border-[#E4E6EB] dark:border-[#3A3B3C] bg-white dark:bg-[#242526] overflow-y-auto overscroll-contain pb-4">
@@ -848,12 +848,12 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Add Gift Button (Navigates to full page on desktop; mobile uses bottom navigation bar) */}
+                {/* Add Gift Button */}
                 {activeTab === 'my-wishes' && (
                   <button
                     type="button"
                     onClick={handleOpenAddItem}
-                    className="hidden lg:inline-flex h-10 items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
+                    className="inline-flex h-10 items-center gap-1.5 px-4 text-sm font-semibold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] rounded-xl transition active:scale-[0.98] border-0 shrink-0 shadow-apple-sm"
                   >
                     <HugeiconsIcon icon={Add01Icon} size={16} />
                     <span>Add Gift</span>
