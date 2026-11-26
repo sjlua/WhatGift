@@ -137,7 +137,7 @@ export default function SettingsView({ onOpenAdmin }) {
       id: 'about',
       label: 'About WhatGift',
       icon: SparklesIcon,
-      badge: 'v0.5.0',
+      badge: 'v1.0.0',
     },
   ];
 
@@ -828,7 +828,7 @@ export default function SettingsView({ onOpenAdmin }) {
                     </p>
                   </div>
                   <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--theme-tint)] text-[var(--theme-primary)]">
-                    v0.5.0
+                    v1.0.0
                   </span>
                 </div>
 

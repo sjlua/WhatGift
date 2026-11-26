@@ -12,9 +12,35 @@ import {
 
 export const CHANGELOG_RELEASES = [
   {
+    version: 'v1.0.0',
+    title: 'Wishlist Cards & Add Gift Refresh',
+    tag: 'Latest',
+    tagColor: 'bg-[var(--theme-action)] text-white',
+    highlights: [
+      {
+        icon: GiftIcon,
+        title: 'Redesigned Wishlist Cards',
+        description:
+          'Product cards now use a clearer image-first layout, coordinated priority and claim badges, a distinct price panel, connected actions, and more compact item details in light and dark themes.',
+      },
+      {
+        icon: SparklesIcon,
+        title: 'A Unified Add Gift Experience',
+        description:
+          'The Add Gift form uses clearer inset fields and a live preview that matches the wishlist card, including its priority, sale, price, image, and link treatments.',
+      },
+      {
+        icon: PaintBoardIcon,
+        title: 'More Reliable H&M Thumbnails',
+        description:
+          'When H&M blocks product-page scraping, WhatGift now retrieves the product image from H&M’s by-ID product endpoint.',
+      },
+    ],
+  },
+  {
     version: 'v0.5.0',
     title: 'Mobile Wishlist Navigation & Gift Coordination',
-    tag: 'Latest',
+    tag: 'Previous',
     tagColor: 'bg-[var(--theme-action)] text-white',
     highlights: [
       {

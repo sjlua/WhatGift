@@ -145,7 +145,7 @@ export default function WishlistCard({
               href={cleanUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-0.5 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] underline decoration-1 underline-offset-2 hover:text-[#1C1C1E] dark:text-[#B0B3B8] dark:hover:text-white"
+              className="mt-0 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] underline decoration-1 underline-offset-2 hover:text-[#1C1C1E] dark:text-[#B0B3B8] dark:hover:text-white"
               aria-label={`Open product link at ${getDomain(cleanUrl)}`}
             >
               <HugeiconsIcon icon={LinkSquare01Icon} size={17} className="shrink-0" />
@@ -160,8 +160,8 @@ export default function WishlistCard({
           )}
         </div>
 
-        <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
-          <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white sm:text-[22px]">
+        <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm dark:bg-white">
+          <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white dark:text-[#1C1C1E] sm:text-[22px]">
             {item.is_on_sale && (
               <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[13px] font-bold text-white">
                 <HugeiconsIcon icon={DiscountTag01Icon} size={13} />

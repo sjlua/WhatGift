@@ -44,7 +44,7 @@ export default function ExpandableDescription({ text, variant = 'default' }) {
   if (!text) return null;
 
   return (
-    <div className={`relative mt-1 min-w-0 ${isCardVariant ? 'text-left' : ''}`}>
+    <div className={`relative min-w-0 ${isCardVariant ? 'mt-0.5 text-left' : 'mt-1'}`}>
       <p className={`${isCardVariant ? cardDescriptionClassName : descriptionClassName} ${expanded ? '' : 'line-clamp-2'}`}>
         {text}
       </p>
@@ -64,7 +64,7 @@ export default function ExpandableDescription({ text, variant = 'default' }) {
           onClick={() => setExpanded((value) => !value)}
           className={`border-0 bg-transparent p-0 text-[var(--theme-primary)] ${
             isCardVariant
-              ? 'mt-0.5 inline-flex min-h-11 items-center gap-1 text-[12px] font-semibold italic underline underline-offset-2'
+              ? 'mt-0 inline-flex min-h-8 items-center gap-1 text-[12px] font-semibold italic underline underline-offset-2'
               : 'mt-1 flex min-h-8 w-full items-center gap-2 text-[9px] font-bold tracking-wide'
           }`}
         >

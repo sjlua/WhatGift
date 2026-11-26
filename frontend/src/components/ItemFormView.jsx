@@ -279,7 +279,7 @@ export default function ItemFormView({
           )}
 
           {/* 1. STORE LINK WITH SMART AUTO-FILL */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-sm space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0">
@@ -317,7 +317,7 @@ export default function ItemFormView({
                 onBlur={() => {
                   if (url && !title) handleAutoFillFromUrl(url);
                 }}
-                className="w-full h-11 pl-10 pr-28 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
+                className="w-full h-11 pl-10 pr-28 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
               />
               <span className="absolute left-3 text-[#65676B] dark:text-[#B0B3B8]">
                 <HugeiconsIcon icon={Link01Icon} size={18} />
@@ -348,7 +348,7 @@ export default function ItemFormView({
           </div>
 
           {/* 2. PRIMARY ITEM DETAILS */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-sm space-y-4">
             <div>
               <label className="block text-sm font-semibold text-[#050505] dark:text-[#E4E6EB] mb-1.5">
                 Gift Title <span className="text-[#FF3B30]">*</span>
@@ -358,7 +358,7 @@ export default function ItemFormView({
                 placeholder="e.g. Sony WH-1000XM5 Headphones"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                 required
               />
             </div>
@@ -379,7 +379,7 @@ export default function ItemFormView({
                     placeholder="29.99"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="w-full h-11 pl-8 pr-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm font-bold text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
+                    className="w-full h-11 pl-8 pr-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm font-bold text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                     required
                   />
                 </div>
@@ -392,7 +392,7 @@ export default function ItemFormView({
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition shadow-inner focus:outline-none"
+                  className="w-full h-11 px-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] transition shadow-inner focus:outline-none"
                 >
                   {PRIORITIES.map((p) => (
                     <option key={p.value} value={p.value}>
@@ -412,13 +412,13 @@ export default function ItemFormView({
                 placeholder="e.g. Size 38, black, wide fit..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition resize-none shadow-inner focus:outline-none"
+                className="w-full p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition resize-none shadow-inner focus:outline-none"
               />
             </div>
           </div>
 
           {/* 3. OPTIONAL ADVANCED SETTINGS (Image, Sale, Alt URL) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#F0F2F5] dark:bg-[#242526] border-0 shadow-apple-sm space-y-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-sm space-y-4">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
@@ -442,7 +442,7 @@ export default function ItemFormView({
             {showAdvanced && (
               <div className="pt-2 space-y-4 border-t border-[#E4E6EB] dark:border-[#3A3B3C]">
                 {/* On Sale Switch */}
-                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-white dark:bg-[#3A3B3C] transition">
+                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] transition">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-[var(--theme-action)] text-white flex items-center justify-center shrink-0">
                       <HugeiconsIcon icon={DiscountTag01Icon} size={16} />
@@ -476,7 +476,7 @@ export default function ItemFormView({
                     placeholder="https://...image.jpg"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                   />
                 </div>
 
@@ -489,7 +489,7 @@ export default function ItemFormView({
                     placeholder="e.g. Target or secondary link"
                     value={altUrl}
                     onChange={(e) => setAltUrl(sanitizeUrl(e.target.value))}
-                    className="w-full h-11 px-3.5 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#F2F2F7] dark:bg-[#2C2C2E] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition shadow-inner focus:outline-none"
                   />
                 </div>
               </div>
@@ -542,7 +542,7 @@ export default function ItemFormView({
               <ExpandableDescription text={description} variant="card" />
 
               {previewStoreUrl && (
-                <div className="mt-0.5 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] dark:text-[#B0B3B8]">
+                <div className="mt-0 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] dark:text-[#B0B3B8]">
                   <HugeiconsIcon icon={LinkSquare01Icon} size={17} className="shrink-0" />
                   <span className="truncate underline decoration-1 underline-offset-2">
                     {getDomain(previewStoreUrl)}
@@ -551,8 +551,8 @@ export default function ItemFormView({
               )}
             </div>
 
-            <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
-              <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white sm:text-[22px]">
+            <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm dark:bg-white">
+              <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white dark:text-[#1C1C1E] sm:text-[22px]">
                 {isOnSale && (
                   <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[13px] font-bold text-white">
                     <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
@@ -560,7 +560,7 @@ export default function ItemFormView({
                   </span>
                 )}
                 <span>
-                  {previewPrice || <span className="font-sans text-sm font-normal text-[#B0B3B8]">Price preview</span>}
+                  {previewPrice || <span className="font-sans text-sm font-normal text-[#B0B3B8] dark:text-[#8E8E93]">Price preview</span>}
                 </span>
               </div>
 
