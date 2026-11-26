@@ -123,12 +123,8 @@ export default function WishlistCard({
 
         <div className="relative z-[1]">
           <div className="pt-1 pb-1">
-            {/* Title — 2 lines max */}
-            <div className="flex items-start gap-2">
-              <h3 className="min-w-0 flex-1 text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
-                {item.title}
-              </h3>
-              <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-24 sm:w-24">
+            <div className="mb-2 flex justify-center">
+              <div className="relative h-24 w-24 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-28 sm:w-28">
                 {item.image_url ? (
                   <button
                     type="button"
@@ -172,6 +168,11 @@ export default function WishlistCard({
               </div>
             </div>
 
+            {/* Title — 2 lines max */}
+            <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
+              {item.title}
+            </h3>
+
             <div className="mt-1.5 flex min-h-6 items-center justify-between gap-2">
               <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight">
                 {priceDisplay}
@@ -206,7 +207,7 @@ export default function WishlistCard({
         </div>
 
         {/* Card Footer: Action Buttons (FB Marketplace Style) */}
-        <div className="pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-2 relative z-[1]">
+        <div className="mt-2 relative z-[1] rounded-xl bg-[#F2F2F7] dark:bg-[#2A2B2D] p-1.5">
           {isOwner ? (
             /* OWNER CONTROLS: Edit button and optional Delete button */
             <div className="flex items-center gap-1.5 w-full">
