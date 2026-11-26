@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useHaptics } from '../context/HapticsContext';
-import { useTheme } from '../context/ThemeContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   GiftIcon,
@@ -42,25 +41,13 @@ export default function WishlistCard({
   onQuickMark,
 }) {
   const { triggerLight, triggerWarning } = useHaptics();
-  const { themeId, isDark } = useTheme();
   const [showLightbox, setShowLightbox] = useState(false);
-
-  // Festive Christmas background ambient blurred circle accents
-  const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
-  const festiveGlowColors = isChristmasTheme
-    ? [isDark ? '#F17870' : '#AE2E24', isDark ? '#94C748' : '#4C6B1F']
-    : null;
 
   const isOwner = item.is_owner;
   const claim = item.claim;
 
   const isBought = claim?.status === 'bought' || claim?.status === 'purchased';
   const priorityBadge = PRIORITY_BADGES[item.priority?.toLowerCase()] ?? PRIORITY_BADGES.medium;
-  const cardSurfaceClass = !isOwner && claim
-    ? isBought
-      ? 'bg-[#E8F5EC] dark:bg-[#1B2C20] hover:bg-[#DFF1E5] dark:hover:bg-[#213629]'
-      : 'bg-[#FFF2DF] dark:bg-[#332819] hover:bg-[#FBE9CC] dark:hover:bg-[#3A2D1D]'
-    : 'bg-white dark:bg-[#1C1C1E] hover:bg-[#FAFAFC] dark:hover:bg-[#2A2B2D]';
 
   const cleanUrl = sanitizeUrl(item.url);
 
@@ -104,123 +91,99 @@ export default function WishlistCard({
 
   return (
     <>
-      <div className={`group relative overflow-hidden rounded-2xl p-2.5 sm:p-3 shadow-apple-xs transition-all duration-150 ${cardSurfaceClass} hover:shadow-apple-sm flex flex-col justify-between border-0 outline-none`}>
-        {/* Festive blurred background accent circles for Christmas & Birthday themes */}
-        {festiveGlowColors && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
-            <div
-              className="absolute -top-10 -right-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
-              style={{
-                backgroundColor: festiveGlowColors[0],
-                opacity: isDark ? 0.16 : 0.12,
-              }}
-            />
-            <div
-              className="absolute -bottom-10 -left-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
-              style={{
-                backgroundColor: festiveGlowColors[1],
-                opacity: isDark ? 0.16 : 0.12,
-              }}
-            />
-          </div>
-        )}
-
-        <div className="relative z-[1]">
-          <div className="pt-1 pb-1">
-            <div className="relative -mx-2.5 -mt-2.5 mb-2.5 aspect-square overflow-hidden bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:-mx-3 sm:-mt-3">
-              {item.image_url ? (
-                <button
-                  type="button"
-                  onClick={handleOpenLightbox}
-                  aria-label={`View larger image of ${item.title}`}
-                  className="absolute inset-0 h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
-                >
-                  <img
-                    src={item.image_url}
-                    alt=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
-                    onError={(e) => {
-                      handleImageFallbackError(e, item.image_url);
-                    }}
-                  />
-                </button>
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
-                  <HugeiconsIcon icon={GiftIcon} size={42} />
-                </div>
-              )}
-              {item.is_on_sale && (
-                <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-[var(--theme-action)] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                  <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
-                  Sale
-                </span>
-              )}
-              {!isOwner && claim && (
-                <span
-                  className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold text-white shadow-sm ${
-                    isBought ? 'bg-[#15803D]' : 'bg-[#B54708]'
-                  }`}
-                >
-                  <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={11} />
-                  {isBought ? 'Purchased' : 'Claimed'}
-                </span>
-              )}
+      <div className="group flex h-full flex-col overflow-hidden rounded-[26px] bg-white p-2.5 shadow-apple-xs transition-shadow duration-150 hover:shadow-apple-sm dark:bg-[#1C1C1E] sm:p-3">
+        <div className="relative mb-3 aspect-square overflow-hidden rounded-[19px] bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+          {item.image_url ? (
+            <button
+              type="button"
+              onClick={handleOpenLightbox}
+              aria-label={`View larger image of ${item.title}`}
+              className="absolute inset-0 h-full w-full cursor-zoom-in border-0 bg-transparent p-0"
+            >
+              <img
+                src={item.image_url}
+                alt=""
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                onError={(e) => {
+                  handleImageFallbackError(e, item.image_url);
+                }}
+              />
+            </button>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+              <HugeiconsIcon icon={GiftIcon} size={42} />
             </div>
+          )}
 
-            {/* Title — 2 lines max */}
-            <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
-              {item.title}
-            </h3>
+          <span className={`absolute bottom-2 left-2 inline-flex items-center justify-center rounded-lg px-2.5 py-1.5 text-[10px] font-bold leading-tight shadow-sm sm:text-xs ${priorityBadge.className}`}>
+            {priorityBadge.label} PRIORITY
+          </span>
 
-            <div className="mt-1.5 flex min-h-6 items-center justify-between gap-2">
-              <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight">
-                {priceDisplay}
-              </div>
-              <span className={`inline-flex min-w-12 items-center justify-center px-1.5 py-1 text-[9px] font-bold tracking-wide rounded-md ${priorityBadge.className}`}>
-                {priorityBadge.label}
-              </span>
-            </div>
-
-            {cleanUrl && (
-              <a
-                href={cleanUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1.5 inline-flex min-h-8 max-w-full items-center gap-1.5 text-[12px] font-semibold text-[var(--theme-primary)] hover:underline underline-offset-2"
-                aria-label={`Open product link at ${getDomain(cleanUrl)}`}
-              >
-                <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
-                <span className="truncate font-normal text-[#65676B] dark:text-[#B0B3B8]">{getDomain(cleanUrl)}</span>
-              </a>
-            )}
-
-            <ExpandableDescription text={item.description} />
-
-            {/* Private Claimer Note indicator (if claimed by current viewer) */}
-            {!isOwner && claim?.is_claimed_by_viewer && claim?.notes && (
-              <div className="mt-1 text-[11px] text-[#8E8E93] dark:text-[#A1A1A6] italic whitespace-pre-wrap break-words">
-                Note: {claim.notes}
-              </div>
-            )}
-          </div>
+          {!isOwner && claim && (
+            <span
+              className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-[#1C1C1E] shadow-sm sm:text-xs ${
+                isBought ? 'bg-[#91D66D]' : 'bg-[#F4B400]'
+              }`}
+            >
+              <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={13} />
+              {isBought ? 'PURCHASED' : 'CLAIMED'}
+            </span>
+          )}
         </div>
 
-        {/* Card Footer: Action Buttons (FB Marketplace Style) */}
-        <div className="mt-2 relative z-[1]">
+        <div className="flex flex-1 flex-col px-1">
+          <h3 className="line-clamp-2 font-[var(--font-heading)] text-[18px] font-bold leading-[1.15] tracking-tight text-[#111111] dark:text-white sm:text-[22px]">
+            {item.title}
+          </h3>
+
+          <div className="mt-2">
+            <ExpandableDescription text={item.description} variant="card" />
+          </div>
+
+          {cleanUrl && (
+            <a
+              href={cleanUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] underline decoration-1 underline-offset-2 hover:text-[#1C1C1E] dark:text-[#B0B3B8] dark:hover:text-white"
+              aria-label={`Open product link at ${getDomain(cleanUrl)}`}
+            >
+              <HugeiconsIcon icon={LinkSquare01Icon} size={17} className="shrink-0" />
+              <span className="truncate">{getDomain(cleanUrl)}</span>
+            </a>
+          )}
+
+          {!isOwner && claim?.is_claimed_by_viewer && claim?.notes && (
+            <div className="mt-1 whitespace-pre-wrap break-words text-[11px] italic text-[#8E8E93] dark:text-[#A1A1A6]">
+              Note: {claim.notes}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
+          <div className="flex min-h-[60px] items-center justify-center gap-1.5 px-2 text-center font-[var(--font-heading)] text-[20px] font-bold leading-tight text-white sm:text-[24px]">
+            {item.is_on_sale && (
+              <span className="inline-flex items-center gap-1 text-[0.8em]">
+                <HugeiconsIcon icon={DiscountTag01Icon} size={16} />
+                Sale!
+              </span>
+            )}
+            <span>{priceDisplay || 'Price not set'}</span>
+          </div>
+
           {isOwner ? (
-            /* OWNER CONTROLS: Edit button and optional Delete button */
-            <div className="flex items-center gap-1.5 w-full">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => {
                   triggerLight();
                   onEdit(item);
                 }}
-                className={`${canDelete && onDelete ? 'flex-1' : 'w-full'} h-9 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition active:scale-95 border-0`}
+                className={`${canDelete && onDelete ? 'flex-1' : 'w-full'} inline-flex min-h-14 items-center justify-center gap-2 rounded-t-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]`}
               >
-                <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
+                <HugeiconsIcon icon={PencilEdit02Icon} size={17} />
                 <span>Edit</span>
               </button>
 
@@ -232,59 +195,55 @@ export default function WishlistCard({
                     triggerWarning?.();
                     onDelete(item);
                   }}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-[#65676B] hover:text-[#FF3B30] dark:text-[#B0B3B8] dark:hover:text-[#FF453A] hover:bg-[#FF3B30]/10 dark:hover:bg-[#FF453A]/15 transition active:scale-95 shrink-0 border-0"
+                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-t-[17px] bg-[#E4E6EB] text-[#65676B] transition hover:bg-[#FF3B30]/10 hover:text-[#FF3B30] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-[#B0B3B8] dark:hover:bg-[#FF453A]/15 dark:hover:text-[#FF453A]"
                   title="Delete gift from wishlist"
                   aria-label="Delete gift from wishlist"
                 >
-                  <HugeiconsIcon icon={Delete02Icon} size={16} />
+                  <HugeiconsIcon icon={Delete02Icon} size={18} />
                 </button>
               )}
-
+            </div>
+          ) : claim?.is_claimed_by_viewer ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onQuickMark?.(item)}
+                className={`inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-t-[17px] px-2 text-sm font-bold transition active:scale-[0.98] ${
+                  isBought
+                    ? 'bg-[#91D66D] text-[#1C1C1E] hover:bg-[#82CA5B]'
+                    : 'bg-[var(--theme-action)] text-white hover:bg-[var(--theme-hover)]'
+                }`}
+              >
+                <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={17} />
+                <span>{isBought ? 'Bought' : 'Mark Bought'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleEditClaimClick}
+                className="min-h-14 rounded-t-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]"
+              >
+                Edit
+              </button>
+            </div>
+          ) : claim ? (
+            <div
+              role="status"
+              className={`flex min-h-14 items-center justify-center gap-2 rounded-t-[17px] px-3 text-center text-sm font-bold text-[#1C1C1E] ${
+                isBought ? 'bg-[#91D66D]' : 'bg-[#F4B400]'
+              }`}
+            >
+              <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={18} />
+              <span className="truncate">Claimed by {claim.claimer_alias || 'family'}</span>
             </div>
           ) : (
-            /* NON-OWNER: Claim / Coordinate Buttons */
-            <div className="flex items-center gap-1.5 w-full">
-              {claim?.is_claimed_by_viewer ? (
-                /* Already claimed by viewer: Quick Mark + Edit Claim */
-                <>
-                  <button
-                    type="button"
-                    onClick={() => onQuickMark?.(item)}
-                    className={`flex-1 h-9 px-2.5 rounded-lg text-xs font-semibold transition border-0 active:scale-95 inline-flex items-center justify-center gap-1 ${
-                      isBought
-                        ? 'bg-[#34C759]/15 text-[#34C759] hover:bg-[#34C759]/25'
-                        : 'bg-[var(--theme-action)] text-white hover:bg-[var(--theme-hover)]'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={13} />
-                    <span>{isBought ? 'Bought' : 'Mark Bought'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleEditClaimClick}
-                    className="h-9 px-2.5 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C] hover:bg-[#D8DADF] dark:hover:bg-[#4E4F50] transition active:scale-95 border-0"
-                  >
-                    Edit
-                  </button>
-                </>
-              ) : claim ? (
-                /* Claimed by another family member: Show claimed notice */
-                <div className="w-full h-9 px-2.5 rounded-lg text-xs font-semibold bg-[#F0F2F5] dark:bg-[#3A3B3C] text-[#65676B] dark:text-[#B0B3B8] flex items-center justify-center truncate">
-                  Claimed by {claim.claimer_alias || 'family'}
-                </div>
-              ) : (
-                /* Unclaimed: Claim button */
-                <button
-                  type="button"
-                  onClick={handleClaimClick}
-                  className="w-full h-9 px-3 rounded-lg text-xs font-bold text-white bg-[var(--theme-action)] hover:bg-[var(--theme-hover)] transition active:scale-95 shadow-sm inline-flex items-center justify-center gap-1.5 border-0"
-                >
-                  <HugeiconsIcon icon={ShoppingBag01Icon} size={14} />
-                  <span>Claim Gift</span>
-                </button>
-              )}
-
-            </div>
+            <button
+              type="button"
+              onClick={handleClaimClick}
+              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-t-[17px] bg-[var(--theme-action)] px-3 text-base font-bold text-white transition hover:bg-[var(--theme-hover)] active:scale-[0.98]"
+            >
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={19} />
+              <span>Claim Gift</span>
+            </button>
           )}
         </div>
       </div>

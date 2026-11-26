@@ -1,12 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 
 const descriptionClassName =
   'text-[12px] leading-[18px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words';
+const cardDescriptionClassName =
+  'text-[13px] leading-5 text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words';
 
-export default function ExpandableDescription({ text }) {
+export default function ExpandableDescription({ text, variant = 'default' }) {
   const measureRef = useRef(null);
   const [hasOverflow, setHasOverflow] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const isCardVariant = variant === 'card';
 
   useEffect(() => {
     setExpanded(false);
@@ -39,14 +44,16 @@ export default function ExpandableDescription({ text }) {
   if (!text) return null;
 
   return (
-    <div className="relative mt-1 min-w-0">
-      <p className={`${descriptionClassName} ${expanded ? '' : 'line-clamp-2'}`}>
+    <div className={`relative mt-1 min-w-0 ${isCardVariant ? 'text-left' : ''}`}>
+      <p className={`${isCardVariant ? cardDescriptionClassName : descriptionClassName} ${expanded ? '' : 'line-clamp-2'}`}>
         {text}
       </p>
       <p
         ref={measureRef}
         aria-hidden="true"
-        className={`pointer-events-none invisible absolute left-0 top-0 max-h-[36px] w-full overflow-hidden ${descriptionClassName}`}
+        className={`pointer-events-none invisible absolute left-0 top-0 w-full overflow-hidden ${
+          isCardVariant ? 'max-h-10' : 'max-h-[36px]'
+        } ${isCardVariant ? cardDescriptionClassName : descriptionClassName}`}
       >
         {text}
       </p>
@@ -55,11 +62,28 @@ export default function ExpandableDescription({ text }) {
           type="button"
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
-          className="mt-1 flex min-h-8 w-full items-center gap-2 border-0 bg-transparent p-0 text-[9px] font-bold tracking-wide text-[var(--theme-primary)]"
+          className={`border-0 bg-transparent p-0 text-[var(--theme-primary)] ${
+            isCardVariant
+              ? 'mt-0.5 inline-flex min-h-11 items-center gap-1 text-[12px] font-semibold italic underline underline-offset-2'
+              : 'mt-1 flex min-h-8 w-full items-center gap-2 text-[9px] font-bold tracking-wide'
+          }`}
         >
-          <span className="h-px flex-1 bg-[#E5E5EA] dark:bg-[#38383A]" />
-          <span>{expanded ? 'READ LESS' : 'READ MORE'}</span>
-          <span className="h-px flex-1 bg-[#E5E5EA] dark:bg-[#38383A]" />
+          {isCardVariant ? (
+            <>
+              <span>{expanded ? 'Read less' : 'Read more'}</span>
+              <HugeiconsIcon
+                icon={ArrowDown01Icon}
+                size={14}
+                className={expanded ? 'rotate-180 transition-transform' : 'transition-transform'}
+              />
+            </>
+          ) : (
+            <>
+              <span className="h-px flex-1 bg-[#E5E5EA] dark:bg-[#38383A]" />
+              <span>{expanded ? 'READ LESS' : 'READ MORE'}</span>
+              <span className="h-px flex-1 bg-[#E5E5EA] dark:bg-[#38383A]" />
+            </>
+          )}
         </button>
       )}
     </div>
