@@ -134,7 +134,7 @@ export default function WishlistCard({
         </div>
 
         <div className="flex flex-1 flex-col px-1">
-          <h3 className="line-clamp-2 font-[var(--font-heading)] text-[18px] font-bold leading-[1.15] tracking-tight text-[#111111] dark:text-white sm:text-[22px]">
+          <h3 className="line-clamp-2 font-[var(--font-heading)] text-[16px] font-bold leading-[1.15] tracking-tight text-[#111111] dark:text-white sm:text-[20px]">
             {item.title}
           </h3>
 
@@ -163,10 +163,10 @@ export default function WishlistCard({
         </div>
 
         <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
-          <div className="flex min-h-[60px] items-center justify-center gap-1.5 px-2 text-center font-[var(--font-heading)] text-[20px] font-bold leading-tight text-white sm:text-[24px]">
+          <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white sm:text-[22px]">
             {item.is_on_sale && (
-              <span className="inline-flex items-center gap-1 text-[0.8em]">
-                <HugeiconsIcon icon={DiscountTag01Icon} size={16} />
+              <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[11px] font-bold text-white">
+                <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
                 Sale!
               </span>
             )}
@@ -174,14 +174,14 @@ export default function WishlistCard({
           </div>
 
           {isOwner ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <button
                 type="button"
                 onClick={() => {
                   triggerLight();
                   onEdit(item);
                 }}
-                className={`${canDelete && onDelete ? 'flex-1' : 'w-full'} inline-flex min-h-14 items-center justify-center gap-2 rounded-t-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]`}
+                className={`${canDelete && onDelete ? 'flex-1 rounded-tl-[17px] rounded-tr-none' : 'w-full rounded-t-[17px]'} inline-flex min-h-14 items-center justify-center gap-2 bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]`}
               >
                 <HugeiconsIcon icon={PencilEdit02Icon} size={17} />
                 <span>Edit</span>
@@ -195,7 +195,7 @@ export default function WishlistCard({
                     triggerWarning?.();
                     onDelete(item);
                   }}
-                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-t-[17px] bg-[#E4E6EB] text-[#65676B] transition hover:bg-[#FF3B30]/10 hover:text-[#FF3B30] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-[#B0B3B8] dark:hover:bg-[#FF453A]/15 dark:hover:text-[#FF453A]"
+                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-tl-none rounded-tr-[17px] bg-[#E4E6EB] text-[#65676B] transition hover:bg-[#FF3B30]/10 hover:text-[#FF3B30] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-[#B0B3B8] dark:hover:bg-[#FF453A]/15 dark:hover:text-[#FF453A]"
                   title="Delete gift from wishlist"
                   aria-label="Delete gift from wishlist"
                 >
@@ -204,11 +204,11 @@ export default function WishlistCard({
               )}
             </div>
           ) : claim?.is_claimed_by_viewer ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <button
                 type="button"
                 onClick={() => onQuickMark?.(item)}
-                className={`inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-t-[17px] px-2 text-sm font-bold transition active:scale-[0.98] ${
+                className={`inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-tl-[17px] rounded-tr-none px-2 text-sm font-bold transition active:scale-[0.98] ${
                   isBought
                     ? 'bg-[#91D66D] text-[#1C1C1E] hover:bg-[#82CA5B]'
                     : 'bg-[var(--theme-action)] text-white hover:bg-[var(--theme-hover)]'
@@ -220,7 +220,7 @@ export default function WishlistCard({
               <button
                 type="button"
                 onClick={handleEditClaimClick}
-                className="min-h-14 rounded-t-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]"
+                className="min-h-14 rounded-tl-none rounded-tr-[17px] bg-[#E4E6EB] px-3 text-sm font-semibold text-[#1C1C1E] transition hover:bg-[#D8DADF] active:scale-[0.98] dark:bg-[#3A3B3C] dark:text-white dark:hover:bg-[#4E4F50]"
               >
                 Edit
               </button>
