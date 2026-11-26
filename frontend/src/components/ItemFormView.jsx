@@ -9,14 +9,17 @@ import {
   ArrowLeft01Icon,
   DiscountTag01Icon,
   Link01Icon,
+  LinkSquare01Icon,
   SparklesIcon,
   Tick02Icon,
   GiftIcon,
   Add01Icon,
   Delete02Icon,
+  PencilEdit02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, getDomain, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
+import ExpandableDescription from './ExpandableDescription';
 
 const PRIORITIES = [
   { value: "low", label: "Low Priority" },
@@ -65,7 +68,12 @@ export default function ItemFormView({
   // Image load state
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const previewStoreUrl = sanitizeUrl(url);
-  const previewAlternativeUrl = sanitizeUrl(altUrl);
+  const previewPriceValue = Number.parseFloat(price);
+  const previewPrice = price && Number.isFinite(previewPriceValue)
+    ? previewPriceValue === 0
+      ? 'FREE'
+      : `$${previewPriceValue % 1 === 0 ? previewPriceValue.toLocaleString() : previewPriceValue.toFixed(2)}`
+    : null;
 
   useEffect(() => {
     setImageLoadFailed(false);
@@ -129,10 +137,6 @@ export default function ItemFormView({
       if (data.price !== null && data.price !== undefined && (!price || parseFloat(price) === 0)) {
         setPrice(String(data.price));
         filledFields.push('price');
-      }
-      if (data.description && !description) {
-        setDescription(data.description);
-        filledFields.push('notes');
       }
       if (data.image_url) {
         setImageUrl(data.image_url);
@@ -413,7 +417,7 @@ export default function ItemFormView({
               </label>
               <textarea
                 rows={3}
-                placeholder="e.g. Size M, Midnight Blue colourway, or alternate suggestions..."
+                placeholder="e.g. Size 38, black, wide fit..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full p-3 rounded-xl bg-white dark:bg-[#3A3B3C] border border-transparent focus:border-[var(--theme-primary)] text-sm text-[#050505] dark:text-[#E4E6EB] placeholder:text-[#74767A] dark:placeholder:text-[#A4A6AA] placeholder:font-normal transition resize-none shadow-inner focus:outline-none"
@@ -507,7 +511,7 @@ export default function ItemFormView({
             Item Preview
           </h3>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#242526] border-0 shadow-apple-sm relative overflow-hidden">
+          <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-xs relative overflow-hidden">
             {/* Festive blurred background accent circles for Christmas & Birthday themes */}
             {festiveGlowColors && (
               <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
@@ -528,51 +532,43 @@ export default function ItemFormView({
               </div>
             )}
             <div className="relative z-[1]">
-              <div className="w-full aspect-square bg-[#F0F2F5] dark:bg-[#3A3B3C] rounded-xl overflow-hidden flex items-center justify-center relative">
-                {imageUrl && !imageLoadFailed ? (
-                  <img
-                    key={imageUrl}
-                    src={imageUrl}
-                    alt={title || 'Preview'}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
-                    }}
-                  />
-                ) : (
-                  <div className="text-[#65676B] dark:text-[#B0B3B8] flex flex-col items-center gap-2 p-4 text-center">
-                    <HugeiconsIcon icon={GiftIcon} size={44} />
-                    <span className="text-xs">
-                      {imageUrl && imageLoadFailed ? 'Image preview unavailable' : 'No image provided'}
-                    </span>
+              <div className="pt-1 pb-1">
+                <div className="flex items-start gap-2">
+                  <h3 className="min-w-0 flex-1 text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
+                    {title || <span className="text-[#8E8E93]">Gift Title Preview</span>}
+                  </h3>
+                  <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-24 sm:w-24">
+                    {imageUrl && !imageLoadFailed ? (
+                      <img
+                        key={imageUrl}
+                        src={imageUrl}
+                        alt={title || 'Preview'}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                        <HugeiconsIcon icon={GiftIcon} size={24} />
+                      </div>
+                    )}
+                    {isOnSale && (
+                      <span className="absolute bottom-0.5 left-0.5 inline-flex items-center gap-0.5 rounded bg-[var(--theme-action)] px-1 py-0.5 text-[8px] font-bold text-white">
+                        <HugeiconsIcon icon={DiscountTag01Icon} size={9} />
+                        Sale
+                      </span>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {isOnSale && (
-                  <div className="absolute top-2 left-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold bg-[var(--theme-action)] text-white rounded-md shadow-sm">
-                      <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
-                      Sale
-                    </span>
+                <div className="mt-1.5 flex min-h-6 items-center justify-between gap-2">
+                  <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight">
+                    {previewPrice || <span className="text-sm font-normal text-[#8E8E93]">Price preview</span>}
                   </div>
-                )}
-              </div>
-
-              <div className="pt-2.5 pb-1 space-y-0.5">
-                <div className="text-[16px] font-bold text-[#050505] dark:text-[#E4E6EB]">
-                  {price && !isNaN(parseFloat(price))
-                    ? parseFloat(price) === 0
-                      ? 'FREE'
-                      : `$${parseFloat(price).toFixed(2)}`
-                    : <span className="text-sm font-normal text-[#8E8E93]">Price preview</span>}
-                </div>
-                <div className="text-[14px] text-[#050505] dark:text-[#E4E6EB] line-clamp-2">
-                  {title || 'Gift Title Preview'}
-                </div>
-                <div className="pt-1">
                   <span
-                    className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold tracking-wide rounded-md ${
+                    className={`inline-flex min-w-12 items-center justify-center px-1.5 py-1 text-[9px] font-bold tracking-wide rounded-md ${
                       priority === 'high'
                         ? 'bg-[#D92D20] text-white'
                         : priority === 'low'
@@ -583,23 +579,29 @@ export default function ItemFormView({
                     {priority.toUpperCase()}
                   </span>
                 </div>
+
                 {previewStoreUrl && (
-                  <div className="flex items-center gap-1.5 text-[12px] text-[#65676B] dark:text-[#B0B3B8] min-w-0">
-                    <HugeiconsIcon icon={Link01Icon} size={13} className="shrink-0" />
-                    <span className="truncate">{getDomain(previewStoreUrl)}</span>
+                  <div className="mt-1.5 inline-flex min-h-8 max-w-full items-center gap-1.5 text-[12px] font-semibold text-[var(--theme-primary)]">
+                    <HugeiconsIcon icon={LinkSquare01Icon} size={14} className="shrink-0" />
+                    <span className="truncate font-normal text-[#65676B] dark:text-[#B0B3B8]">
+                      {getDomain(previewStoreUrl)}
+                    </span>
                   </div>
                 )}
-                {previewAlternativeUrl && (
-                  <div className="flex items-center gap-1.5 text-[11px] text-[#65676B] dark:text-[#B0B3B8] min-w-0">
-                    <HugeiconsIcon icon={Link01Icon} size={12} className="shrink-0" />
-                    <span className="truncate">Alt: {getDomain(previewAlternativeUrl)}</span>
+                <ExpandableDescription text={description} />
+              </div>
+              <div className="pt-2 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-2">
+                <div className="flex items-center gap-1.5 w-full">
+                  <div className={`${canDelete ? 'flex-1' : 'w-full'} h-9 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C]`}>
+                    <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
+                    <span>Edit</span>
                   </div>
-                )}
-                {description && (
-                  <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
-                    {description}
-                  </p>
-                )}
+                  {canDelete && (
+                    <div className="w-9 h-9 flex items-center justify-center rounded-lg text-[#65676B] dark:text-[#B0B3B8] bg-transparent shrink-0">
+                      <HugeiconsIcon icon={Delete02Icon} size={16} />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

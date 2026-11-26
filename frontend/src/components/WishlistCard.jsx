@@ -14,6 +14,7 @@ import {
   Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, getDomain, handleImageFallbackError } from '../utils/url';
+import ExpandableDescription from './ExpandableDescription';
 
 const PRIORITY_BADGES = {
   high: {
@@ -127,7 +128,7 @@ export default function WishlistCard({
               <h3 className="min-w-0 flex-1 text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
                 {item.title}
               </h3>
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+              <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:h-24 sm:w-24">
                 {item.image_url ? (
                   <button
                     type="button"
@@ -189,16 +190,11 @@ export default function WishlistCard({
                 aria-label={`Open product link at ${getDomain(cleanUrl)}`}
               >
                 <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
-                <span className="shrink-0">Link</span>
                 <span className="truncate font-normal text-[#65676B] dark:text-[#B0B3B8]">{getDomain(cleanUrl)}</span>
               </a>
             )}
 
-            {item.description && (
-              <p className="mt-1 text-[12px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words">
-                {item.description}
-              </p>
-            )}
+            <ExpandableDescription text={item.description} />
 
             {/* Private Claimer Note indicator (if claimed by current viewer) */}
             {!isOwner && claim?.is_claimed_by_viewer && claim?.notes && (

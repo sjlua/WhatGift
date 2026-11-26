@@ -933,7 +933,7 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
-                  <label className="relative ml-auto flex h-11 w-[148px] shrink-0 items-center rounded-full bg-white dark:bg-[#3A3B3C] pl-3 pr-9 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] shadow-sm">
+                  <label className="relative ml-auto flex h-11 w-[188px] shrink-0 items-center rounded-full bg-white dark:bg-[#3A3B3C] pl-3 pr-9 text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] shadow-sm">
                     <select
                       aria-label="Sort wishlist items"
                       value={wishlistSort}
@@ -1033,7 +1033,7 @@ export default function DashboardPage() {
       {/* Ensures wishlists, family, add gift, and settings are ALWAYS accessible anywhere on mobile */}
       <nav
         aria-label="Mobile Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F4EFF5] dark:bg-[#1C1C1E] border-t border-[#E9E1EB] dark:border-[#38383A] px-1.5 pt-2 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--theme-header-bg)] backdrop-blur-md border-t border-[var(--theme-header-border)] px-1.5 pt-2 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))]"
       >
         <div className="flex items-start max-w-md mx-auto">
           {/* 1. My Wishlist */}
