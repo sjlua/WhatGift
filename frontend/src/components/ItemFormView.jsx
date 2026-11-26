@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { useTheme } from '../context/ThemeContext';
 import { useHaptics } from '../context/HapticsContext';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -34,14 +33,7 @@ export default function ItemFormView({
   onDelete,
   canDelete = true,
 }) {
-  const { themeId, isDark } = useTheme();
   const { triggerSuccess, triggerWarning } = useHaptics();
-
-  // Festive Christmas background ambient blurred circle accents
-  const isChristmasTheme = themeId === 'christmas_duo' || themeId === 'christmas';
-  const festiveGlowColors = isChristmasTheme
-    ? [isDark ? '#FF453A' : '#FF3B30', isDark ? '#30D158' : '#34C759']
-    : null;
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -511,96 +503,77 @@ export default function ItemFormView({
             Item Preview
           </h3>
 
-          <div className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#1C1C1E] border-0 shadow-apple-xs relative overflow-hidden">
-            {/* Festive blurred background accent circles for Christmas & Birthday themes */}
-            {festiveGlowColors && (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl" aria-hidden="true">
-                <div
-                  className="absolute -top-10 -right-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
-                  style={{
-                    backgroundColor: festiveGlowColors[0],
-                    opacity: isDark ? 0.16 : 0.12,
+          <div className="group flex flex-col overflow-hidden rounded-[26px] bg-white p-2.5 shadow-apple-xs dark:bg-[#1C1C1E] sm:p-3">
+            <div className="relative mb-3 aspect-square overflow-hidden rounded-[19px] bg-[#F0F2F5] dark:bg-[#3A3B3C]">
+              {imageUrl && !imageLoadFailed ? (
+                <img
+                  key={imageUrl}
+                  src={imageUrl}
+                  alt={title || 'Preview'}
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
                   }}
                 />
-                <div
-                  className="absolute -bottom-10 -left-10 w-28 h-28 sm:w-36 sm:h-36 rounded-full blur-2xl sm:blur-3xl transition-opacity duration-300 pointer-events-none"
-                  style={{
-                    backgroundColor: festiveGlowColors[1],
-                    opacity: isDark ? 0.16 : 0.12,
-                  }}
-                />
-              </div>
-            )}
-            <div className="relative z-[1]">
-              <div className="pt-1 pb-1">
-                <div className="-mx-2.5 -mt-2.5 mb-2.5 aspect-square overflow-hidden bg-[#F0F2F5] dark:bg-[#3A3B3C] sm:-mx-3 sm:-mt-3 relative">
-                  {imageUrl && !imageLoadFailed ? (
-                    <img
-                      key={imageUrl}
-                      src={imageUrl}
-                      alt={title || 'Preview'}
-                      referrerPolicy="no-referrer"
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        handleImageFallbackError(e, imageUrl, () => setImageLoadFailed(true));
-                      }}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
-                      <HugeiconsIcon icon={GiftIcon} size={42} />
-                    </div>
-                  )}
-                  {isOnSale && (
-                    <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-md bg-[var(--theme-action)] px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                      <HugeiconsIcon icon={DiscountTag01Icon} size={11} />
-                      Sale
-                    </span>
-                  )}
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[#B0B3B8] dark:text-[#65676B]">
+                  <HugeiconsIcon icon={GiftIcon} size={42} />
                 </div>
+              )}
+              <span
+                className={`absolute bottom-2 left-2 inline-flex items-center justify-center rounded-lg px-2.5 py-1.5 text-[10px] font-bold leading-tight shadow-sm sm:text-xs ${
+                  priority === 'high'
+                    ? 'bg-[#D92D20] text-white'
+                    : priority === 'medium'
+                    ? 'bg-[#F97316] text-[#1C1C1E]'
+                    : 'bg-[#FDE047] text-[#1C1C1E]'
+                }`}
+              >
+                {priority.toUpperCase()} PRIORITY
+              </span>
+            </div>
 
-                <h3 className="text-[14px] sm:text-[15px] font-normal text-[#050505] dark:text-[#E4E6EB] leading-snug line-clamp-2">
-                  {title || <span className="text-[#8E8E93]">Gift Title Preview</span>}
-                </h3>
+            <div className="flex flex-1 flex-col px-1">
+              <h3 className="line-clamp-2 font-[var(--font-heading)] text-[16px] font-bold leading-[1.15] tracking-tight text-[#111111] dark:text-white sm:text-[20px]">
+                {title || <span className="text-[#8E8E93]">Gift Title Preview</span>}
+              </h3>
 
-                <div className="mt-1.5 flex min-h-6 items-center justify-between gap-2">
-                  <div className="font-bold text-[16px] sm:text-[17px] text-[#050505] dark:text-[#E4E6EB] leading-tight">
-                    {previewPrice || <span className="text-sm font-normal text-[#8E8E93]">Price preview</span>}
-                  </div>
-                  <span
-                    className={`inline-flex min-w-12 items-center justify-center px-1.5 py-1 text-[9px] font-bold tracking-wide rounded-md ${
-                      priority === 'high'
-                        ? 'bg-[#D92D20] text-white'
-                        : priority === 'low'
-                        ? 'bg-[#15803D] text-white'
-                        : 'bg-[#F4B400] text-[#1C1C1E]'
-                    }`}
-                  >
-                    {priority.toUpperCase()}
+              <ExpandableDescription text={description} variant="card" />
+
+              {previewStoreUrl && (
+                <div className="mt-0.5 inline-flex min-h-11 max-w-full items-center gap-1.5 text-[13px] text-[#65676B] dark:text-[#B0B3B8]">
+                  <HugeiconsIcon icon={LinkSquare01Icon} size={17} className="shrink-0" />
+                  <span className="truncate underline decoration-1 underline-offset-2">
+                    {getDomain(previewStoreUrl)}
                   </span>
                 </div>
+              )}
+            </div>
 
-                {previewStoreUrl && (
-                  <div className="mt-1.5 inline-flex min-h-8 max-w-full items-center gap-1.5 text-[12px] font-semibold text-[var(--theme-primary)]">
-                    <HugeiconsIcon icon={LinkSquare01Icon} size={14} className="shrink-0" />
-                    <span className="truncate font-normal text-[#65676B] dark:text-[#B0B3B8]">
-                      {getDomain(previewStoreUrl)}
-                    </span>
+            <div className="mt-3 overflow-hidden rounded-[20px] bg-[#151515] shadow-apple-sm">
+              <div className="flex min-h-[52px] items-center justify-center gap-2 px-2 text-center font-[var(--font-heading)] text-[18px] font-bold leading-tight text-white sm:text-[22px]">
+                {isOnSale && (
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--theme-action)] px-2 py-1 font-sans text-[13px] font-bold text-white">
+                    <HugeiconsIcon icon={DiscountTag01Icon} size={13} />
+                    Sale!
+                  </span>
+                )}
+                <span>
+                  {previewPrice || <span className="font-sans text-sm font-normal text-[#B0B3B8]">Price preview</span>}
+                </span>
+              </div>
+
+              <div className="flex items-center">
+                <div className={`${canDelete ? 'flex-1 rounded-tl-[17px] rounded-tr-none' : 'w-full rounded-t-[17px]'} inline-flex min-h-14 items-center justify-center gap-2 bg-[#E4E6EB] px-3 text-base font-semibold text-[#1C1C1E] dark:bg-[#3A3B3C] dark:text-white`}>
+                  <HugeiconsIcon icon={PencilEdit02Icon} size={19} />
+                  <span>Edit</span>
+                </div>
+                {canDelete && (
+                  <div className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-tl-none rounded-tr-[17px] bg-[#E4E6EB] text-[#65676B] dark:bg-[#3A3B3C] dark:text-[#B0B3B8]">
+                    <HugeiconsIcon icon={Delete02Icon} size={18} />
                   </div>
                 )}
-                <ExpandableDescription text={description} />
-              </div>
-              <div className="mt-2 relative z-[1]">
-                <div className="flex items-center gap-1.5 w-full">
-                  <div className={`${canDelete ? 'flex-1' : 'w-full'} h-9 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold text-[#050505] dark:text-[#E4E6EB] bg-[#E4E6EB] dark:bg-[#3A3B3C]`}>
-                    <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
-                    <span>Edit</span>
-                  </div>
-                  {canDelete && (
-                    <div className="w-9 h-9 flex items-center justify-center rounded-lg text-[#65676B] dark:text-[#B0B3B8] bg-transparent shrink-0">
-                      <HugeiconsIcon icon={Delete02Icon} size={16} />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>

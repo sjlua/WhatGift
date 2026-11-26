@@ -22,11 +22,11 @@ const PRIORITY_BADGES = {
   },
   medium: {
     label: 'MEDIUM',
-    className: 'bg-[#F4B400] text-[#1C1C1E]',
+    className: 'bg-[#F97316] text-[#1C1C1E]',
   },
   low: {
     label: 'LOW',
-    className: 'bg-[#15803D] text-white',
+    className: 'bg-[#FDE047] text-[#1C1C1E]',
   },
 };
 
@@ -231,7 +231,9 @@ export default function WishlistCard({
               }`}
             >
               <HugeiconsIcon icon={isBought ? Tick02Icon : ShoppingBag01Icon} size={20} />
-              <span className="truncate">Claimed by {claim.claimer_alias || 'family'}</span>
+              <span className="truncate">
+                {claim.claimer_alias ? `Claimed by ${claim.claimer_alias}` : 'Claimed'}
+              </span>
             </div>
           ) : (
             <button
