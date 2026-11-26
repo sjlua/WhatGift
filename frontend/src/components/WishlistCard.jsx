@@ -15,6 +15,21 @@ import {
 } from '@hugeicons/core-free-icons';
 import { sanitizeUrl, getDomain, handleImageFallbackError } from '../utils/url';
 
+const PRIORITY_BADGES = {
+  high: {
+    label: 'HIGH',
+    className: 'bg-[#D92D20] text-white',
+  },
+  medium: {
+    label: 'MEDIUM',
+    className: 'bg-[#F4B400] text-[#1C1C1E]',
+  },
+  low: {
+    label: 'LOW',
+    className: 'bg-[#15803D] text-white',
+  },
+};
+
 export default function WishlistCard({
   item,
   onEdit,
@@ -40,6 +55,7 @@ export default function WishlistCard({
 
   const isBought = claim?.status === 'bought' || claim?.status === 'purchased';
   const isWantToBuy = claim?.status === 'want_to_buy' || claim?.status === 'claimed';
+  const priorityBadge = PRIORITY_BADGES[item.priority?.toLowerCase()] ?? PRIORITY_BADGES.medium;
 
   const cleanUrl = sanitizeUrl(item.url);
 
@@ -183,6 +199,12 @@ export default function WishlistCard({
                 item.title
               )}
             </h3>
+
+            <div className="mt-1">
+              <span className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold tracking-wide rounded-md ${priorityBadge.className}`}>
+                {priorityBadge.label}
+              </span>
+            </div>
 
             {/* Subtle Metadata: store domain or owner hint */}
             <div className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] mt-0.5 truncate">

@@ -15,7 +15,7 @@ import {
   Add01Icon,
   Delete02Icon,
 } from '@hugeicons/core-free-icons';
-import { sanitizeUrl, handleImageFallbackError } from '../utils/url';
+import { sanitizeUrl, getDomain, handleImageFallbackError } from '../utils/url';
 import ConfirmDialog from './ConfirmDialog';
 
 const PRIORITIES = [
@@ -64,6 +64,8 @@ export default function ItemFormView({
 
   // Image load state
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const previewStoreUrl = sanitizeUrl(url);
+  const previewAlternativeUrl = sanitizeUrl(altUrl);
 
   useEffect(() => {
     setImageLoadFailed(false);
@@ -563,14 +565,36 @@ export default function ItemFormView({
                     ? parseFloat(price) === 0
                       ? 'FREE'
                       : `$${parseFloat(price).toFixed(2)}`
-                    : '$0.00'}
+                    : <span className="text-sm font-normal text-[#8E8E93]">Price preview</span>}
                 </div>
                 <div className="text-[14px] text-[#050505] dark:text-[#E4E6EB] line-clamp-2">
                   {title || 'Gift Title Preview'}
                 </div>
-                <div className="text-[12px] text-[#65676B] dark:text-[#B0B3B8]">
-                  {priority === 'high' ? 'High priority' : priority === 'low' ? 'Low priority' : 'Medium priority'}
+                <div className="pt-1">
+                  <span
+                    className={`inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold tracking-wide rounded-md ${
+                      priority === 'high'
+                        ? 'bg-[#D92D20] text-white'
+                        : priority === 'low'
+                        ? 'bg-[#15803D] text-white'
+                        : 'bg-[#F4B400] text-[#1C1C1E]'
+                    }`}
+                  >
+                    {priority.toUpperCase()}
+                  </span>
                 </div>
+                {previewStoreUrl && (
+                  <div className="flex items-center gap-1.5 text-[12px] text-[#65676B] dark:text-[#B0B3B8] min-w-0">
+                    <HugeiconsIcon icon={Link01Icon} size={13} className="shrink-0" />
+                    <span className="truncate">{getDomain(previewStoreUrl)}</span>
+                  </div>
+                )}
+                {previewAlternativeUrl && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-[#65676B] dark:text-[#B0B3B8] min-w-0">
+                    <HugeiconsIcon icon={Link01Icon} size={12} className="shrink-0" />
+                    <span className="truncate">Alt: {getDomain(previewAlternativeUrl)}</span>
+                  </div>
+                )}
                 {description && (
                   <p className="text-[12px] text-[#65676B] dark:text-[#B0B3B8] whitespace-pre-wrap break-words pt-1 border-t border-[#E4E6EB] dark:border-[#3A3B3C] mt-1.5">
                     {description}
